@@ -25,6 +25,7 @@ export class TableController {
       return;
     }
     const columnDefinitions = columns.map((col) => `${col.name} ${col.type} ${col.constraints || ""}`).join(", ");
+    console.log(columnDefinitions);
     const result = await databaseService.executeQuery(`CREATE TABLE IF NOT EXISTS ${tableName} (${columnDefinitions});`);
     if (result.status === StatusCodes.OK) {
       res.status(StatusCodes.OK).send(`Table ${tableName} created successfully`);
@@ -99,7 +100,7 @@ export class TableController {
       return;
     }
     const query =
-      "SELECT c.column_name, c.data_type, CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN true ELSE false END AS is_primary_key FROM information_schema.columns AS c LEFT JOIN information_schema.key_column_usage AS kcu ON c.table_name = kcu.table_name AND c.column_name = kcu.column_name LEFT JOIN information_schema.table_constraints AS tc ON kcu.table_name = tc.table_name AND kcu.constraint_name = tc.constraint_name AND tc.constraint_type = 'PRIMARY KEY' WHERE c.table_name = $1;";
+      "SELECT c.column_name, c.data_type, CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN true ELSE false END AS is_primary_key FROM information_schema.columns AS c LEFT JOIN information_schema.key_column_usage AS kcu ON c.table_name = kcu.table_name AND c.column_name = kcu.column_name LEFT JOIN information_schema.table_constraints AS tc ON kcu.table_name = tc.table_name AND kcu.constraint_name = tc.constraint_name AND tc.constraint_type = 'PRIMARY KEY' WHERE c.table_name = $1 AND c.table_schema = 'public';";
 
     const result = await databaseService.executeQuery(query, [tableName]);
     if (result.status === StatusCodes.OK) {

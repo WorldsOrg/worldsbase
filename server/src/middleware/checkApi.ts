@@ -6,7 +6,7 @@ const checkApiMiddleWare = async (req: Request, res: Response, next: NextFunctio
     const x_api_key = req.headers["x-api-key"] as string;
     if (!x_api_key) {
       return res.status(StatusCodes.UNAUTHORIZED).send("API key is required.");
-    } else if (x_api_key !== process.env.API_KEY) {
+    } else if (x_api_key !== process.env.X_API_KEY) {
       return res.status(StatusCodes.UNAUTHORIZED).send("Invalid API key.");
     }
     next();

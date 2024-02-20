@@ -36,7 +36,7 @@ export default function Settings() {
   const loadCreds = async () => {
     if (!apiKey) return;
 
-    const { data, error } = await supabase.from("triggers").select("*").eq("x_api_key", apiKey).single();
+    const { data, error } = await supabase.from("triggers").select("*").eq("id", 1).single();
     if (!error) {
       data.triggers.length > 0 && setTriggerForm(data.triggers);
     }
