@@ -40,7 +40,9 @@ NEXT_PUBLIC_X_API_KEY=
 NEXT_PUBLIC_BASE_URL= // this is the base url of composer-backend - WIP
 ```
 
-Then, run `npm run dev` to start the development server, client and docs, dashboard localhost:3000, docs: localhost:3001, dashboard: localhost:3003.
+Then, run `npm run dev` to start the development server, client and docs,
+
+dashboard localhost:3000, docs: localhost:3001, server: localhost:3003.
 
 ## License
 
