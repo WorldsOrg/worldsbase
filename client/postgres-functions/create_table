@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION wgs."create_table"(table_name text, columns jsonb)
+RETURNS void AS $$
+DECLARE
+  column_record jsonb;
+  column_definitions text = '';
+BEGIN
+  FOR column_record IN SELECT * FROM jsonb_array_elements(columns)
+  LOOP
+    IF column_definitions != '' THEN
+      column_definitions := column_definitions || ', ';
+    END IF;
+    column_definitions := column_definitions || (column_record->>'name') || ' ' || (column_record->>'type');
+    IF column_record->>'constraints' IS NOT NULL THEN
+      column_definitions := column_definitions || ' ' || (column_record->>'constraints');
+    END IF;
+  END LOOP;
+  EXECUTE 'CREATE TABLE IF NOT EXISTS ' || quote_ident(table_name) || ' (' || column_definitions || ')';
+END;
+$$ LANGUAGE plpgsql;

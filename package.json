@@ -1,0 +1,13 @@
+{
+  "license": "MIT",
+  "scripts": {
+    "install:all": "npm run install:client && npm run install:server && npm run install:docs",
+    "install:client": "cd client && yarn install",
+    "install:server": "cd server && yarn install",
+    "install:docs": "cd docs && yarn install",
+    "dev": "npm run dev:client & npm run dev:server & npm run dev:docs",
+    "dev:client": "cd client && yarn dev",
+    "dev:server": "cd server && npm run start",
+    "dev:docs": "cd docs && yarn dev"
+  }
+}

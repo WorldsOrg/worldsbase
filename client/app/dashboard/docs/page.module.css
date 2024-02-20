@@ -1,0 +1,49 @@
+.main {
+  margin-top: 24px;
+  padding: 1px 16px;
+  min-height: 100vh;
+}
+
+.rajdaniFont {
+  font-family: "Rajdhani";
+  line-height: 40px;
+  font-weight: 400;
+}
+
+.worldsFont {
+  font-family: "worldsFont";
+  cursor: pointer;
+  font-weight: 300;
+  font-size: 22px;
+  color: rgb(79, 94, 106);
+  line-height: 120%;
+}
+
+.inputText {
+  font-family: "Inconsolata";
+  font-size: 14px !important;
+  padding: 4px 16px;
+  height: 25px !important;
+  border-radius: 8px !important;
+  border: 0.5px solid #929191 !important;
+  background: #eeeeee !important;
+}
+
+.inputText .placeholder {
+  color: "#929191";
+}
+
+.navigationButton {
+  font-family: "Inconsolata";
+  font-size: 16px !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  padding: 4px !important;
+  height: 33px !important;
+  color: rgb(79, 94, 106);
+  background-color: transparent !important;
+}
+
+.modalTitle {
+  font-family: "Inconsolata";
+}

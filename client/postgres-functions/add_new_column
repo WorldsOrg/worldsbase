@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION add_new_column(table_name text, column_name text, column_type text)
+RETURNS void AS $$
+BEGIN
+    -- Construct the dynamic SQL query to add a new column
+    EXECUTE format('ALTER TABLE %I ADD COLUMN IF NOT EXISTS %I %s;', table_name, column_name, column_type);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

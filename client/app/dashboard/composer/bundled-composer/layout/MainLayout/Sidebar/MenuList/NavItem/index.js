@@ -1,0 +1,183 @@
+import PropTypes from "prop-types";
+import { forwardRef, useEffect } from "react";
+import Link from 'next/link';
+import { useDispatch, useSelector } from "react-redux";
+
+// material-ui
+import { useTheme } from "@mui/material/styles";
+import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from "@mui/material";
+
+// project imports
+import { MENU_OPEN, SET_MENU } from "../../../../../store/actions";
+import config from "../../../../../config";
+
+// assets
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+
+import { keyframes } from "@mui/material";
+
+// ==============================|| SIDEBAR MENU LIST ITEMS ||============================== //
+
+const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const customization = useSelector((state) => state.customization);
+  const matchesSM = useMediaQuery(theme.breakpoints.down("lg"));
+
+  const wiggle = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+  75% {
+    transform: rotate(-6deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+`;
+
+  const Icon = item.icon;
+  const itemIcon = item?.icon ? (
+    <Icon stroke={1.5} size="1.3rem" />
+  ) : (
+    <FiberManualRecordIcon
+      sx={{
+        width: customization.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6,
+        height: customization.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6,
+      }}
+      fontSize={level > 0 ? "inherit" : "medium"}
+    />
+  );
+
+  let itemTarget = "_self";
+  if (item.target) {
+    itemTarget = "_blank";
+  }
+
+  let listItemProps = {
+    component: forwardRef(function ListItemPropsComponent(props, ref) {
+        return (
+            <Link legacyBehavior href={`${config.basename}${item.url}`} passHref>
+                <a ref={ref} target={itemTarget} {...props}/>
+            </Link>
+        );
+    }),
+  };
+
+  if (item?.external) {
+    listItemProps = { component: "a", href: item.url, target: itemTarget };
+  }
+  if (item?.id === "loadWorkflow") {
+    listItemProps.component = "label";
+  }
+
+  const handleFileUpload = (e) => {
+    if (!e.target.files) return;
+
+    const file = e.target.files[0];
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      if (!evt?.target?.result) {
+        return;
+      }
+      const { result } = evt.target;
+      onUploadFile(result);
+    };
+    reader.readAsText(file);
+  };
+
+  const itemHandler = (id) => {
+    if (navType === "SETTINGS" && id !== "loadWorkflow") {
+      onClick(id);
+    } else {
+      dispatch({ type: MENU_OPEN, id });
+      if (matchesSM) dispatch({ type: SET_MENU, opened: false });
+    }
+  };
+
+  // active menu item on page load
+  useEffect(() => {
+    if (navType === "MENU") {
+      const currentIndex = window.document.location.pathname
+        .toString()
+        .split("/")
+        .findIndex((id) => id === item.id);
+      if (currentIndex > -1) {
+        dispatch({ type: MENU_OPEN, id: item.id });
+      }
+      if (!window.document.location.pathname.toString().split("/")[1]) {
+        itemHandler("flows");
+      }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navType]);
+
+  const location = window !== undefined ? () => window.document.location.pathname.toString().split("/")[1] : undefined;
+
+  return (
+    <ListItemButton
+      {...listItemProps}
+      disabled={item.disabled}
+      sx={{
+        borderRadius: `${customization.borderRadius}px`,
+        mb: 0.5,
+        color: location === item.id.toLowerCase() ? "#2196f3" : "GrayText",
+        alignItems: "flex-start",
+        py: level > 1 ? 1 : 1.25,
+        pl: `${level * 24}px`,
+        zIndex: 200,
+        backgroundColor: "transparent",
+        "&:hover": {
+          backgroundColor: "transparent",
+          color: "#2196f3",
+          "& .addIcon": {
+            animation: `${wiggle} 1s ease`,
+            color: "#2196f3",
+          },
+        },
+      }}
+      onClick={() => itemHandler(item.id)}
+    >
+      {item.id === "loadWorkflow" && <input type="file" hidden accept=".json" onChange={(e) => handleFileUpload(e)} />}
+      <ListItemIcon className="addIcon" sx={{ my: "auto", minWidth: !item?.icon ? 18 : 36, color: location === item.id.toLowerCase() ? "#2196f3" : "GrayText" }}>
+        {itemIcon}
+      </ListItemIcon>
+      <ListItemText
+        onClick={() => itemHandler(item.id)}
+        primary={
+          <Typography variant={customization.isOpen.findIndex((id) => id === item.id) > -1 ? "h5" : "body1"} color="inherit">
+            {item.title}
+          </Typography>
+        }
+        secondary={
+          item.caption && (
+            <Typography variant="caption" sx={{ ...theme.typography.subMenuCaption }} display="block" gutterBottom>
+              {item.caption}
+            </Typography>
+          )
+        }
+      />
+      {item.chip && (
+        <Chip color={item.chip.color} variant={item.chip.variant} size={item.chip.size} label={item.chip.label} avatar={item.chip.avatar && <Avatar>{item.chip.avatar}</Avatar>} />
+      )}
+    </ListItemButton>
+  );
+};
+
+NavItem.propTypes = {
+  item: PropTypes.object,
+  level: PropTypes.number,
+  navType: PropTypes.string,
+  onClick: PropTypes.func,
+  onUploadFile: PropTypes.func,
+};
+
+export default NavItem;

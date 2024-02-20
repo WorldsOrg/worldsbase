@@ -1,0 +1,21 @@
+CREATE OR REPLACE FUNCTION get_columns(input_table_name text)
+RETURNS TABLE (column_name text, column_type text, is_primary_key boolean) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    cols.column_name::text,
+    cols.data_type::text,
+    (tc.constraint_type = 'PRIMARY KEY') as is_primary_key
+  FROM 
+    information_schema.columns as cols
+  LEFT JOIN 
+    information_schema.key_column_usage as kc 
+    ON cols.column_name = kc.column_name AND cols.table_name = kc.table_name
+  LEFT JOIN 
+    information_schema.table_constraints as tc 
+    ON kc.constraint_name = tc.constraint_name AND kc.table_name = tc.table_name
+  WHERE 
+    cols.table_name = input_table_name AND 
+    (tc.constraint_type = 'PRIMARY KEY' OR tc.constraint_type IS NULL);
+END;
+$$ LANGUAGE plpgsql;

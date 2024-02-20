@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION drop_table(table_name text)
+RETURNS void AS $$
+BEGIN
+    -- Construct the dynamic SQL query to drop a table
+    EXECUTE format('DROP TABLE IF EXISTS %I CASCADE;', table_name);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

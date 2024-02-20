@@ -1,0 +1,22 @@
+@font-face {
+  font-family: "worldsFont";
+  src: url("./assets/fonts/Adina_Font.otf") format("opentype");
+}
+
+.worldsFont {
+  font-family: "worldsFont";
+  cursor: pointer;
+  font-weight: 300;
+  font-size: 32px;
+  color: rgb(79, 94, 106);
+}
+
+@font-face {
+  font-family: "Rajdhani";
+  src: url("./assets/fonts/BaiJamjuree-Regular.ttf") format("opentype");
+}
+
+.rajdaniFont {
+  font-family: "Rajdhani";
+  font-weight: 300;
+}

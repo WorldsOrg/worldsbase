@@ -1,0 +1,56 @@
+"use client";
+import { createPortal } from "react-dom";
+import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
+
+import { Dialog, DialogContent, DialogTitle } from "@mui/material";
+import ReactJson from "@microlink/react-json-view";
+
+// utils
+import { copyToClipboard } from "../../utils/genericHelper";
+
+const ExpandDataDialog = ({ show, dialogProps, onCancel, onCopyClick, enableClipboard }) => {
+  const portalElement = typeof window !== undefined ? window.document.getElementById("portal") : undefined;
+
+  const customization = useSelector((state) => state.customization);
+
+  const component = show ? (
+    <Dialog open={show} fullWidth maxWidth="md" onClose={onCancel} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+      <DialogTitle sx={{ fontSize: "1rem" }} id="alert-dialog-title">
+        {dialogProps.title}
+      </DialogTitle>
+      <DialogContent>
+        {!enableClipboard && (
+          <ReactJson
+            theme={customization.isDarkMode ? "ocean" : "rjv-default"}
+            style={{ padding: 10, borderRadius: 10 }}
+            src={dialogProps.data}
+            enableClipboard={(e) => copyToClipboard(e)}
+          />
+        )}
+        {enableClipboard && (
+          <ReactJson
+            theme={customization.isDarkMode ? "ocean" : "rjv-default"}
+            style={{ padding: 10, borderRadius: 10 }}
+            src={dialogProps.data}
+            enableClipboard={(e) => onCopyClick(e, dialogProps.node)}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  ) : null;
+
+  if (!portalElement) return null;
+
+  return createPortal(component, portalElement);
+};
+
+ExpandDataDialog.propTypes = {
+  show: PropTypes.bool,
+  dialogProps: PropTypes.object,
+  onCancel: PropTypes.func,
+  onCopyClick: PropTypes.func,
+  enableClipboard: PropTypes.bool,
+};
+
+export default ExpandDataDialog;

@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION rename_column(table_name text, old_column_name text, new_column_name text)
+RETURNS void AS $$
+BEGIN
+    -- Construct the dynamic SQL query to rename a column
+    EXECUTE format('ALTER TABLE %I RENAME COLUMN %I TO %I;', table_name, old_column_name, new_column_name);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -1,0 +1,8 @@
+.copyButton {
+  font-family: "Inconsolata";
+  font-size: 14px !important;
+  box-shadow: none !important;
+  color: rgb(79, 94, 106);
+  background-color: transparent !important;
+  margin-bottom: 10px !important;
+}
