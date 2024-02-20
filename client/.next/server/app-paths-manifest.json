@@ -1,6 +1,0 @@
-{
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/table_editor/page": "app/dashboard/table_editor/page.js",
-  "/dashboard/settings/page": "app/dashboard/settings/page.js"
-}
