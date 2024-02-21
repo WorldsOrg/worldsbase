@@ -4,9 +4,9 @@ import { Tooltip } from "@chakra-ui/react";
 import { BiShow, BiHide } from "react-icons/bi";
 import { FaCopy } from "react-icons/fa";
 import useCopyToClipboard from "@/hooks/useCopyToClipboard";
-import { supabase } from "@/utils/supabaseClient";
 import { CgSpinner } from "react-icons/cg";
 import { useTable } from "@/context/tableContext";
+import { updateData } from "@/services/apiService";
 
 type ShowState = {
   apiKey: boolean;
@@ -14,12 +14,23 @@ type ShowState = {
 };
 
 export default function Settings() {
-  const { navigation } = useTable();
+  const { navigation, fetchData, data } = useTable();
   const apiKey = process.env.NEXT_PUBLIC_X_API_KEY as string;
+  const defaultTable = navigation.length > 0 ? navigation[0].table_name : null;
+
+  useEffect(() => {
+    fetchData("triggers");
+  }, []);
+
+  useEffect(() => {
+    if (data && data.length > 0 && data[0].triggers) {
+      setTriggerForm(data[0].triggers);
+    }
+  }, [data]);
 
   const [triggerForm, setTriggerForm] = useState<any>([
     {
-      table: "",
+      table: defaultTable,
       trigger: "",
     },
   ]);
@@ -32,19 +43,6 @@ export default function Settings() {
     trigger: false,
   });
   const { copyToClipboard } = useCopyToClipboard();
-
-  const loadCreds = async () => {
-    if (!apiKey) return;
-
-    const { data, error } = await supabase.from("triggers").select("*").eq("id", 1).single();
-    if (!error) {
-      data.triggers.length > 0 && setTriggerForm(data.triggers);
-    }
-  };
-
-  useEffect(() => {
-    loadCreds();
-  }, []);
 
   const handleTriggerChange = (e: React.ChangeEvent<HTMLInputElement>, index: any) => {
     const { name, value } = e.target;
@@ -65,12 +63,11 @@ export default function Settings() {
 
   const updateTrigger = async () => {
     setLoading(() => ({ creds: false, trigger: true }));
-    if (!apiKey) return;
 
-    const { data, error } = await supabase.from("triggers").update({ triggers: triggerForm }).eq("id", 1);
-    if (!error) {
-      loadCreds();
-    }
+    await updateData("triggers", { id: 1, triggers: triggerForm }, "id");
+
+    fetchData("triggers");
+
     setLoading(() => ({ creds: false, trigger: false }));
   };
 
@@ -78,7 +75,7 @@ export default function Settings() {
     setTriggerForm((prev: any) => [
       ...prev,
       {
-        table: "",
+        table: defaultTable,
         trigger: "",
       },
     ]);

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useToast } from "@chakra-ui/react";
 import { DataSheetGrid } from "react-datasheet-grid";
 import "react-datasheet-grid/dist/style.css";
@@ -14,7 +14,6 @@ import { useTable } from "@/context/tableContext";
 import Button from "@/components/ui/table/Button";
 import { createData, updateData, deleteData } from "@/services/apiService";
 import { sortByKey, compareArrays } from "@/utils/dataUtils";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 export default function Apps() {
   const { fetchData, data, columns, loadingData, primaryColumn, resetData, setData, setSelectTable, selectedTable, deleteTableData, loading } = useTable();

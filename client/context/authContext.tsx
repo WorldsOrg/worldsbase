@@ -1,8 +1,8 @@
 "use client";
 import { createContext, useContext, ReactNode, useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { supabase } from "../utils/supabaseClient";
 import { useToastContext } from "./toastContext";
+import { axiosInstance } from "@/utils/axiosInstance";
 
 interface AuthContextProps {
   token: string | null;
@@ -39,51 +39,62 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  const checkAuthUser = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase.auth.getSession();
-
-    if (data) {
-      const { session } = data;
-
-      if (session && session.access_token) {
-        setToken(session?.access_token as string);
-        const path = pathname ?? "/dashboard";
-
-        router.push(path);
-      } else {
-        const path = "/auth";
-
-        router.push(path);
-      }
-    } else {
-      const path = "/auth";
-
-      router.push(path);
-    }
-    setLoading(false);
-  }, [pathname, router]);
-
   useEffect(() => {
-    checkAuthUser();
+    const storedToken = localStorage.getItem("token");
+
+    if (storedToken) {
+      checkAuthUser(storedToken);
+      setToken(storedToken);
+    } else {
+      router.push("/auth");
+    }
   }, []);
+
+  const updateToken = (newToken: string) => {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+  };
+
+  const clearAuthData = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+  };
+
+  const checkAuthUser = useCallback(
+    async (token: string) => {
+      try {
+        setLoading(true);
+        const { data } = await axiosInstance.get(`/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!data) {
+          clearAuthData();
+          router.push("/auth");
+          return;
+        }
+      } catch (error) {
+        console.error("Error fetching user data");
+      }
+      setLoading(false);
+    },
+    [pathname, router]
+  );
 
   const login = async (credentials: LoginCredentials) => {
     setLoading(true);
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword(credentials);
-
-      if (error) {
-        toastAlert(false, error.message);
-        setError(error.message);
-        return;
+      const result = await axiosInstance.post("/auth/login", credentials);
+      if (result.data) {
+        updateToken(result.data.accessToken);
+        toastAlert(true, `Welcome to WGS`);
+        router.push("/dashboard");
       }
-
-      if (data && data.session && data.session.access_token) setToken(data.session?.access_token as string);
-
-      toastAlert(true, `Welcome to WGS`);
-      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error logging in", error);
+      toastAlert(false, "Something went wrong");
+      setError("Error logging in");
     } finally {
       setLoading(false);
     }
@@ -92,18 +103,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signup = async (credentials: LoginCredentials) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp(credentials);
-
-      if (error) {
+      const result = await axiosInstance.post("/auth/signup", credentials);
+      if (result.data) {
+        updateToken(result.data.accessToken);
+        toastAlert(true, `Welcome to WGS`);
+        router.push("/dashboard");
+      } else {
         toastAlert(false, "Something went wrong");
-        setError(error.message);
-        return;
+        setError("Error signing up");
       }
-
-      if (data && data.session && data.session.access_token) setToken(data.session?.access_token as string);
-
-      toastAlert(true, `Welcome to WGS`);
-      if (!error) router.push("/dashboard");
+    } catch (error) {
+      console.error("Error signing up", error);
+      toastAlert(false, "Something went wrong");
+      setError("Error signing up");
     } finally {
       setLoading(false);
     }
@@ -111,8 +123,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = async () => {
     setLoading(true);
-    await supabase.auth.signOut();
-    setToken(null);
+    clearAuthData();
     router.push("/auth");
     setLoading(false);
   };
