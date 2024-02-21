@@ -1,7 +1,7 @@
 {
   "index": "Introduction",
-  "another": "Another Page",
-  "advanced": "Advanced (A Folder)",
+  "services": "Services",
+  "apireference": "API Reference",
   "about": {
     "title": "About",
     "type": "page"
