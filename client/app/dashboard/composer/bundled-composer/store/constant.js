@@ -2,7 +2,7 @@
 export const gridSpacing = 3;
 export const drawerWidth = 230;
 export const appDrawerWidth = 320;
-export const baseURL = process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_BASE_URL : "http://localhost:3000";
+export const baseURL = process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_BASE_URL : "http://localhost:3002";
 export const NETWORK = {
   MAINNET: "homestead",
   GÖRLI: "goerli",

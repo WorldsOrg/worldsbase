@@ -67,7 +67,7 @@ export default function Settings() {
     setLoading(() => ({ creds: false, trigger: true }));
     if (!apiKey) return;
 
-    const { data, error } = await supabase.from("api_keys").update({ triggers: triggerForm }).eq("x_api_key", apiKey);
+    const { data, error } = await supabase.from("triggers").update({ triggers: triggerForm }).eq("id", 1);
     if (!error) {
       loadCreds();
     }
