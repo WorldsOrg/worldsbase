@@ -39,6 +39,10 @@ export default function Settings() {
     const { data, error } = await supabase.from("triggers").select("*").eq("id", 1).single();
     if (!error) {
       data.triggers.length > 0 && setTriggerForm(data.triggers);
+    } else {
+      console.error(error);
+      // Create triggers table if not exists
+      await supabase.from("triggers").insert([{ id: 1, triggers: [] }]);
     }
   };
 

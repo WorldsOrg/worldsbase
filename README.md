@@ -1,8 +1,8 @@
 # WGS Docs
 
-This is a template for creating documentation with [Nextra](https://nextra.site).
+This is a documentation for the WGS project.
 
-[**Live Demo →**](https://demo.worlfs.org)
+[**Live Demo →**](https://demo.worlds.org)
 
 ## Quick Start
 

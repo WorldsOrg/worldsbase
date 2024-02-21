@@ -95,7 +95,6 @@ export const TableProvider = ({ children }: TableProviderProps) => {
         if (primary.length > 0) {
           setPrimaryColumn(primary[0].column_name);
         }
-
         const col = columnData.data.map((item: any) => {
           if (item.is_primary_key) {
             return {
@@ -109,6 +108,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
             title: item.column_name,
           };
         });
+
         setColumns(col);
       }
       if (data && data.length > 0) {
@@ -142,11 +142,9 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       toastAlert(false, "Deleting table error");
       return;
     }
-    const tableToShow = navigation.filter((item) => item.table_name !== tableName);
-    setNavigation((prev) => prev.filter((item) => item.table_name !== tableName));
 
-    setSelectTable(tableToShow[0].table_name || "game_data");
-    fetchData(tableToShow[0].table_name || "game_data");
+    getTables();
+
     toastAlert(true, "Table deleted");
   }, []);
 
@@ -167,6 +165,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   }, []);
 
   const createTableData = useCallback(async (tableName: string, columns: { name: string; type: string; constraints: any }[]) => {
+    console.log(tableName, columns);
     const { status } = await axiosInstance.post(`/table/createTable`, {
       tableName,
       columns,
@@ -176,7 +175,8 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       toastAlert(false, "Error creating table");
     } else {
       toastAlert(true, "Table created successfully");
-      setNavigation((prev) => [...prev, { table_name: tableName }]);
+      await getTables();
+      setSelectTable(tableName);
     }
   }, []);
 
