@@ -123,12 +123,6 @@ const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFo
         renameTable(selectedTable, tableName);
       }
       compareColumns(columns, fields);
-
-      // await supabase.rpc("rename_column", {
-      //   table_name: "test_table_2",
-      //   old_column_name: "username",
-      //   new_column_name: "updated_username",
-      // });
     } else {
       const columnsWithIdRemoved = fields.map(({ id, ...rest }) => rest);
 
