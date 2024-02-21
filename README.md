@@ -33,9 +33,7 @@ POSTGRES_PASSWORD=
 Create .env file inside client folder and add the following:
 
 ```env
-NEXT_PUBLIC_SUPABASEURL=
-NEXT_PUBLIC_SUPABASEKEY=
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3003
+NEXT_PUBLIC_API_BASE_URL=/api  //if you are hosting your backend on a different domain, you can change this
 NEXT_PUBLIC_X_API_KEY= // should match the server x-api-key
 NEXT_PUBLIC_BASE_URL= // this is the base url of composer-backend - WIP
 ```
