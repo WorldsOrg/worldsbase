@@ -5,6 +5,7 @@
     "install:client": "cd client && yarn install",
     "install:server": "cd server && yarn install",
     "install:docs": "cd docs && yarn install",
+    "init:tables": "cd server && npm run init_tables",
     "dev": "npm run dev:client & npm run dev:server & npm run dev:docs",
     "dev:client": "cd client && yarn dev",
     "dev:server": "cd server && npm run start",
