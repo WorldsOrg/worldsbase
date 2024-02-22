@@ -1,0 +1,295 @@
+# Database Table Endpoints
+
+<details>
+ <summary><code><b>POST</b></code> <code> </code> <code> /table/createTable</code></summary>
+
+###### Request Body
+
+```json
+{
+  "tableName": "string",
+  "columns": [
+    {
+      "name": "string",
+      "type": "string",
+      "constraints": "string"
+    }
+  ]
+}
+```
+
+###### Responses
+
+> | http code     | content-type                      | response                                                            |
+> |---------------|-----------------------------------|---------------------------------------------------------------------|
+> | `201`         | `text/plain;charset=UTF-8`        | `Configuration created successfully`                                |
+> | `400`         | `application/json`                | `{"code":"400","message":"Bad Request"}`                            |
+> | `405`         | `text/html;charset=utf-8`         | None                                                                |
+
+###### Example cURL
+
+> ```javascript
+>  curl -X POST -H "Content-Type: application/json" --data @post.json http://localhost:8889/
+> ```
+
+</details>
+
+<details>
+ <summary><code><b>DELETE</b></code> <code> /deleteTable/:tableName</code></summary>
+
+###### Description
+
+Deletes a specified table from the database. This action is irreversible.
+
+###### URL Parameters
+
+> | name        |  type     | description                        |
+> |-------------|-----------|------------------------------------|
+> | tableName   |  required | The name of the table to be deleted. |
+
+###### Responses
+
+> | http code     | content-type                      | response                                                            |
+> |---------------|-----------------------------------|---------------------------------------------------------------------|
+> | `200`         | `text/plain;charset=UTF-8`        | `Success: Table deleted successfully`                               |
+> | `404`         | `application/json`                | `{"error":"404","message":"Table not found"}`                        |
+> | `500`         | `text/html;charset=utf-8`         | `Server Error: Failed to delete table`                              |
+
+###### Example cURL
+
+> ```javascript
+>  curl -X DELETE http://example.com/deleteTable/table_name
+> ```
+
+</details>
+
+<details>
+ <summary><code><b>PUT</b></code> <code> </code> <code> /updateTableName</code></summary>
+
+###### Description
+
+Renames an existing table to a new specified name.
+
+###### Request Body
+
+```json
+{
+  "oldTableName": "string",
+  "newTableName": "string"
+}
+```
+
+###### Responses
+
+| http code | content-type              | response                                                              |
+|-----------|---------------------------|-----------------------------------------------------------------------|
+| `200`     | `text/plain;charset=UTF-8`| Success: Table name updated successfully.                             |
+| `400`     | `application/json`        | `{"error":"400","message":"Bad Request: Invalid table names provided."}` |
+| `404`     | `application/json`        | `{"error":"404","message":"Table not found."}`                        |
+| `500`     | `text/html;charset=utf-8` | Server Error: Failed to update table name.                            |
+
+###### Example cURL
+
+```javascript
+curl -X PUT -H "Content-Type: application/json" -d '{"oldTableName": "old-table-name", "newTableName": "new-table-name"}' http://example.com/updateTableName
+```
+
+</details>
+
+<details>
+ <summary><code><b>DELETE</b></code> <code> /deleteColumn</code></summary>
+
+###### Description
+
+Deletes a specified column from an existing table.
+
+###### Request Body
+
+```json
+{
+  "tableName": "table-name",
+  "columnName": "column-name"
+}
+```
+
+</details>
+
+<details>
+ <summary><code><b>PUT</b></code> <code> </code> <code> /renameColumn</code></summary>
+
+###### Description
+
+Renames an existing column in a specified table.
+
+###### Request Body
+
+```json
+{
+  "tableName": "table-name",
+  "oldColumnName": "old-column-name",
+  "newColumnName": "new-column-name"
+}
+```
+
+</details>
+
+<details>
+ <summary><code><b>GET</b></code> <code> /getColumns/:tableName</code></summary>
+
+###### Description
+
+Retrieves details of all columns in a specified table.
+
+###### URL Parameters
+
+| name      |  type     | description                                   |
+|-----------|-----------|-----------------------------------------------|
+| tableName | required  | Name of the table to retrieve columns from.   |
+
+</details>
+
+<details>
+ <summary><code><b>GET</b></code> <code> /getTables/:schema</code></summary>
+
+###### Description
+
+Lists all tables within a specified schema.
+
+###### URL Parameters
+
+| name   |  type     | description                               |
+|--------|-----------|-------------------------------------------|
+| schema | required  | Schema name to list tables from.          |
+
+</details>
+
+<details>
+ <summary><code><b>GET</b></code> <code> /getTable/:tableName</code></summary>
+
+###### Description
+
+Retrieves all data from a specified table.
+
+###### URL Parameters
+
+| name      |  type     | description                                |
+|-----------|-----------|--------------------------------------------|
+| tableName | required  | Name of the table to retrieve data from.   |
+
+</details>
+
+<details>
+ <summary><code><b>GET</b></code> <code> /joinTables</code></summary>
+
+###### Description
+
+Joins tables.
+
+###### Request Body
+
+```json
+{
+  "tableName": "table-name",
+  "joinColumns": ["column-1", "column-2"],
+  "joinType": "INNER",
+  "filter": {
+    "column": "column-1",
+    "value": "value"
+  }
+}
+```
+
+</details>
+
+<details>
+ <summary><code><b>GET</b></code> <code> /executeSelectQuery</code></summary>
+
+###### Description
+
+Retrieves all data using custom select query. Only for select queries.
+
+###### Request Body
+
+```json
+{
+  "query": "query"
+}
+```
+
+</details>
+
+<details>
+ <summary><code><b>GET</b></code> <code> /getTableValue/:tableName/:columnName/:columnValue</code></summary>
+
+###### Description
+
+Fetches rows from a table where the specified column matches a given value.
+
+###### URL Parameters
+
+| name         |  type     | description                                                        |
+|--------------|-----------|--------------------------------------------------------------------|
+| tableName    | required  | Specify the table name.                                            |
+| columnName   | required  | Specify the column name.                                           |
+| columnValue  | required  | Specify the value to match in the specified column.                |
+
+</details>
+
+<details>
+ <summary><code><b>POST</b></code> <code> /insertData</code></summary>
+
+###### Description
+
+Inserts new data into a specified table.
+
+###### Request Body
+
+```json
+{
+  "tableName": "table-name",
+  "data": {
+    /* data fields */
+  }
+}
+```
+
+</details>
+
+<details>
+ <summary><code><b>DELETE</b></code> <code> /deleteData</code></summary>
+
+###### Description
+
+Deletes data from a table based on specified conditions.
+
+###### Request Body
+
+```json
+{
+  "tableName": "table-name",
+  "condition": "delete condition"
+}
+```
+
+</details>
+
+<details>
+ <summary><code><b>PUT</b></code> <code> /updateData</code></summary>
+
+###### Description
+
+Updates existing data in a specified table based on given conditions.
+
+###### Request Body
+
+```json
+{
+  "tableName": "table-name",
+  "data": {
+    /* updated data fields */
+  },
+  "condition": "update condition"
+}
+```
+
+</details>
