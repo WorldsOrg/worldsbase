@@ -15,41 +15,54 @@ const createTable = async (data) => {
     console.error("Error creating the tables:", error);
   }
 };
-// create table for auth functions
-createTable({
-  tableName: "dashboard_users",
-  columns: [
-    {
-      name: "id",
-      type: "INTEGER",
-      primaryKey: true,
-    },
-    {
-      name: "email",
-      type: "TEXT",
-    },
-    {
-      name: "password",
-      type: "TEXT",
-    },
-  ],
-});
 
-// create table for dashboard functions
-createTable({
-  tableName: "trigger_functions",
-  columns: [
-    {
-      name: "id",
-      type: "INTEGER",
-      primaryKey: true,
-    },
-    {
-      name: "triggers",
-      type: "jsonb[]",
-    },
-  ],
-});
+const insertTable = async (data) => {
+  try {
+    await axios.post(`${serverURL}/table/insertData`, data, {
+      headers: {
+        "x-api-key": X_API_KEY,
+      },
+    });
+  } catch (error) {
+    console.error("Error inserting into the tables:", error);
+  }
+};
+// create table for auth functions
+
+// createTable({
+//   tableName: "dashboard_users",
+//   columns: [
+//     {
+//       name: "id",
+//       type: "serial",
+//       constraints: "PRIMARY KEY",
+//     },
+//     {
+//       name: "email",
+//       type: "TEXT",
+//     },
+//     {
+//       name: "password",
+//       type: "TEXT",
+//     },
+//   ],
+// });
+
+// // create table for dashboard functions
+// createTable({
+//   tableName: "trigger_functions",
+//   columns: [
+//     {
+//       name: "id",
+//       type: "serial",
+//       constraints: "PRIMARY KEY",
+//     },
+//     {
+//       name: "triggers",
+//       type: "jsonb[]",
+//     },
+//   ],
+// });
 
 // create tables for monster game
 createTable({
@@ -57,15 +70,15 @@ createTable({
   columns: [
     {
       name: "id",
-      type: "INTEGER",
-      primaryKey: true,
+      type: "serial",
+      constraints: "PRIMARY KEY",
     },
     {
       name: "steam_username",
       type: "text",
     },
     {
-      name: "sol_wallet",
+      name: "wallet",
       type: "text",
     },
   ],
@@ -76,8 +89,8 @@ createTable({
   columns: [
     {
       name: "id",
-      type: "INTEGER",
-      primaryKey: true,
+      type: "serial",
+      constraints: "PRIMARY KEY",
     },
     {
       name: "player_id",
@@ -99,8 +112,8 @@ createTable({
   columns: [
     {
       name: "id",
-      type: "INTEGER",
-      primaryKey: true,
+      type: "serial",
+      constraints: "PRIMARY KEY",
     },
     {
       name: "start_time",
@@ -122,8 +135,8 @@ createTable({
   columns: [
     {
       name: "id",
-      type: "INTEGER",
-      primaryKey: true,
+      type: "serial",
+      constraints: "PRIMARY KEY",
     },
     {
       name: "name",
@@ -141,8 +154,8 @@ createTable({
   columns: [
     {
       name: "id",
-      type: "INTEGER",
-      primaryKey: true,
+      type: "serial",
+      constraints: "PRIMARY KEY",
     },
     {
       name: "player_id",
@@ -164,8 +177,8 @@ createTable({
   columns: [
     {
       name: "id",
-      type: "INTEGER",
-      primaryKey: true,
+      type: "serial",
+      constraints: "PRIMARY KEY",
     },
     {
       name: "name",
@@ -176,6 +189,31 @@ createTable({
       type: "text",
     },
   ],
+});
+
+// create tables for monster game
+insertTable({
+  tableName: "monster_players",
+  data: {
+    steam_username: "CyberneticDreamweaver",
+    wallet: "0x5678TfGh6931IjK23456Lmno7890QrsT1234UxWy",
+  },
+});
+
+insertTable({
+  tableName: "monster_players",
+  data: {
+    steam_username: "StellarNavigatorX",
+    wallet: "0x9012IjKl2345MnO67890Pqrs1234UvwX5678YzAb",
+  },
+});
+
+insertTable({
+  tableName: "monster_players",
+  data: {
+    steam_username: "LostAstronaut99",
+    wallet: "0xb234KlMn4567OpQ89012RstU3456Vwxy7890AbCd",
+  },
 });
 
 module.exports = { createTable };
