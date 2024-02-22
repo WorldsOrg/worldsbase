@@ -1,7 +1,7 @@
 // triggerService.js
 import axios from "axios";
 import { randomUUID } from "crypto";
-import { supabase } from "../../config/supabase/client";
+import { databaseService } from "./databaseService";
 
 interface Data {
   [key: string]: string | number | boolean;
@@ -21,8 +21,9 @@ interface TransformedData {
 class TriggerService {
   async sendTrigger(tableName: string, condition: string | null, data: Data | null) {
     try {
-      const triggerResult = await supabase.from("triggers").select("*").single();
-      if (!triggerResult.data || !Array.isArray(triggerResult.data.triggers)) return;
+      const triggerResult = await databaseService.executeQuery("SELECT * FROM trigger_functions");
+
+      if (!triggerResult.data || !Array.isArray(triggerResult.data[0].triggers)) return;
 
       const transformedData: TransformedData = {
         tableName,
@@ -32,7 +33,7 @@ class TriggerService {
       };
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      triggerResult.data.triggers.forEach(async (trigger: { table: any; trigger: string }) => {
+      triggerResult.data[0].triggers.forEach(async (trigger: { table: any; trigger: string }) => {
         if (trigger.table === tableName) {
           await axios.post(trigger.trigger, { transformedData }).catch((error) => console.error("Error sending trigger:", error));
         }

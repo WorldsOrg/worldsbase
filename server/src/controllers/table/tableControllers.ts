@@ -24,8 +24,9 @@ export class TableController {
       res.status(StatusCodes.BAD_REQUEST).send("Invalid input");
       return;
     }
+    console.log(columns);
     const columnDefinitions = columns.map((col) => `${col.name} ${col.type} ${col.constraints || ""}`).join(", ");
-    console.log(columnDefinitions);
+
     const result = await databaseService.executeQuery(`CREATE TABLE IF NOT EXISTS ${tableName} (${columnDefinitions});`);
     if (result.status === StatusCodes.OK) {
       res.status(StatusCodes.OK).send(`Table ${tableName} created successfully`);

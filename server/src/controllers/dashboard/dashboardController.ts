@@ -35,11 +35,11 @@ export class DashboardController {
                          COUNT(DISTINCT pmp.id) AS total_players,
                          COALESCE(SUM(pmp.headshots), 0) AS total_headshots,
                          COALESCE(SUM(pi.quantity), 0) AS total_resources
-                  FROM match_history mh
-                  LEFT JOIN player_match_performance pmp ON mh.match_id = pmp.match_id
-                  LEFT JOIN players p ON pmp.player_id = p.id
-                  LEFT JOIN player_inventory pi ON p.id = pi.player_id
-                  LEFT JOIN resources r ON pi.resource_id = r.id
+                  FROM monster_match_history mh
+                  LEFT JOIN monster_player_match_performance pmp ON mh.match_id = pmp.match_id
+                  LEFT JOIN monster_players p ON pmp.player_id = p.id
+                  LEFT JOIN monster_player_inventory pi ON p.id = pi.player_id
+                  LEFT JOIN monster_game_resources r ON pi.resource_id = r.id
                   GROUP BY match_day
                   ORDER BY 1) SELECT TO_CHAR(match_day, 'FMDay, Mon DD, YYYY') AS match_day_friendly,
                                  *,
@@ -56,7 +56,7 @@ export class DashboardController {
   getPlayerCount = async (req: Request, res: Response) => {
     const query = `
     SELECT COUNT(*) AS count
-    FROM public.players
+    FROM monster_players
     LIMIT 50000;`;
 
     await this.handleDatabaseRequest(req, res, query);
@@ -69,8 +69,8 @@ export class DashboardController {
           FROM
             (SELECT p.steam_username,
                     ROUND(AVG(pmp.headshots), 2) AS avg_headshots_per_match
-             FROM players p
-             JOIN player_match_performance pmp ON p.id = pmp.player_id
+             FROM monster_players p
+             JOIN monster_player_match_performance pmp ON p.id = pmp.player_id
              GROUP BY p.steam_username
              ORDER BY avg_headshots_per_match DESC
              LIMIT 5) AS virtual_table
@@ -86,9 +86,9 @@ export class DashboardController {
 FROM
 (SELECT p.steam_username,
        COUNT(DISTINCT mh.match_id) AS total_matches
-FROM players p
-JOIN player_match_performance pmp ON p.id = pmp.player_id
-JOIN match_history mh ON pmp.match_id = mh.match_id
+FROM monster_players p
+JOIN monster_player_match_performance pmp ON p.id = pmp.player_id
+JOIN monster_match_history mh ON pmp.match_id = mh.match_id
 GROUP BY p.steam_username
 ORDER BY COUNT(DISTINCT mh.match_id) desc
 limit 5) AS virtual_table
@@ -104,8 +104,8 @@ LIMIT 1000;`;
 FROM
 (SELECT p.steam_username,
        ROUND(AVG(pmp.headshots), 2) AS avg_headshots_per_match
-FROM player_match_performance pmp
-JOIN players p ON pmp.player_id = p.id
+FROM monster_player_match_performance pmp
+JOIN monster_players p ON pmp.player_id = p.id
 GROUP BY p.steam_username) AS virtual_table
 LIMIT 1000;`;
 
@@ -120,7 +120,7 @@ FROM
   (WITH matches as
      (SELECT DATE_TRUNC('day', TO_TIMESTAMP(mh.start_time / 1000)) AS match_day,
              COUNT(DISTINCT mh.match_id) AS total_matches
-      FROM match_history mh
+      FROM monster_match_history mh
       GROUP BY match_day
       ORDER BY 1) SELECT TO_CHAR(match_day, 'FMDay, Mon DD, YYYY') as match_day,
                          total_matches

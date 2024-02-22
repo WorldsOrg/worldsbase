@@ -9,6 +9,6 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "src/config/supabase/client.ts"],
+  "include": ["src/**/*.ts", "src/axiosClient.js", "src/runscript.js"],
   "exclude": ["node_modules"]
 }

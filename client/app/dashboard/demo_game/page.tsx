@@ -3,6 +3,7 @@ import useCopyToClipboard from "@/hooks/useCopyToClipboard";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { axiosInstance } from "@/utils/axiosInstance";
 
 function Game() {
   const [stats, setStats] = useState({ kill: 0, headshot: 0, hit: 0, gold: 0 });
@@ -14,7 +15,7 @@ function Game() {
   const [matchId, setMatchId] = useState<string>("");
   const [playerId, setPlayerId] = useState<string>("");
   const [playerName, setPlayerName] = useState<string>("");
-  const [sol_wallet, setSolWallet] = useState<string>("");
+  const [wallet, setWallet] = useState<string>("");
 
   const { copyToClipboard, isCopied } = useCopyToClipboard();
 
@@ -22,23 +23,39 @@ function Game() {
     startNewGame();
   }, []);
 
-  const getData = async (tableName: string, method: string, body: any) => {
+  const getData = async (tableName: string) => {
     try {
-      let url = `https://wgs-node-production.up.railway.app/api/${tableName}`;
+      const result = await axiosInstance.get(`/table/gettable/${tableName}`);
+      return result.data;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
+  };
 
-      if (method === "PUT") {
-        url = url + `/${body.id}`;
-      }
-
-      const axiosRequest = {
-        method: method,
-        url: url,
-        headers: {
-          "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY,
-        },
-        data: body,
+  const postData = async (tableName: string, data: any) => {
+    try {
+      const payload = {
+        data: data,
+        tableName: tableName,
       };
-      const result = await axios(axiosRequest);
+      const result = await axiosInstance.post(`/table/insertData/`, payload);
+      return result.data;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
+  };
+
+  const putData = async (tableName: string, data: any) => {
+    try {
+      const payload = {
+        data: data,
+        tableName: tableName,
+        condition: `id = ${data.id}`,
+      };
+
+      const result = await axiosInstance.put(`/table/updateData`, payload);
       return result.data;
     } catch (error) {
       console.error(error);
@@ -47,14 +64,13 @@ function Game() {
   };
 
   const startNewGame = async () => {
-    const variables = await getData("game_variables", "GET", "");
-    const player = await getData("players", "GET", "");
-
+    const variables = await getData("monster_game_variables");
+    const player = await getData("monster_players");
     if (player && player.length > 0) {
       const randomPlayer = Math.floor(Math.random() * player.length);
       setPlayerName(player[randomPlayer].steam_username);
       setPlayerId(player[randomPlayer].id);
-      setSolWallet(player[randomPlayer].sol_wallet);
+      setWallet(player[randomPlayer].wallet);
     }
 
     if (variables) {
@@ -88,10 +104,10 @@ function Game() {
       end_time: Date.now(),
       match_id: matchId,
     };
-    await getData("match_history", "POST", body);
-    await getData("player_match_performance", "POST", playerData);
+    await postData("monster_match_history", body);
+    await postData("monster_player_match_performance", playerData);
 
-    const inventory_data = await getData("player_inventory", "GET", "");
+    const inventory_data = await getData("monster_player_inventory");
 
     const player = inventory_data.filter((item: any) => item.player_id === playerId && item.resource_id === 1);
     let inventoryData = {};
@@ -101,7 +117,7 @@ function Game() {
         resource_id: 1,
         quantity: award,
       };
-      await getData("player_inventory", "POST", inventoryData);
+      await postData("monster_player_inventory", inventoryData);
     } else {
       inventoryData = {
         id: player[0].id,
@@ -109,7 +125,7 @@ function Game() {
         resource_id: 1,
         quantity: player[0].quantity + award,
       };
-      await getData("player_inventory", "PUT", inventoryData);
+      await putData("monster_player_inventory", inventoryData);
     }
   };
 
@@ -159,11 +175,11 @@ function Game() {
         <div className="flex mx-auto">
           {" "}
           Logged in: {playerName}{" "}
-          {sol_wallet ? (
-            <div className="relative flex group" onClick={() => copyToClipboard(sol_wallet)}>
+          {wallet ? (
+            <div className="relative flex group" onClick={() => copyToClipboard(wallet)}>
               <img src="/solana.png" className="ml-2" width={20} height={20} alt="solana" />
               <span className="absolute px-1 m-4 mx-auto text-sm text-gray-100 transition-opacity -translate-x-1/2 translate-y-full bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 left-1/2">
-                {sol_wallet}
+                {wallet}
               </span>
             </div>
           ) : (

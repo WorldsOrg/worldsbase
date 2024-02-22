@@ -29,30 +29,14 @@ interface DynamicFormProps {
   selectedTable: string;
 }
 
-const DynamicForm = ({
-  closeLayout,
-  columns,
-  editing,
-  selectedTable,
-}: DynamicFormProps) => {
-  const {
-    createTableData,
-    addColumnData,
-    deleteColumnData,
-    setSelectTable,
-    renameTable,
-  } = useTable();
-  const [fields, setFields] = useState<FieldType[]>([
-    { id: Math.random(), name: "", type: "text", editing: false },
-  ]);
+const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFormProps) => {
+  const { createTableData, addColumnData, deleteColumnData, setSelectTable, renameTable } = useTable();
+  const [fields, setFields] = useState<FieldType[]>([{ id: Math.random(), name: "", type: "text", editing: false }]);
   const [tableName, setTableName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const toast = useToast();
 
-  const handleToast = (
-    message: string,
-    status: "loading" | "info" | "warning" | "success" | "error" | undefined
-  ) => {
+  const handleToast = (message: string, status: "loading" | "info" | "warning" | "success" | "error" | undefined) => {
     toast({
       title: message,
       status,
@@ -72,10 +56,7 @@ const DynamicForm = ({
   }, [editing]);
 
   const addField = () => {
-    setFields([
-      ...fields,
-      { id: Math.random(), name: "", type: "text", editing: false },
-    ]);
+    setFields([...fields, { id: Math.random(), name: "", type: "text", editing: false }]);
   };
 
   const handleRemoveField = (id: number) => {
@@ -101,12 +82,8 @@ const DynamicForm = ({
   };
 
   function compareColumns(oldColumns: Column[], newColumns: Column[]) {
-    const addedColumns = newColumns.filter(
-      (nc) => !oldColumns.some((oc) => oc.id === nc.id)
-    );
-    const deletedColumns = oldColumns.filter(
-      (oc) => !newColumns.some((nc) => nc.id === oc.id)
-    );
+    const addedColumns = newColumns.filter((nc) => !oldColumns.some((oc) => oc.id === nc.id));
+    const deletedColumns = oldColumns.filter((oc) => !newColumns.some((nc) => nc.id === oc.id));
     // const renamedColumns = oldColumns
     //   .filter((oc) => newColumns.some((nc) => nc.id !== oc.id))
     //   .map((oc) => {
@@ -146,12 +123,6 @@ const DynamicForm = ({
         renameTable(selectedTable, tableName);
       }
       compareColumns(columns, fields);
-
-      // await supabase.rpc("rename_column", {
-      //   table_name: "test_table_2",
-      //   old_column_name: "username",
-      //   new_column_name: "updated_username",
-      // });
     } else {
       const columnsWithIdRemoved = fields.map(({ id, ...rest }) => rest);
 
@@ -166,16 +137,14 @@ const DynamicForm = ({
       } else if (columnsWithIdRemoved.some((column) => !column.name.trim())) {
         handleEmptyFieldError("Column");
       } else {
-        const columns = [
-          { name: "id", type: "serial", constraints: "PRIMARY KEY" },
-          ...columnsWithIdRemoved,
-        ];
+        const columns = [{ name: "id", type: "serial", constraints: "PRIMARY KEY" }, ...columnsWithIdRemoved];
 
-        createTableData(
-          tableName,
-          columns as { name: string; type: string; constraints: any }[]
-        );
-        resetForm();
+        createTableData(tableName, columns as { name: string; type: string; constraints: any }[]);
+
+        setLoading(false);
+        closeLayout();
+        setTableName("");
+        setFields([{ id: Math.random(), name: "", type: "text", editing: false }]);
       }
     }
   };
@@ -184,10 +153,7 @@ const DynamicForm = ({
     <>
       <div className="container mx-auto">
         <div className="flex-grow mb-4 mr-2">
-          <label
-            htmlFor="table-name"
-            className="block text-sm font-medium leading-6 text-gray-900 dark:text-primary"
-          >
+          <label htmlFor="table-name" className="block text-sm font-medium leading-6 text-gray-900 dark:text-primary">
             Table name
           </label>
           <input
@@ -200,17 +166,7 @@ const DynamicForm = ({
             value={tableName}
           />
         </div>
-        {!editing && (
-          <FieldInput
-            key={"id"}
-            id={1}
-            handleFieldChange={handleFieldChange}
-            handleRemoveField={handleRemoveField}
-            value="id"
-            type="PRIMARY KEY"
-            editable={false}
-          />
-        )}
+        {!editing && <FieldInput key={"id"} id={1} handleFieldChange={handleFieldChange} handleRemoveField={handleRemoveField} value="id" type="PRIMARY KEY" editable={false} />}
 
         {fields.map((field) => (
           <FieldInput
@@ -232,9 +188,7 @@ const DynamicForm = ({
       </div>
       <button
         onClick={saveForm}
-        className={
-          "w-full rounded-md bg-secondary px-3 py-2 text-sm text-white shadow-sm hover:text-black ring-1 ring-inset ring-secondary hover:bg-gray-50"
-        }
+        className={"w-full rounded-md bg-secondary px-3 py-2 text-sm text-white shadow-sm hover:text-black ring-1 ring-inset ring-secondary hover:bg-gray-50"}
         disabled={loading}
       >
         {loading ? (

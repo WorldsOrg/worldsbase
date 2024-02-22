@@ -1,5 +1,4 @@
 "use client";
-import { Container } from "@chakra-ui/react";
 import { useState } from "react";
 import LoginCard from "@/components/auth/LoginCard";
 import SignupCard from "@/components/auth/SignupCard";
