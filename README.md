@@ -15,8 +15,6 @@ First, run `npm run install:all` to install the dependencies.
 Create .env file inside server folder and add the following:
 
 ```env
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
 apiPublicKey= // turnkey api public key
 apiPrivateKey= // turnkey api private key
 organizationId= // turnkey organization id
