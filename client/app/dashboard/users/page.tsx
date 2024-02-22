@@ -28,7 +28,7 @@ export default function Apps() {
         "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY,
       },
     });
-    const { data } = await axiosInstance.get("table/getTable/players");
+    const { data } = await axiosInstance.get("table/getTable/monster_players");
     if (data) {
       setData(data);
     }
