@@ -19,7 +19,7 @@ export default function Settings() {
   const defaultTable = navigation.length > 0 ? navigation[0].table_name : null;
 
   useEffect(() => {
-    fetchData("triggers");
+    fetchData("trigger_functions");
   }, []);
 
   useEffect(() => {
