@@ -36,10 +36,7 @@ pnpm dev
 2- Create .env file like;
 
 ```makefile
-NEXT_PUBLIC_SUPABASEURL = <Supabase Url>
-NEXT_PUBLIC_SUPABASEKEY = <Supabase Key>
 NEXT_PUBLIC_API_BASE_URL = <WGS Server Base Url>
-NEXT_PUBLIC_SERVICEROLEKEY =<Supabase Service Role Key>
 X_API_KEY = <X API KEY>
 ```
 
@@ -57,10 +54,7 @@ pnpm i
 
 ## Screenshots
 
-![createGame](./documentation/createGame.png)
-![app](./documentation/app.png)
-![apps](./documentation/apps.png)
-![settings](./documentation/settings.png)
+![createGame](./documentation/createGame.png) ![app](./documentation/app.png) ![apps](./documentation/apps.png) ![settings](./documentation/settings.png)
 
 ## Videos
 
