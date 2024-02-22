@@ -57,7 +57,7 @@ function MobileNavigation() {
             className="absolute inset-x-0 flex flex-col p-4 mt-4 text-lg tracking-tight origin-top shadow-xl top-full rounded-2xl bg-background text-slate-900 dark:text-primary ring-1 ring-slate-900/5"
           >
             <MobileNavLink href="#features">Features</MobileNavLink>
-            <MobileNavLink href="#testimonials">Docs</MobileNavLink>
+            <MobileNavLink href="http://localhost:3001">Docs</MobileNavLink>
             <MobileNavLink href="#pricing">Support</MobileNavLink>
             <hr className="m-2 border-slate-300/40" />
             <MobileNavLink href="/auth">Sign in</MobileNavLink>

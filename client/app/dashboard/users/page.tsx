@@ -8,9 +8,7 @@ import axios from "axios";
 export default function Apps() {
   const columns = [
     { ...keyColumn("steam_username", textColumn), title: "Steam Username" },
-    { ...keyColumn("sol_wallet", textColumn), title: "Sol Wallet" },
-    { ...keyColumn("alpha_key_status", textColumn), title: "Alpha Key Status" },
-    { ...keyColumn("created_at", textColumn), title: "Created" },
+    { ...keyColumn("wallet", textColumn), title: "Wallet" },
   ];
 
   const [viewportHeight, setViewportHeight] = useState<any>(null);
