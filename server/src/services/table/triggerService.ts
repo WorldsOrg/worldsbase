@@ -21,7 +21,7 @@ interface TransformedData {
 class TriggerService {
   async sendTrigger(tableName: string, condition: string | null, data: Data | null) {
     try {
-      const triggerResult = await databaseService.executeQuery("SELECT * FROM triggers");
+      const triggerResult = await databaseService.executeQuery("SELECT * FROM trigger_functions");
 
       if (!triggerResult.data || !Array.isArray(triggerResult.data[0].triggers)) return;
 

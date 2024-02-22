@@ -9,7 +9,8 @@
     "serve": "node dist/index.js",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "init_tables": "cd src && node axiosClient.js"
   },
   "keywords": [],
   "author": "Ozgur Sallanci",

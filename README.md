@@ -36,6 +36,8 @@ NEXT_PUBLIC_X_API_KEY= // should match the server x-api-key
 NEXT_PUBLIC_BASE_URL= // this is the base url of composer-backend - WIP
 ```
 
+Run `npm run init:tables` to create the database tables.
+
 Then, run `npm run dev` to start the development server, client and docs,
 
 dashboard localhost:3000, docs: localhost:3001, server: localhost:3003.

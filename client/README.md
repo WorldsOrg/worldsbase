@@ -1,64 +1,31 @@
-## Worlds Game Services UI
+# WORLDS GAME SERVICES DASHBOARD
 
-This is the ui app of the Worlds Game Services project.
+This project is a Dashboard for World Game Services (WGS).
 
-### [Live Link](https://wgs-next.vercel.app/)
+## Getting started
 
----
+To get started follow these simple steps:
 
-### Technologies
+### Install dependencies
 
-- Next.js
-- Typescript
-- Context Api
-- Supabase
-- React
-- Chakra UI
-- Axios
-- Formik
-- Yup
+Once you have cloned the repository, navigate into the project directory and install the necessary dependencies using npm:
 
----
-
-## Installation
-
-1- Clone this repo, install dependencies.
-
-```makefile
-gh repo clone https://github.com/Manifest-Git/wgs-next.git
-npm i
-# or
-yarn
-# or
-pnpm dev
+```shell
+yarn install
 ```
 
-2- Create .env file like;
+### Set Up Environment Variables
 
-```makefile
-NEXT_PUBLIC_API_BASE_URL = <WGS Server Base Url>
-X_API_KEY = <X API KEY>
-```
+The WGS API relies on environment variables for configuration. To set up your environment, create a .env file in the project root directory and define the variables as outlined in the env.example file.
 
-3- Build and run project;
+### Start the Server:
 
-```makefile
-npm run dev
-# or
+With the dependencies installed and environment variables set up, you're ready to start the server. Simply run the following command:
+
+```shell
 yarn dev
-# or
-pnpm i
 ```
 
----
+### Open Dashboard:
 
-## Screenshots
-
-![createGame](./documentation/createGame.png) ![app](./documentation/app.png) ![apps](./documentation/apps.png) ![settings](./documentation/settings.png)
-
-## Videos
-
-- [Data Page](https://www.loom.com/share/bb572731d8be4970af9fc1a346901797)
-- [Items Page](https://www.loom.com/share/766ceb47d05f42a3aafc3d3cf3ea1a36)
-- [Users Page](https://www.loom.com/share/4eb4d6e3c26d4a8e974afbb37f5a6cb1)
-- [Statistics Page](https://www.loom.com/share/93889ddff6a54e5b88d48841cb71301f)
+Navigating to http://localhost:3000 If you have any questions or encounter any issues, don't hesitate to reach out to us. Happy gaming! 🎮

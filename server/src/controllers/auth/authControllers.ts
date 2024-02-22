@@ -30,7 +30,7 @@ export class AuthController {
     }
 
     try {
-      const query = "SELECT * FROM users WHERE email = $1";
+      const query = "SELECT * FROM dashboard_users WHERE email = $1";
       const values = [email];
       const result = await databaseService.executeQuery(query, values);
 
@@ -61,7 +61,7 @@ export class AuthController {
     }
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const query = "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *;";
+      const query = "INSERT INTO dashboard_users (email, password) VALUES ($1, $2) RETURNING *;";
       const values = [email, hashedPassword];
       const result = await databaseService.executeQuery(query, values);
       console.log(result);
