@@ -43,7 +43,7 @@ const FieldInput: React.FC<FieldInputProps> = memo(({ id, handleFieldChange, han
           >
             {!editable && <option value="PRIMARY KEY">PRIMARY KEY</option>}
             <option value="text">Text</option>
-            <option value="int">Int</option>
+            <option value="BIGINT">Int</option>
             <option value="float">Float</option>
             <option value="bool">Bool</option>
             <option value="date">Date</option>

@@ -14,7 +14,7 @@ function Game() {
   const [matchId, setMatchId] = useState<string>("");
   const [playerId, setPlayerId] = useState<string>("");
   const [playerName, setPlayerName] = useState<string>("");
-  const [sol_wallet, setSolWallet] = useState<string>("");
+  const [wallet, setWallet] = useState<string>("");
 
   const { copyToClipboard, isCopied } = useCopyToClipboard();
 
@@ -54,7 +54,7 @@ function Game() {
       const randomPlayer = Math.floor(Math.random() * player.length);
       setPlayerName(player[randomPlayer].steam_username);
       setPlayerId(player[randomPlayer].id);
-      setSolWallet(player[randomPlayer].sol_wallet);
+      setWallet(player[randomPlayer].wallet);
     }
 
     if (variables) {
@@ -159,11 +159,11 @@ function Game() {
         <div className="flex mx-auto">
           {" "}
           Logged in: {playerName}{" "}
-          {sol_wallet ? (
-            <div className="relative flex group" onClick={() => copyToClipboard(sol_wallet)}>
+          {wallet ? (
+            <div className="relative flex group" onClick={() => copyToClipboard(wallet)}>
               <img src="/solana.png" className="ml-2" width={20} height={20} alt="solana" />
               <span className="absolute px-1 m-4 mx-auto text-sm text-gray-100 transition-opacity -translate-x-1/2 translate-y-full bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 left-1/2">
-                {sol_wallet}
+                {wallet}
               </span>
             </div>
           ) : (
