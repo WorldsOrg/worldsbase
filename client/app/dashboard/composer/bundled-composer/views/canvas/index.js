@@ -505,6 +505,7 @@ const Canvas = () => {
       dispatch({ type: SET_WORKFLOW, workflow });
     } else if (getSpecificWorkflowApi.error) {
       const error = getSpecificWorkflowApi.error;
+      console.log(error);
       const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`;
       errorFailed(`Failed to retrieve workflow: ${errorData}`);
     }

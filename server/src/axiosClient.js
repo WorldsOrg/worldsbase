@@ -1,6 +1,6 @@
 const axios = require("axios");
 require("dotenv").config({ path: "../.env" });
-const serverURL = "http://localhost:3003"; // Replace with your server's URL and port
+const serverURL = process.env.SERVER_URL; // Replace with your server's URL and port
 const X_API_KEY = process.env.X_API_KEY;
 
 // Example function to perform a GET request
