@@ -1,0 +1,79 @@
+{
+    "name": "composer",
+    "version": "1.0.20",
+    "description": "Composer Server",
+    "main": "dist/index",
+    "types": "dist/index.d.ts",
+    "bin": {
+        "outerbridge": "./bin/run"
+    },
+    "files": [
+        "bin",
+        "dist",
+        "npm-shrinkwrap.json",
+        "oclif.manifest.json",
+        "oauth2.html",
+        ".env"
+    ],
+    "oclif": {
+        "bin": "outerbridge",
+        "commands": "./dist/commands"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "run-script-os",
+        "start:windows": "cd bin && run start",
+        "start:default": "cd bin && ./run start",
+        "dev": "concurrently \"yarn watch\" \"nodemon\"",
+        "oclif-dev": "run-script-os",
+        "oclif-dev:windows": "cd bin && dev start",
+        "oclif-dev:default": "cd bin && ./dev start",
+        "postpack": "shx rm -f oclif.manifest.json",
+        "prepack": "yarn build && oclif manifest && oclif readme",
+        "typeorm": "typeorm-ts-node-commonjs",
+        "watch": "tsc --watch",
+        "version": "oclif readme && git add README.md"
+    },
+    "keywords": [],
+    "homepage": "https://dashboard.worlds.org",
+    "author": {
+        "name": "Ozgur Sallanci",
+        "email": "ozgur@worlds.org"
+    },
+    "engines": {
+        "node": ">=14.7.0"
+    },
+    "license": "SEE LICENSE IN LICENSE.md",
+    "dependencies": {
+        "@oclif/core": "^1.13.10",
+        "axios": "^0.27.2",
+        "cors": "^2.8.5",
+        "crypto-js": "^4.2.0",
+        "dotenv": "^16.0.0",
+        "ethers": "^5.6.8",
+        "express": "^4.17.3",
+        "is-localhost-ip": "^2.0.0",
+        "localtunnel": "^2.0.2",
+        "moment-timezone": "^0.5.34",
+        "mongodb": "^3.6.0",
+        "outerbridge-components": "*",
+        "pg": "^8.4.0",
+        "reflect-metadata": "^0.1.13",
+        "socket.io": "^4.5.1",
+        "typeorm": "^0.3.6"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.12",
+        "@types/crypto-js": "^4.1.1",
+        "@types/localtunnel": "^2.0.1",
+        "@types/lodash": "^4.14.194",
+        "@types/mongodb": "^3.6.0",
+        "concurrently": "^7.1.0",
+        "nodemon": "3.0.1",
+        "oclif": "^3",
+        "run-script-os": "^1.1.6",
+        "shx": "^0.3.3",
+        "ts-node": "^10.7.0",
+        "typescript": "^4.8.4"
+    }
+}
