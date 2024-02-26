@@ -70,18 +70,18 @@ function MobileNavigation() {
 
 export function Header() {
   return (
-    <header className="py-10">
+    <header className="py-2 h-18">
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <nav className="relative z-50 flex justify-between">
           <div className="flex items-center md:gap-x-12">
             <Link href="#" aria-label="Home">
-              <div className="w-16 h-16 rounded-full bg-secondary">
+              <div className="w-12 h-12 rounded-full bg-secondary">
                 <Image src="/worlds.png" width={112} height={112} alt="p2 logo" />
               </div>
             </Link>
             <div className="hidden md:flex md:gap-x-6">
               <NavLink href="#features">Features</NavLink>
-              <NavLink href="#testimonials">Docs</NavLink>
+              <NavLink href="http://localhost:3001">Docs</NavLink>
               <NavLink href="#support">Support</NavLink>
             </div>
           </div>
@@ -92,9 +92,9 @@ export function Header() {
             <div className="hidden md:block">
               <NavLink href="/auth">Sign in</NavLink>
             </div>
-            <Link href="/auth">
-              <button className="p-1 px-4 text-white rounded-full bg-secondary hover:text-black">Get started</button>
-            </Link>
+            <div className="hidden md:block">
+              <NavLink href="/auth">Login</NavLink>
+            </div>
             <div className="-mr-1 md:hidden">
               <MobileNavigation />
             </div>

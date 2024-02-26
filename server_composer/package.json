@@ -19,8 +19,7 @@
         "test": "turbo run test",
         "lint": "eslint \"**/*.{js,jsx,ts,tsx,json,md}\"",
         "lint-fix": "yarn lint --fix",
-        "quick": "pretty-quick --staged",
-        "postinstall": "husky install"
+        "quick": "pretty-quick --staged"
     },
     "lint-staged": {
         "*.{js,jsx,ts,tsx,json,md}": "eslint --fix"
