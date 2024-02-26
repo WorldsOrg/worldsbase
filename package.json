@@ -1,16 +1,18 @@
 {
   "license": "MIT",
   "scripts": {
-    "install:all": "npm run install:client && npm run install:server && npm run install:docs && npm run install:composer",
-    "install:client": "cd client && npm install",
-    "install:server": "cd server && npm install",
-    "install:docs": "cd docs && npm install",
-    "install:composer": "cd server_composer && npm install && turbo build",
+    "install:all": "npm run install:client && npm run install:server && npm run install:docs && npm run install:composer && npm run install:chain",
+    "install:client": "cd client && pnpm install",
+    "install:server": "cd server && pnpm install",
+    "install:docs": "cd docs && pnpm install",
+    "install:chain": "cd server_chain && pnpm install",
+    "install:composer": "cd server_composer && yarn install && turbo build",
     "init:tables": "cd server && npm run init_tables",
-    "dev": "npm run dev:client & npm run dev:server & npm run dev:docs & npm run dev:composer",
-    "dev:client": "cd client && npm dev",
+    "dev": "npm run dev:client & npm run dev:server & npm run dev:docs & npm run dev:composer & npm run dev:chain",
+    "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run start",
-    "dev:docs": "cd docs && npm dev",
-    "dev:composer": "cd server_composer && turbo dev"
+    "dev:docs": "cd docs && npm run dev",
+    "dev:composer": "cd server_composer && turbo dev",
+    "dev:chain": "cd server_chain && npm run start"
   }
 }

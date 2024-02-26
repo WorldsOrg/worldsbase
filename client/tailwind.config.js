@@ -1,12 +1,11 @@
 /** @type {import('tailwindcss').Config} */
+
+const colors = require("tailwindcss/colors");
+const { default: flattenColorPalette } = require("tailwindcss/lib/util/flattenColorPalette");
+
 module.exports = {
   darkMode: "class",
-  content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-  ],
+  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
     container: {
@@ -20,14 +19,14 @@ module.exports = {
       colors: {
         border: "hsl(var(--border))",
         ring: "hsl(var(--ring))",
-        borderColor:"var(--borderColor)",
+        borderColor: "var(--borderColor)",
 
         background: "var(--background)",
-        softBg:"var(--softBg)",
-        hoverBg:"var(--hoverBg)",
+        softBg: "var(--softBg)",
+        hoverBg: "var(--hoverBg)",
 
         secondary: "var(--secondary)",
-        secondaryHover:"var(--secondaryHover)",
+        secondaryHover: "var(--secondaryHover)",
         sidebar: "var(--sidebar)",
 
         primary: {
@@ -61,7 +60,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        'circular': ['CircularStd', 'sans-serif'],
+        circular: ["CircularStd", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -84,5 +83,14 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/forms")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/forms"), addVariablesForColors],
+};
+
+function addVariablesForColors({ addBase, theme }) {
+  let allColors = flattenColorPalette(theme("colors"));
+  let newVars = Object.fromEntries(Object.entries(allColors).map(([key, val]) => [`--${key}`, val]));
+
+  addBase({
+    ":root": newVars,
+  });
 }

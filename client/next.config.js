@@ -1,4 +1,14 @@
 module.exports = {
+  output: "standalone",
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "aceternity.com",
+        port: "",
+      },
+    ],
+  },
   async rewrites() {
     return [
       {
