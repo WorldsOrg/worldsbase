@@ -1,25 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { getOrCreatePool } from "../../config/database/database";
+import { databaseService } from "../../services/table/databaseService";
 
 export class DashboardController {
-  private async handleDatabaseRequest(req: Request, res: Response, query: string, queryParams: any[] = []) {
-    try {
-      const pool = await getOrCreatePool();
-      const client = await pool.connect();
-      try {
-        const result = await client.query(query, queryParams);
-        res.status(StatusCodes.OK).json(result.rows);
-      } finally {
-        client.release();
-      }
-    } catch (error) {
-      console.error("Error executing query:", error);
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Error executing query");
-    }
-  }
-
   getMatchDayStatistics = async (req: Request, res: Response) => {
     const query = `
             SELECT match_day_friendly AS "match_day_friendly",
@@ -50,7 +34,14 @@ export class DashboardController {
             ORDER BY "sum_row_num" ASC
             LIMIT 100;`;
 
-    await this.handleDatabaseRequest(req, res, query);
+    const result = await databaseService.executeQuery(query);
+    const { status, data, error } = result;
+
+    if (status === StatusCodes.OK && data) {
+      res.status(StatusCodes.OK).json(data);
+    } else {
+      res.status(status).send(error);
+    }
   };
 
   getPlayerCount = async (req: Request, res: Response) => {
@@ -59,10 +50,20 @@ export class DashboardController {
     FROM monster_players
     LIMIT 50000;`;
 
-    await this.handleDatabaseRequest(req, res, query);
+    const result = await databaseService.executeQuery(query);
+    const { status, data, error } = result;
+
+    if (status === StatusCodes.OK && data) {
+      res.status(StatusCodes.OK).json(data);
+    } else {
+      res.status(status).send(error);
+    }
   };
 
-  getTopFivePlayersHighestAverageHeadshots = async (req: Request, res: Response) => {
+  getTopFivePlayersHighestAverageHeadshots = async (
+    req: Request,
+    res: Response
+  ) => {
     const query = `
           SELECT steam_username AS steam_username,
                  avg_headshots_per_match AS count
@@ -76,7 +77,14 @@ export class DashboardController {
              LIMIT 5) AS virtual_table
           LIMIT 1000;`;
 
-    await this.handleDatabaseRequest(req, res, query);
+    const result = await databaseService.executeQuery(query);
+    const { status, data, error } = result;
+
+    if (status === StatusCodes.OK && data) {
+      res.status(StatusCodes.OK).json(data);
+    } else {
+      res.status(status).send(error);
+    }
   };
 
   getTopFiveActivePlayersMatchCount = async (req: Request, res: Response) => {
@@ -94,7 +102,14 @@ ORDER BY COUNT(DISTINCT mh.match_id) desc
 limit 5) AS virtual_table
 LIMIT 1000;`;
 
-    await this.handleDatabaseRequest(req, res, query);
+    const result = await databaseService.executeQuery(query);
+    const { status, data, error } = result;
+
+    if (status === StatusCodes.OK && data) {
+      res.status(StatusCodes.OK).json(data);
+    } else {
+      res.status(status).send(error);
+    }
   };
 
   getAverageHeadshotsPerMatch = async (req: Request, res: Response) => {
@@ -109,7 +124,14 @@ JOIN monster_players p ON pmp.player_id = p.id
 GROUP BY p.steam_username) AS virtual_table
 LIMIT 1000;`;
 
-    await this.handleDatabaseRequest(req, res, query);
+    const result = await databaseService.executeQuery(query);
+    const { status, data, error } = result;
+
+    if (status === StatusCodes.OK && data) {
+      res.status(StatusCodes.OK).json(data);
+    } else {
+      res.status(status).send(error);
+    }
   };
 
   getTotalMatchesPerDay = async (req: Request, res: Response) => {
@@ -127,6 +149,13 @@ FROM
    from matches) AS virtual_table
 LIMIT 1000;`;
 
-    await this.handleDatabaseRequest(req, res, query);
+    const result = await databaseService.executeQuery(query);
+    const { status, data, error } = result;
+
+    if (status === StatusCodes.OK && data) {
+      res.status(StatusCodes.OK).json(data);
+    } else {
+      res.status(status).send(error);
+    }
   };
 }
