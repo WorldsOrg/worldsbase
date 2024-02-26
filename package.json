@@ -1,16 +1,16 @@
 {
   "license": "MIT",
   "scripts": {
-    "install:all": "yarn run install:client && yarn run install:server && yarn run install:docs && yarn run install:composer",
-    "install:client": "cd client && yarn install",
-    "install:server": "cd server && yarn install",
-    "install:docs": "cd docs && yarn install",
-    "install:composer": "cd composer_server && yarn install && turbo build",
-    "init:tables": "cd server && yarn run init_tables",
-    "dev": "yarn run dev:client & yarn run dev:server & yarn run dev:docs & yarn run dev:composer",
-    "dev:client": "cd client && yarn dev",
-    "dev:server": "cd server && yarn run start",
-    "dev:docs": "cd docs && yarn dev",
+    "install:all": "npm run install:client && npm run install:server && npm run install:docs && npm run install:composer",
+    "install:client": "cd client && npm install",
+    "install:server": "cd server && npm install",
+    "install:docs": "cd docs && npm install",
+    "install:composer": "cd composer_server && npm install && turbo build",
+    "init:tables": "cd server && npm run init_tables",
+    "dev": "npm run dev:client & npm run dev:server & npm run dev:docs & npm run dev:composer",
+    "dev:client": "cd client && npm dev",
+    "dev:server": "cd server && npm run start",
+    "dev:docs": "cd docs && npm dev",
     "dev:composer": "cd composer_server && turbo dev"
   }
 }
