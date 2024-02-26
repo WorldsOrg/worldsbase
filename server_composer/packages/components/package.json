@@ -1,0 +1,44 @@
+{
+    "name": "outerbridge-components",
+    "version": "1.0.12",
+    "description": "Composer Components",
+    "main": "dist/src/index",
+    "types": "dist/src/index.d.ts",
+    "scripts": {
+        "build": "tsc && gulp",
+        "dev": "tsc --watch"
+    },
+    "keywords": [],
+    "homepage": "https://dashboard.worlds.org",
+    "author": {
+        "name": "Ozgur Sallanci",
+        "email": "ozgur@worlds.org"
+    },
+    "license": "SEE LICENSE IN LICENSE.md",
+    "dependencies": {
+        "@thirdweb-dev/sdk": "^4.0.23",
+        "@types/kafkajs": "^1.9.0",
+        "axios": "^0.27.2",
+        "cron": "^1.8.3",
+        "dotenv": "^16.0.0",
+        "ethers": "^5.6.8",
+        "express": "^4.17.3",
+        "form-data": "^4.0.0",
+        "kafkajs": "^2.2.4",
+        "mailparser": "^3.5.0",
+        "moment": "^2.29.3",
+        "nodemailer": "^6.7.5",
+        "solc": "^0.8.23-fixed",
+        "vm2": "^3.9.19",
+        "ws": "^8.9.0"
+    },
+    "devDependencies": {
+        "@types/cron": "^1.7.3",
+        "@types/gulp": "4.0.9",
+        "@types/mailparser": "^3.4.0",
+        "@types/nodemailer": "^6.4.4",
+        "@types/ws": "^8.5.3",
+        "gulp": "^4.0.2",
+        "typescript": "^4.8.4"
+    }
+}
