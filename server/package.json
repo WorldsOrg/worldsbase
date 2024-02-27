@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon",
     "build": "tsc",
-    "serve": "node dist/index.js",
+    "serve": "node dist/src/index.js",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "test": "jest --coverage",

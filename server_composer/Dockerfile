@@ -23,6 +23,10 @@ COPY . .
 
 RUN yarn build
 
-EXPOSE 3000
+EXPOSE 3008
+
+ENV PORT 3008
+
+ENV HOSTNAME "0.0.0.0"
 
 CMD [ "yarn", "start" ]

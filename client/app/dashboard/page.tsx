@@ -9,29 +9,20 @@ import useDashboardCharts from "@/hooks/useDashboardCharts";
 
 const Home = () => {
   const { data, loading } = useDashboardCharts();
-  const {
-    playerCount,
-    topFiveHighestHeadshots,
-    topFiveMatchCount,
-    gameStatistics,
-    totalMatchesPerDay,
-    averageHeadshotsPerMatch,
-  } = data;
+  const { playerCount, topFiveHighestHeadshots, topFiveMatchCount, gameStatistics, totalMatchesPerDay, averageHeadshotsPerMatch } = data;
 
   const pieCharts = [
     {
       id: 1,
       title: "Top 5 Players with Highest Average Headshots",
       data: topFiveHighestHeadshots,
-      className:
-        "flex flex-col w-full md:gap-0 gap-4 p-4 border rounded-lg md:w-1/2 border-border",
+      className: "flex flex-col w-full md:gap-0 gap-4 p-4 border rounded-lg md:w-1/2 border-border",
     },
     {
       id: 2,
       title: "Top 5 Active Players (Match Count)",
       data: topFiveMatchCount,
-      className:
-        "relative flex flex-col md:w-1/2 w-full p-4 border rounded-lg border-border",
+      className: "relative flex flex-col md:w-1/2 w-full p-4 border rounded-lg border-border",
     },
   ];
 
@@ -54,8 +45,7 @@ const Home = () => {
           isLoading={loading}
         />
       ),
-      className:
-        "flex flex-col md:w-1/2 w-full gap-4 p-4 border rounded-lg border-border md:h-[400px] h-[600px]",
+      className: "flex flex-col md:w-1/2 w-full gap-4 p-4 border rounded-lg border-border md:h-[400px] h-[600px]",
     },
     {
       id: 2,
@@ -74,8 +64,7 @@ const Home = () => {
           isLoading={loading}
         />
       ),
-      className:
-        " flex flex-col md:w-1/2 w-full p-4 pb-10 border rounded-lg border-border h-[400px]",
+      className: " flex flex-col md:w-1/2 w-full p-4 pb-10 border rounded-lg border-border h-[400px]",
     },
   ];
 
@@ -90,10 +79,7 @@ const Home = () => {
         {!isEmpty(playerCount) && (
           <div className="relative flex flex-col w-full gap-4 p-4 border rounded-lg md:w-1/4 border-border md:gap-0">
             <Title title="WGS-Player Count" />
-            <PlayerCountChart
-              count={playerCount?.[0]?.count!}
-              isLoading={loading}
-            />
+            <PlayerCountChart count={playerCount?.[0]?.count!} isLoading={loading} />
           </div>
         )}
       </div>

@@ -1,11 +1,48 @@
 version: "3"
 services:
-  client:
-    image: yourapp/client:1.0.0
-    ports:
-      - "8080:8080"
   server:
-    image: yourapp/server:1.0.0
+    image: server-docker
+    ports:
+      - "3003:3003"
+    networks:
+      - wgs-network
+    build: ./server
+    env_file: ./server/.env
+
+  client:
+    image: nextjs-docker
     ports:
       - "3000:3000"
-  # Define other services like docs, server_composer, etc.
+    networks:
+      - wgs-network
+    build: ./client
+    env_file: ./client/.env
+
+  composer:
+    image: composer
+    ports:
+      - "3008:3008"
+    networks:
+      - wgs-network
+    build: ./server_composer
+    env_file: ./server_composer/packages/server/.env
+
+  docs:
+    image: docs
+    ports:
+      - "3001:3001"
+    networks:
+      - wgs-network
+    build: ./docs
+
+  chain:
+    image: chain
+    ports:
+      - "3004:3004"
+    networks:
+      - wgs-network
+    build: ./server_chain
+    env_file: ./server_chain/.env
+
+networks:
+  wgs-network:

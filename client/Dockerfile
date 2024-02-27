@@ -60,6 +60,10 @@ USER nextjs
 
 EXPOSE 3000
 
+# ENV NEXT_PUBLIC_API_BASE_URL /api
+# ENV NEXT_PUBLIC_X_API_KEY 323f7dfb-6ba3-4ba0-99cb-c493a3a712d7
+# ENV NEXT_PUBLIC_BASE_URL /composerapi
+
 ENV PORT 3000
 # set hostname to localhost
 ENV HOSTNAME "0.0.0.0"
