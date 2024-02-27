@@ -1,7 +1,7 @@
 {
   "license": "MIT",
   "scripts": {
-    "install:all": "npm run install:client && npm run install:server && npm run install:docs && npm run install:composer && npm run install:chain",
+    "install": "npm run install:client && npm run install:server && npm run install:docs && npm run install:composer && npm run install:chain",
     "install:client": "cd client && pnpm install",
     "install:server": "cd server && pnpm install",
     "install:docs": "cd docs && pnpm install",
