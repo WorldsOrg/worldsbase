@@ -2,7 +2,7 @@
   "license": "MIT",
   "scripts": {
     "install": "npm run install:client && npm run install:server && npm run install:docs && npm run install:composer && npm run install:chain",
-    "install:client": "cd client && yarn install",
+    "install:client": "cd client && npm install --legacy-peer-deps",
     "install:server": "cd server && npm install",
     "install:docs": "cd docs && npm install",
     "install:chain": "cd server_chain && npm install",
