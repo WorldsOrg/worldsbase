@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   console.log(request.nextUrl.pathname);
   if (request.nextUrl.pathname.startsWith("/api")) {
     console.log(process.env.API_PATH, request.url);
-    return NextResponse.rewrite(new URL(process.env.API_PATH as string, request.url));
+    return NextResponse.rewrite(new URL(process.env.API_PATH as string));
   }
 
   if (request.nextUrl.pathname.startsWith("/composerapi")) {
