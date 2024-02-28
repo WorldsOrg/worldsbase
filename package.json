@@ -15,5 +15,8 @@
     "dev:docs": "cd docs && npm run dev",
     "dev:composer": "cd server_composer && turbo dev",
     "dev:chain": "cd server_chain && npm run start"
+  },
+  "dependencies": {
+    "turbo": "^1.12.4"
   }
 }
