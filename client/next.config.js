@@ -4,11 +4,15 @@ module.exports = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://server:3003/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_PATH}/:path*`,
       },
       {
         source: "/composerapi/:path*",
-        destination: "http://localhost:3008/:path*",
+        destination: `${process.env.NEXT_PUBLIC_COMPOSER_API_PATH}/:path*`,
+      },
+      {
+        source: "/chainapi/:path*",
+        destination: `${process.env.NEXT_PUBLIC_CHAIN_API_PATH}/:path*`,
       },
     ];
   },

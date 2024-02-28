@@ -1,4 +1,4 @@
-import { cn } from "../../util/cn";
+import { cn } from "../../utils/cn";
 import { BackgroundGradient } from "./GradientCard";
 
 export const BentoGrid = ({ className, children }: { className?: string; children?: React.ReactNode }) => {

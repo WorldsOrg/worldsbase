@@ -8,7 +8,7 @@ import { AppModule } from './app.module';
 
 declare const module: any;
 
-const port = process.env.PORT || 3005;
+const port = process.env.PORT || 3004;
 
 async function bootstrap() {
   dotenv.config();
