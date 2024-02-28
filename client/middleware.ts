@@ -5,18 +5,18 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   console.log(request.nextUrl.pathname);
   if (request.nextUrl.pathname.startsWith("/api")) {
-    console.log(process.env.API_PATH, request.url);
-    return NextResponse.rewrite(new URL(process.env.API_PATH as string));
+    const pathname = request.nextUrl.pathname.slice(4);
+    return NextResponse.rewrite(new URL(`${process.env.API_PATH}${pathname}`, request.nextUrl.href));
   }
 
   if (request.nextUrl.pathname.startsWith("/composerapi")) {
-    console.log(process.env.COMPOSER_API_PATH, request.url);
-    return NextResponse.rewrite(new URL(process.env.COMPOSER_API_PATH as string, request.url));
+    const pathname = request.nextUrl.pathname.slice(12);
+    return NextResponse.rewrite(new URL(`${process.env.COMPOSER_API_PATH}${pathname}`, request.url));
   }
 
   if (request.nextUrl.pathname.startsWith("/chainapi")) {
-    console.log(process.env.CHAIN_API_PATH, request.url);
-    return NextResponse.rewrite(new URL(process.env.CHAIN_API_PATH as string, request.url));
+    const pathname = request.nextUrl.pathname.slice(9);
+    return NextResponse.rewrite(new URL(`${process.env.CHAIN_API_PATH}${pathname}`, request.url));
   }
 }
 
