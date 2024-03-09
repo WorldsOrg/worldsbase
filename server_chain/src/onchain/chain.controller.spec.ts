@@ -13,4 +13,8 @@ describe('ChainController', () => {
 
     chainController = app.get<ChainController>(ChainController);
   });
+
+  it('should be defined', () => {
+    expect(chainController).toBeDefined();
+  });
 });

@@ -1,10 +1,10 @@
 {
-  "name": "wgs",
+  "name": "worlds-base",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Ozgur Sallanci",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -35,7 +35,14 @@
     "ethers": "^5.7.2",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "@fastify/static": "^7.0.1",
+    "@nestjs/swagger": "^7.3.0",
+    "@simplewebauthn/server": "^9.0.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "moralis": "^2.25.0",
+    "web3": "^4.5.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

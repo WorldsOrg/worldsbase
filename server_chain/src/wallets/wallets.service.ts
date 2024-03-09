@@ -1,6 +1,11 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { TurnkeyClient, createActivityPoller } from '@turnkey/http';
 import { ApiKeyStamper } from '@turnkey/api-key-stamper';
+import Moralis from 'moralis';
+import { Web3 } from 'web3';
+import { Value } from './entities/value.entity';
+import { Stats } from './entities/stats.entity';
+import { EthWallet } from './entities/wallet.entity';
 
 const TURNKEY_BASE_URL = 'https://api.turnkey.com';
 
@@ -33,33 +38,68 @@ const initTurnkeyClient = async () =>
 
 @Injectable()
 export class WalletsService {
+  async createWalletAddress(user_id: string): Promise<EthWallet> {
+    try {
+      const web3 = new Web3();
+      const result = web3.eth.accounts.create();
+      console.log(user_id, result.address, result.privateKey);
+      // add user_id public_key and private_key to database
+      return {
+        address: result.address,
+        privateKey: result.privateKey,
+        user_id: user_id,
+      };
+    } catch (error) {
+      console.error('Error creating wallet:', error);
+      throw new HttpException(
+        'Error creating wallet',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   async createWallet(user_id: string): Promise<string> {
-    console.log(user_id);
     try {
       const turnkeyClient = await initTurnkeyClient();
       const activityPoller = createActivityPoller({
         client: turnkeyClient,
-        requestFn: turnkeyClient.createPrivateKeys,
+        requestFn: turnkeyClient.createSubOrganization,
       });
 
-      const pk = await activityPoller({
-        type: 'ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2',
-        timestampMs: String(Date.now()),
+      const completedActivity = await activityPoller({
+        type: 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4',
+        timestampMs: Date.now().toString(),
         organizationId: process.env.organizationId as string,
         parameters: {
-          privateKeys: [
+          subOrganizationName: user_id,
+          rootUsers: [
             {
-              privateKeyName: user_id,
-              curve: 'CURVE_SECP256K1',
-              addressFormats: ['ADDRESS_FORMAT_ETHEREUM'],
-              privateKeyTags: [],
+              userName: user_id,
+              authenticators: [],
+              apiKeys: [
+                {
+                  apiKeyName: 'test',
+                  publicKey: process.env.apiPublicKey as string,
+                },
+              ],
             },
           ],
+          rootQuorumThreshold: 1,
+          wallet: {
+            walletName: 'Default ETH Wallet',
+            accounts: [
+              {
+                curve: 'CURVE_SECP256K1',
+                pathFormat: 'PATH_FORMAT_BIP32',
+                path: "m/44'/60'/0'/0/0",
+                addressFormat: 'ADDRESS_FORMAT_ETHEREUM',
+              },
+            ],
+          },
         },
       });
 
       const walletAddress =
-        pk.result.createPrivateKeysResultV2?.privateKeys?.[0];
+        completedActivity.result.createSubOrganizationResultV4?.wallet;
 
       if (!walletAddress) {
         throw new HttpException(
@@ -67,11 +107,54 @@ export class WalletsService {
           HttpStatus.BAD_REQUEST,
         );
       }
-      return walletAddress.addresses?.[0]?.address as string;
+      // return walletAddress.addresses?.[0]?.address as string;
+      return walletAddress.walletId;
     } catch (error) {
       console.error('Error creating wallet:', error);
       throw new HttpException(
         'Error creating wallet',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getStats(wallet: string): Promise<Stats> {
+    try {
+      const response = await Moralis.EvmApi.wallets.getWalletStats({
+        chain: '0x1',
+        address: wallet,
+      });
+      return response.raw;
+    } catch (error) {
+      console.error('Error getting wallet stats:', error);
+      throw new HttpException(
+        'Error getting wallet stats',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getValue(wallet: string): Promise<Value> {
+    console.log(wallet);
+    try {
+      const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          'X-API-Key': process.env.MORALIS_API_KEY as string,
+        },
+      };
+      const result = await fetch(
+        `https://deep-index.moralis.io/api/v2.2/wallets/${wallet}/net-worth?exclude_spam=true&exclude_unverified_contracts=true`,
+        options,
+      );
+      const response = await result.json();
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.error('Error getting wallet value:', error);
+      throw new HttpException(
+        'Error  getting wallet value',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

@@ -11,6 +11,7 @@ export class ChainController {
 
   @Post('/mintto')
   mintTo(@Body() mintToDto: MintToDto): Promise<string> {
+    console.log(mintToDto);
     return this.controllerService.mintTo(mintToDto.toAddress);
   }
 }
