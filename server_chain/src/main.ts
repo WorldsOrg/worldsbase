@@ -8,7 +8,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { XApiKeyGuard } from './x-api-key/x-api-key.guard';
-import Moralis from 'moralis';
 
 declare const module: any;
 
@@ -21,10 +20,6 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
   );
-
-  await Moralis.start({
-    apiKey: process.env.MORALIS_API_KEY as string,
-  });
 
   const config = new DocumentBuilder()
     .setTitle('WorldsBase')

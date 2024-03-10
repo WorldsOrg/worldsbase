@@ -5,11 +5,16 @@ import { CreateWalletDto } from './dto/create-wallet.dto';
 import { EthWallet, TurnkeyWallet } from './entities/wallet.entity';
 import { Stats } from './entities/stats.entity';
 import { Value } from './entities/value.entity';
+import Moralis from 'moralis';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @Controller('wallets')
 export class WalletsController {
-  constructor(private readonly walletsService: WalletsService) {}
+  constructor(private readonly walletsService: WalletsService) {
+    Moralis.start({
+      apiKey: process.env.MORALIS_API_KEY as string,
+    });
+  }
 
   @Post('/create_turnkey_wallet')
   @ApiOperation({ summary: 'Creates a wallet using Turnkey' })
