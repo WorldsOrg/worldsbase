@@ -7,7 +7,6 @@ export class DBService {
 
   async executeQuery(query: string, queryParams: any[] = []) {
     try {
-      console.log(this.pool);
       const result = await this.pool.query(query, queryParams);
       return { status: 200, data: result.rows };
     } catch (error) {
