@@ -1,10 +1,13 @@
 import { Body, Controller, Post, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiHeader, ApiTags } from '@nestjs/swagger';
 import { WalletService } from './wallet.service';
-import { CreateWalletDto } from './dto/create-wallet.dto';
-import { EthWallet, TurnkeyWallet } from './entities/wallet.entity';
-import { Stats } from './entities/stats.entity';
-import { Value } from './entities/value.entity';
+import { CreateWalletDto } from './dto/wallet.dto';
+import {
+  EthWallet,
+  TurnkeyWallet,
+  Stats,
+  Value,
+} from './entities/wallet.entity';
 import Moralis from 'moralis';
 
 @ApiHeader({ name: 'x-api-key', required: true })

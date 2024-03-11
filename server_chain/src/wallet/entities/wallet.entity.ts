@@ -28,3 +28,79 @@ export class TurnkeyWallet {
   })
   address: string;
 }
+
+export class Value {
+  @ApiProperty({
+    example: '4.00',
+    description: 'Total Networth in USD',
+  })
+  total_networth_usd: string;
+
+  @ApiProperty({
+    example: [
+      {
+        chain: 'eth',
+        native_balance: '3',
+        native_balance_formatted: '0',
+        native_balance_usd: '4.00',
+        token_balance_usd: '12.00',
+        networth_usd: '3.00',
+      },
+    ],
+    description: 'Chains',
+  })
+  chains: [
+    {
+      chain: string;
+      native_balance: string;
+      native_balance_formatted: string;
+      native_balance_usd: string;
+      token_balance_usd: string;
+      networth_usd: string;
+    },
+  ];
+}
+
+export class Stats {
+  @ApiProperty({
+    example: '4',
+    description: 'NFT Count',
+  })
+  nfts: string;
+
+  @ApiProperty({
+    example: '5',
+    description: 'Collection Count',
+  })
+  collections: string;
+
+  @ApiProperty({
+    example: {
+      total: '4',
+    },
+    description: 'Total Transactions',
+  })
+  transactions: {
+    total: string;
+  };
+
+  @ApiProperty({
+    example: {
+      total: '1',
+    },
+    description: 'Total NFT Transfers',
+  })
+  nft_transfers: {
+    total: string;
+  };
+
+  @ApiProperty({
+    example: {
+      total: '2',
+    },
+    description: 'Total Token Transfers',
+  })
+  token_transfers: {
+    total: string;
+  };
+}
