@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
-import { WalletsService } from './wallets.service';
+import { WalletService } from './wallet.service';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { EthWallet, TurnkeyWallet } from './entities/wallet.entity';
 import { Stats } from './entities/stats.entity';
@@ -9,8 +9,8 @@ import Moralis from 'moralis';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @Controller('wallets')
-export class WalletsController {
-  constructor(private readonly walletsService: WalletsService) {
+export class WalletController {
+  constructor(private readonly walletService: WalletService) {
     Moralis.start({
       apiKey: process.env.MORALIS_API_KEY as string,
     });
@@ -24,7 +24,7 @@ export class WalletsController {
     type: TurnkeyWallet,
   })
   createWallet(@Body() createWalletDto: CreateWalletDto): Promise<string> {
-    return this.walletsService.createWallet(createWalletDto.user_id);
+    return this.walletService.createWallet(createWalletDto.user_id);
   }
 
   @Post('/create_wallet')
@@ -35,7 +35,7 @@ export class WalletsController {
     type: EthWallet,
   })
   createWalletAddress(@Body() createWalletDto: CreateWalletDto): Promise<any> {
-    return this.walletsService.createWalletAddress(createWalletDto.user_id);
+    return this.walletService.createWalletAddress(createWalletDto.user_id);
   }
 
   @Get('/stats')
@@ -46,7 +46,7 @@ export class WalletsController {
     type: Stats,
   })
   getStats(@Query('wallet') wallet: string): Promise<any> {
-    return this.walletsService.getStats(wallet);
+    return this.walletService.getStats(wallet);
   }
 
   @Get('/value')
@@ -57,6 +57,6 @@ export class WalletsController {
     type: Value,
   })
   getValue(@Query('wallet') wallet: string): Promise<any> {
-    return this.walletsService.getValue(wallet);
+    return this.walletService.getValue(wallet);
   }
 }

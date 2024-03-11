@@ -37,7 +37,7 @@ const initTurnkeyClient = async () =>
   );
 
 @Injectable()
-export class WalletsService {
+export class WalletService {
   async createWalletAddress(user_id: string): Promise<EthWallet> {
     try {
       const web3 = new Web3();
