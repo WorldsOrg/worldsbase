@@ -8,17 +8,12 @@ import {
   Stats,
   Value,
 } from './entities/wallet.entity';
-import Moralis from 'moralis';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Wallet')
-@Controller('wallets')
+@Controller('wallet')
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {
-    Moralis.start({
-      apiKey: process.env.MORALIS_API_KEY as string,
-    });
-  }
+  constructor(private readonly walletService: WalletService) {}
 
   @Post('/create_turnkey_wallet')
   @ApiOperation({ summary: 'Creates a wallet using Turnkey' })

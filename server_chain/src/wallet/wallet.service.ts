@@ -1,11 +1,9 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { TurnkeyClient, createActivityPoller } from '@turnkey/http';
 import { ApiKeyStamper } from '@turnkey/api-key-stamper';
-import Moralis from 'moralis';
 import { Web3 } from 'web3';
-import { Value } from './entities/value.entity';
-import { Stats } from './entities/stats.entity';
-import { EthWallet } from './entities/wallet.entity';
+import { EthWallet, Value, Stats } from './entities/wallet.entity';
+import { MoralisService } from 'src/moralis/moralis.service';
 
 const TURNKEY_BASE_URL = 'https://api.turnkey.com';
 
@@ -38,6 +36,7 @@ const initTurnkeyClient = async () =>
 
 @Injectable()
 export class WalletService {
+  constructor(private readonly moralisService: MoralisService) {}
   async createWalletAddress(user_id: string): Promise<EthWallet> {
     try {
       const web3 = new Web3();
@@ -120,10 +119,12 @@ export class WalletService {
 
   async getStats(wallet: string): Promise<Stats> {
     try {
-      const response = await Moralis.EvmApi.wallets.getWalletStats({
-        chain: '0x1',
-        address: wallet,
-      });
+      const response = await this.moralisService
+        .getMoralis()
+        .EvmApi.wallets.getWalletStats({
+          chain: '0x1',
+          address: wallet,
+        });
       return response.raw;
     } catch (error) {
       console.error('Error getting wallet stats:', error);
