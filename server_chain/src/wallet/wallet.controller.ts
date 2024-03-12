@@ -7,7 +7,6 @@ import {
   TurnkeyWallet,
   Stats,
   Value,
-  Token,
   NFTResult,
   TokenResult,
 } from './entities/wallet.entity';
