@@ -7,6 +7,9 @@ import {
   TurnkeyWallet,
   Stats,
   Value,
+  Token,
+  NFTResult,
+  TokenResult,
 } from './entities/wallet.entity';
 
 @ApiHeader({ name: 'x-api-key', required: true })
@@ -57,5 +60,29 @@ export class WalletController {
   })
   getValue(@Query('wallet') wallet: string): Promise<any> {
     return this.walletService.getValue(wallet);
+  }
+
+  @Get('/tokens')
+  @ApiOperation({
+    summary: 'Returns all tokens for an address',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Tokens from wallet',
+    type: TokenResult,
+  })
+  getTokens(@Query('wallet') wallet: string): Promise<TokenResult[]> {
+    return this.walletService.getTokens(wallet);
+  }
+
+  @Get('/nft')
+  @ApiOperation({ summary: 'Returns NFTs' })
+  @ApiResponse({
+    status: 201,
+    description: 'Returns NFTs from a wallet',
+    type: NFTResult,
+  })
+  getNFTs(@Query('wallet') wallet: string): Promise<NFTResult[]> {
+    return this.walletService.getNFTs(wallet);
   }
 }

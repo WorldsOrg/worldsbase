@@ -19,11 +19,19 @@ import {
   QueryDTO,
   RenameColumnDTO,
   SchemaDTO,
+  TableApiResponse,
   TableNameDTO,
   UpdateDataDTO,
   UpdateTableNameDTO,
 } from './dto/table.dto';
-import { ApiHeader, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiParam,
+} from '@nestjs/swagger';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Table')
@@ -32,18 +40,13 @@ export class TableController {
   constructor(private readonly tableService: TableService) {}
 
   @Post('/createTable')
-  createTable(@Body() createTableDTO: CreateTableDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  @ApiOperation({ summary: 'Create a new table' })
+  @ApiBody({ type: CreateTableDTO })
+  @ApiResponse({ status: 201, description: 'Table created successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  createTable(
+    @Body() createTableDTO: CreateTableDTO,
+  ): Promise<TableApiResponse<any>> {
     const columnDefinitions = createTableDTO.columns
       .map((col) => `${col.name} ${col.type} ${col.constraints || ''}`)
       .join(', ');
@@ -54,108 +57,86 @@ export class TableController {
   }
 
   @Delete('/deleteTable/:tableName')
-  deleteTable(@Param('tableName') tableNameDTO: TableNameDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  @ApiOperation({ summary: 'Delete an existing table' })
+  @ApiParam({
+    name: 'tableName',
+    type: 'string',
+    description: 'Name of the table to delete',
+  })
+  @ApiResponse({ status: 200, description: 'Table deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Table not found' })
+  deleteTable(
+    @Param('tableName') tableNameDTO: TableNameDTO,
+  ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
       `DROP TABLE IF EXISTS ${tableNameDTO.tableName};`,
     );
   }
 
   @Put('/updateTableName')
-  updateTableName(@Body() updateTableNameDTO: UpdateTableNameDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  @ApiOperation({ summary: 'Update the name of an existing table' })
+  @ApiBody({ type: UpdateTableNameDTO })
+  @ApiResponse({ status: 200, description: 'Table name updated successfully' })
+  @ApiResponse({ status: 404, description: 'Table not found' })
+  updateTableName(
+    @Body() updateTableNameDTO: UpdateTableNameDTO,
+  ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
       `ALTER TABLE ${updateTableNameDTO.oldTableName} RENAME TO ${updateTableNameDTO.newTableName};`,
     );
   }
 
   @Post('/addColumn')
-  addColumn(@Body() addColumnDTO: AddColumnDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  @ApiOperation({ summary: 'Add a new column to an existing table' })
+  @ApiBody({ type: AddColumnDTO })
+  @ApiResponse({ status: 200, description: 'Column added successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  addColumn(
+    @Body() addColumnDTO: AddColumnDTO,
+  ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
       `ALTER TABLE ${addColumnDTO.tableName} ADD COLUMN ${addColumnDTO.columnName} ${addColumnDTO.columnType};`,
     );
   }
 
   @Delete('/deleteColumn')
-  deleteColumn(@Body() deleteTableColumnDTO: DeleteTableColumnDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  @ApiOperation({ summary: 'Delete a column from a table' })
+  @ApiBody({ type: DeleteTableColumnDTO })
+  @ApiResponse({ status: 200, description: 'Column deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Column not found' })
+  deleteColumn(
+    @Body() deleteTableColumnDTO: DeleteTableColumnDTO,
+  ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
       `ALTER TABLE ${deleteTableColumnDTO.tableName} DROP COLUMN ${deleteTableColumnDTO.columnName};`,
     );
   }
 
   @Put('/renameColumn')
-  renameColumn(@Body() renameColumnDTO: RenameColumnDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  @ApiOperation({ summary: 'Rename an existing column in a table' })
+  @ApiBody({ type: RenameColumnDTO })
+  @ApiResponse({ status: 200, description: 'Column renamed successfully' })
+  @ApiResponse({ status: 404, description: 'Column not found' })
+  renameColumn(
+    @Body() renameColumnDTO: RenameColumnDTO,
+  ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
       `ALTER TABLE ${renameColumnDTO.tableName} RENAME COLUMN ${renameColumnDTO.oldColumnName} TO ${renameColumnDTO.newColumnName};`,
     );
   }
 
   @Get('/getColumns/:tableName')
-  getColumns(@Param() tableNameDTO: TableNameDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  @ApiOperation({ summary: 'Get all columns from a specific table' })
+  @ApiParam({
+    name: 'tableName',
+    type: 'string',
+    description: 'The name of the table to retrieve columns from',
+  })
+  @ApiResponse({ status: 200, description: 'Columns retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Table not found' })
+  getColumns(
+    @Param() tableNameDTO: TableNameDTO,
+  ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
       "SELECT c.column_name, c.data_type, CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN true ELSE false END AS is_primary_key FROM information_schema.columns AS c LEFT JOIN information_schema.key_column_usage AS kcu ON c.table_name = kcu.table_name AND c.column_name = kcu.column_name LEFT JOIN information_schema.table_constraints AS tc ON kcu.table_name = tc.table_name AND kcu.constraint_name = tc.constraint_name AND tc.constraint_type = 'PRIMARY KEY' WHERE c.table_name = $1 AND c.table_schema = 'public';",
       [tableNameDTO.tableName],
@@ -163,36 +144,34 @@ export class TableController {
   }
 
   @Get('/getTables/:schema')
-  getTables(@Param() schemaDTO: SchemaDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  @ApiOperation({ summary: 'Get all tables from a specific schema' })
+  @ApiParam({
+    name: 'schema',
+    type: 'string',
+    description: 'The schema to list tables from',
+  })
+  @ApiResponse({ status: 200, description: 'Tables retrieved successfully' })
+  getTables(@Param() schemaDTO: SchemaDTO): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
       `SELECT table_name FROM information_schema.tables WHERE table_schema = '${schemaDTO.schema}';`,
     );
   }
 
   @Get('/getTable/:tableName')
-  getTable(@Param() tableNameDTO: TableNameDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  @ApiOperation({ summary: 'Get the entire table data by table name' })
+  @ApiParam({
+    name: 'tableName',
+    type: 'string',
+    description: 'The name of the table to retrieve data from',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Table data retrieved successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Table not found' })
+  getTable(
+    @Param() tableNameDTO: TableNameDTO,
+  ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
       `SELECT * FROM ${tableNameDTO.tableName};`,
     );
@@ -202,35 +181,15 @@ export class TableController {
   getTableValue(
     @Param()
     getTableNameDTO: GetTableNameDTO,
-  ): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  ): Promise<TableApiResponse<any>> {
     const query = `SELECT * FROM ${getTableNameDTO.tableName} WHERE ${getTableNameDTO.columnName} = $1;`;
     return this.tableService.executeQuery(query, [getTableNameDTO.columnValue]);
   }
 
   @Post('/joinTables')
-  joinTables(@Body() joinTablesDTO: JoinTablesDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  joinTables(
+    @Body() joinTablesDTO: JoinTablesDTO,
+  ): Promise<TableApiResponse<any>> {
     const joinQuery = `FROM ${joinTablesDTO.tables[0]} ${joinTablesDTO.joinType} JOIN ${joinTablesDTO.tables[1]} ON ${joinTablesDTO.tables[0]}.${joinTablesDTO.joinColumns[0]} = ${joinTablesDTO.tables[1]}.${joinTablesDTO.joinColumns[1]}`;
     let query = `SELECT * ${joinQuery}`;
 
@@ -251,18 +210,9 @@ export class TableController {
   }
 
   @Post('/executeSelectQuery')
-  executeSelectQuery(@Body() queryDTO: QueryDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  executeSelectQuery(
+    @Body() queryDTO: QueryDTO,
+  ): Promise<TableApiResponse<any>> {
     if (
       (queryDTO.query && !queryDTO.query.toLowerCase().startsWith('select')) ||
       /;\s*drop\s|;\s*delete\s|;\s*insert\s|;\s*update\s/.test(
@@ -279,18 +229,9 @@ export class TableController {
   }
 
   @Post('/insertData')
-  insertData(@Body() insertDataDTO: InsertDataDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  insertData(
+    @Body() insertDataDTO: InsertDataDTO,
+  ): Promise<TableApiResponse<any>> {
     const columns = Object.keys(insertDataDTO.data).join(', ');
     const values = Object.values(insertDataDTO.data);
     const valuePlaceholders = values
@@ -301,35 +242,17 @@ export class TableController {
   }
 
   @Delete('/deleteData')
-  deleteData(@Body() deleteDataDTO: DeleteDataDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  deleteData(
+    @Body() deleteDataDTO: DeleteDataDTO,
+  ): Promise<TableApiResponse<any>> {
     const query = `DELETE FROM ${deleteDataDTO.tableName} WHERE ${deleteDataDTO.condition};`;
     return this.tableService.executeQuery(query);
   }
 
   @Put('/updateData')
-  updateData(@Body() updateDataDTO: UpdateDataDTO): Promise<
-    | {
-        status: number;
-        data: any;
-        error?: undefined;
-      }
-    | {
-        status: number;
-        error: string;
-        data?: undefined;
-      }
-  > {
+  updateData(
+    @Body() updateDataDTO: UpdateDataDTO,
+  ): Promise<TableApiResponse<any>> {
     const values: any[] | undefined = [];
 
     // Generate the SET part of the SQL query, and populate the values array

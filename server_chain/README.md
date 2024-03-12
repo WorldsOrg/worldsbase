@@ -1,73 +1,93 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Installation Guide for Local Development
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This guide will help you set up your development environment to work on the project. Please follow the steps below to ensure a smooth setup process.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Prerequisites
 
-## Description
+Before you begin, make sure you have the following installed on your system:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Git
+- Node.js and yarn
 
-## Installation
+## Step 1: Clone the Repository
+
+Start by cloning the project repository and navigating to the root folder of the project:
 
 ```bash
-$ npm install
+git clone https://github.com/Manifest-Git/wgs-mono.git
+cd wgs-mono
 ```
 
-## Running the app
+## Step 2: Install Dependencies
+
+Install all necessary dependencies for the project by running the following command:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+yarn run install:all
 ```
 
-## Test
+This command installs dependencies for both the server and the client components of the project.
+
+## Step 3: Set Up Environment Variables
+
+You will need to create .env files for both the server and the client. These files will store sensitive information and configurations.
+
+### Server Environment Variables
+
+Create a .env file inside the server folder and populate it with the following keys. Replace the placeholder comments with your actual values:
+
+```env
+MAIN_WALLET_PRIVATE_KEY= # The private key of the main wallet for minting and other operations
+THIRDWEB_SDK_SECRET_KEY= # The secret key for the thirdweb SDK
+X_API_KEY= # The API key for the server
+CONTRACT_ADDRESS= # The address of the deployed contract to mint
+apiPublicKey= # The public key for the Turnkey API
+apiPrivateKey= # The private key for the Turnkey API
+organizationId= # The organization ID for the Turnkey API
+MORALIS_API_KEY= # The API key for Moralis
+POSTGRES_HOST= # The host for the Postgres database
+POSTGRES_PORT= # The port for the Postgres database
+POSTGRES_USER= # The username for the Postgres database
+POSTGRES_DATABASE= # The name of the Postgres database
+POSTGRES_PASSWORD= # The password for the Postgres database
+SECRET_KEY= # The secret key for hashing
+
+```
+
+### Client Environment Variables
+
+Create a .env file inside the client folder with the following keys:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=/api
+NEXT_PUBLIC_X_API_KEY=YOUR_MATCHING_SERVER_X_API_KEY
+NEXT_PUBLIC_BASE_URL=YOUR_COMPOSER_BACKEND_BASE_URL
+```
+
+Ensure the NEXT_PUBLIC_X_API_KEY matches the X_API_KEY set in the server's .env.
+
+## Step 4: Initialize Database Tables
+
+Run the following command to create the required database tables:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+yarn run init:tables
 ```
 
-## Support
+## Step 5: Start the Development Server
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Finally, to start the development server along with the client and documentation, run:
 
-## Stay in touch
+```bash
+yarn run dev
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Your setup is now complete! You can begin developing and testing your application locally.
 
-## License
+## Accessing the Dashboard
 
-Nest is [MIT licensed](LICENSE).
+Once the development server is up and running, you can access the dashboard by navigating to:
+
+[http://localhost:3000](http://localhost:3000)
+
+Here, you can sign up or log in to start exploring and using the WorldsBase.

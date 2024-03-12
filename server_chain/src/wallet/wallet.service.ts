@@ -2,8 +2,15 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { TurnkeyClient, createActivityPoller } from '@turnkey/http';
 import { ApiKeyStamper } from '@turnkey/api-key-stamper';
 import { Web3 } from 'web3';
-import { EthWallet, Value, Stats } from './entities/wallet.entity';
+import {
+  EthWallet,
+  Value,
+  Stats,
+  TokenResult,
+  NFTResult,
+} from './entities/wallet.entity';
 import { MoralisService } from 'src/moralis/moralis.service';
+import { EvmChain } from '@moralisweb3/common-evm-utils';
 
 const TURNKEY_BASE_URL = 'https://api.turnkey.com';
 
@@ -156,6 +163,46 @@ export class WalletService {
       console.error('Error getting wallet value:', error);
       throw new HttpException(
         'Error  getting wallet value',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getTokens(wallet: string): Promise<TokenResult[]> {
+    try {
+      const response = await this.moralisService
+        .getMoralis()
+        .EvmApi.token.getWalletTokenBalances({
+          chain: EvmChain.ETHEREUM,
+          address: wallet,
+        });
+
+      console.log(response.raw);
+      return response.raw as TokenResult[];
+    } catch (error) {
+      console.error('Error getting tokens:', error);
+      throw new HttpException(
+        'Error getting tokens',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getNFTs(wallet: string): Promise<NFTResult[]> {
+    try {
+      const response = await this.moralisService
+        .getMoralis()
+        .EvmApi.nft.getWalletNFTs({
+          chain: '0x1',
+          format: 'decimal',
+          mediaItems: false,
+          address: wallet,
+        });
+      return response.raw.result as unknown as NFTResult[];
+    } catch (error) {
+      console.error('Error getting NFTs:', error);
+      throw new HttpException(
+        'Error getting NFTs',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

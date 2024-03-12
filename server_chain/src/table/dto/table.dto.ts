@@ -134,3 +134,9 @@ export class UpdateDataDTO {
   @IsObject()
   data: any;
 }
+
+export class TableApiResponse<T> {
+  status: number;
+  data?: T;
+  error?: string;
+}
