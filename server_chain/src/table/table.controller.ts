@@ -48,11 +48,11 @@ export class TableController {
     @Body() createTableDTO: CreateTableDTO,
   ): Promise<TableApiResponse<any>> {
     const columnDefinitions = createTableDTO.columns
-      .map((col) => `${col.name} ${col.type} ${col.constraints || ''}`)
+      .map((col) => `"${col.name}" ${col.type} ${col.constraints || ''}`)
       .join(', ');
 
     return this.tableService.executeQuery(
-      `CREATE TABLE IF NOT EXISTS ${createTableDTO.tableName} (${columnDefinitions});`,
+      `CREATE TABLE IF NOT EXISTS "${createTableDTO.tableName}" (${columnDefinitions});`,
     );
   }
 
@@ -69,7 +69,7 @@ export class TableController {
     @Param('tableName') tableNameDTO: TableNameDTO,
   ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
-      `DROP TABLE IF EXISTS ${tableNameDTO.tableName};`,
+      `DROP TABLE IF EXISTS "${tableNameDTO.tableName}";`,
     );
   }
 
@@ -82,7 +82,7 @@ export class TableController {
     @Body() updateTableNameDTO: UpdateTableNameDTO,
   ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
-      `ALTER TABLE ${updateTableNameDTO.oldTableName} RENAME TO ${updateTableNameDTO.newTableName};`,
+      `ALTER TABLE "${updateTableNameDTO.oldTableName}" RENAME TO "${updateTableNameDTO.newTableName}";`,
     );
   }
 
@@ -95,7 +95,7 @@ export class TableController {
     @Body() addColumnDTO: AddColumnDTO,
   ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
-      `ALTER TABLE ${addColumnDTO.tableName} ADD COLUMN ${addColumnDTO.columnName} ${addColumnDTO.columnType};`,
+      `ALTER TABLE "${addColumnDTO.tableName}" ADD COLUMN "${addColumnDTO.columnName}" ${addColumnDTO.columnType};`,
     );
   }
 
@@ -108,7 +108,7 @@ export class TableController {
     @Body() deleteTableColumnDTO: DeleteTableColumnDTO,
   ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
-      `ALTER TABLE ${deleteTableColumnDTO.tableName} DROP COLUMN ${deleteTableColumnDTO.columnName};`,
+      `ALTER TABLE "${deleteTableColumnDTO.tableName}" DROP COLUMN "${deleteTableColumnDTO.columnName}";`,
     );
   }
 
@@ -121,7 +121,7 @@ export class TableController {
     @Body() renameColumnDTO: RenameColumnDTO,
   ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
-      `ALTER TABLE ${renameColumnDTO.tableName} RENAME COLUMN ${renameColumnDTO.oldColumnName} TO ${renameColumnDTO.newColumnName};`,
+      `ALTER TABLE "${renameColumnDTO.tableName}" RENAME COLUMN "${renameColumnDTO.oldColumnName}" TO "${renameColumnDTO.newColumnName}";`,
     );
   }
 
@@ -173,7 +173,7 @@ export class TableController {
     @Param() tableNameDTO: TableNameDTO,
   ): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
-      `SELECT * FROM ${tableNameDTO.tableName};`,
+      `SELECT * FROM "${tableNameDTO.tableName}";`,
     );
   }
 
@@ -182,7 +182,7 @@ export class TableController {
     @Param()
     getTableNameDTO: GetTableNameDTO,
   ): Promise<TableApiResponse<any>> {
-    const query = `SELECT * FROM ${getTableNameDTO.tableName} WHERE ${getTableNameDTO.columnName} = $1;`;
+    const query = `SELECT * FROM "${getTableNameDTO.tableName}" WHERE "${getTableNameDTO.columnName}" = $1;`;
     return this.tableService.executeQuery(query, [getTableNameDTO.columnValue]);
   }
 
@@ -237,7 +237,7 @@ export class TableController {
     const valuePlaceholders = values
       .map((_, index) => `$${index + 1}`)
       .join(', ');
-    const query = `INSERT INTO ${insertDataDTO.tableName} (${columns}) VALUES (${valuePlaceholders});`;
+    const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) VALUES (${valuePlaceholders});`;
     return this.tableService.executeQuery(query, values);
   }
 
@@ -245,7 +245,7 @@ export class TableController {
   deleteData(
     @Body() deleteDataDTO: DeleteDataDTO,
   ): Promise<TableApiResponse<any>> {
-    const query = `DELETE FROM ${deleteDataDTO.tableName} WHERE ${deleteDataDTO.condition};`;
+    const query = `DELETE FROM "${deleteDataDTO.tableName}" WHERE ${deleteDataDTO.condition};`;
     return this.tableService.executeQuery(query);
   }
 
@@ -264,7 +264,7 @@ export class TableController {
       .join(', ');
 
     // Construct the full SQL query
-    const query = `UPDATE ${updateDataDTO.tableName} SET ${updates} WHERE ${updateDataDTO.condition};`;
+    const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition};`;
 
     return this.tableService.executeQuery(query, values);
   }
