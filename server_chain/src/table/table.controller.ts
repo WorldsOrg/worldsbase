@@ -14,6 +14,7 @@ import {
   DeleteDataDTO,
   DeleteTableColumnDTO,
   GetTableNameDTO,
+  IncrementDataDTO,
   InsertDataDTO,
   JoinTablesDTO,
   QueryDTO,
@@ -267,5 +268,21 @@ export class TableController {
     const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition};`;
 
     return this.tableService.executeQuery(query, values);
+  }
+
+  @Post('/incrementData')
+  incrementData(
+    @Body() incrementDataDTO: IncrementDataDTO,
+  ): Promise<TableApiResponse<any>> {
+    const query = `UPDATE "${incrementDataDTO.tableName}" SET ${incrementDataDTO.columnName} = ${incrementDataDTO.columnName} + ${incrementDataDTO.value} WHERE ${incrementDataDTO.condition};`;
+    return this.tableService.executeQuery(query);
+  }
+
+  @Post('/decrementData')
+  decrementData(
+    @Body() decrementDataDTO: IncrementDataDTO,
+  ): Promise<TableApiResponse<any>> {
+    const query = `UPDATE "${decrementDataDTO.tableName}" SET ${decrementDataDTO.columnName} = ${decrementDataDTO.columnName} - ${decrementDataDTO.value} WHERE ${decrementDataDTO.condition};`;
+    return this.tableService.executeQuery(query);
   }
 }

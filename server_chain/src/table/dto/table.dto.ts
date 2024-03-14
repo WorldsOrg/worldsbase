@@ -1,4 +1,4 @@
-import { IsString, IsArray, IsObject } from 'class-validator';
+import { IsString, IsArray, IsObject, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 export class CreateTableDTO {
   @ApiProperty()
@@ -139,4 +139,19 @@ export class TableApiResponse<T> {
   status: number;
   data?: T;
   error?: string;
+}
+
+export class IncrementDataDTO {
+  @ApiProperty()
+  @IsString()
+  tableName: string;
+  @ApiProperty()
+  @IsString()
+  condition: string;
+  @ApiProperty()
+  @IsString()
+  columnName: string;
+  @ApiProperty()
+  @IsNumber()
+  value: number;
 }
