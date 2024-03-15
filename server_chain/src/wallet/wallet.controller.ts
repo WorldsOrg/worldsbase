@@ -51,7 +51,10 @@ export class WalletController {
     type: EthWallet,
   })
   encryptWallet(@Body() encryptWalletDto: EncryptWalletDto): Promise<any> {
-    return this.walletService.encryptWallet(encryptWalletDto.key);
+    return this.walletService.encryptWallet(
+      encryptWalletDto.key,
+      encryptWalletDto.pass,
+    );
   }
 
   @Post('/decrypt_wallet')

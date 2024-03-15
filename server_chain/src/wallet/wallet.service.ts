@@ -50,7 +50,7 @@ const initTurnkeyClient = async () =>
 @Injectable()
 export class WalletService {
   constructor(private readonly moralisService: MoralisService) {}
-  async encryptWallet(key: string): Promise<string> {
+  async encryptWallet(key: string, pass: string): Promise<string> {
     const salt = Buffer.from(process.env.KEY_SALT as string, 'hex');
     const iterations = 100000;
     const keyLength = 32;
@@ -58,7 +58,13 @@ export class WalletService {
     const algorithm = 'aes-256-cbc';
 
     try {
-      const derivedKey = await pbkdf2(key, salt, iterations, keyLength, digest);
+      const derivedKey = await pbkdf2(
+        pass,
+        salt,
+        iterations,
+        keyLength,
+        digest,
+      );
       const iv = Buffer.from(process.env.KEY_IV as string, 'hex');
       const cipher = createCipheriv(algorithm, derivedKey, iv);
 
@@ -72,7 +78,7 @@ export class WalletService {
     }
   }
 
-  async decryptWallet(encryptedData: string, key: string): Promise<string> {
+  async decryptWallet(encryptedData: string, pass: string): Promise<string> {
     const salt = Buffer.from(process.env.KEY_SALT as string, 'hex');
     const iterations = 100000;
     const keyLength = 32;
@@ -80,7 +86,13 @@ export class WalletService {
     const algorithm = 'aes-256-cbc';
 
     try {
-      const derivedKey = await pbkdf2(key, salt, iterations, keyLength, digest);
+      const derivedKey = await pbkdf2(
+        pass,
+        salt,
+        iterations,
+        keyLength,
+        digest,
+      );
       const iv = Buffer.from(process.env.KEY_IV as string, 'hex');
       const decipher = createDecipheriv(algorithm, derivedKey, iv);
 

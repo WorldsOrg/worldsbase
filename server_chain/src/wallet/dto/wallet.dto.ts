@@ -16,12 +16,15 @@ export class EncryptWalletDto {
   @ApiProperty()
   @IsString()
   readonly key: string;
+  @ApiProperty()
+  @IsString()
+  readonly pass: string;
 }
 
 export class DecryptWalletDto {
   @ApiProperty()
   @IsString()
-  readonly key: string;
+  readonly pass: string;
   @ApiProperty()
   @IsString()
   readonly encryptedData: string;
