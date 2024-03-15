@@ -1,7 +1,11 @@
 import { Body, Controller, Post, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiHeader, ApiTags } from '@nestjs/swagger';
 import { WalletService } from './wallet.service';
-import { CreateWalletDto } from './dto/wallet.dto';
+import {
+  CreateWalletDto,
+  DecryptWalletDto,
+  EncryptWalletDto,
+} from './dto/wallet.dto';
 import {
   EthWallet,
   TurnkeyWallet,
@@ -37,6 +41,31 @@ export class WalletController {
   })
   createWalletAddress(@Body() createWalletDto: CreateWalletDto): Promise<any> {
     return this.walletService.createWalletAddress(createWalletDto.user_id);
+  }
+
+  @Post('/encrypt_wallet')
+  @ApiOperation({ summary: 'Encrypts private key' })
+  @ApiResponse({
+    status: 201,
+    description: 'Encrypted private key',
+    type: EthWallet,
+  })
+  encryptWallet(@Body() encryptWalletDto: EncryptWalletDto): Promise<any> {
+    return this.walletService.encryptWallet(encryptWalletDto.key);
+  }
+
+  @Post('/decrypt_wallet')
+  @ApiOperation({ summary: 'Decrypts private key' })
+  @ApiResponse({
+    status: 201,
+    description: 'Decrypted private key',
+    type: EthWallet,
+  })
+  decryptWallet(@Body() decryptWalletDto: DecryptWalletDto): Promise<any> {
+    return this.walletService.decryptWallet(
+      decryptWalletDto.encryptedData,
+      decryptWalletDto.key,
+    );
   }
 
   @Get('/stats')

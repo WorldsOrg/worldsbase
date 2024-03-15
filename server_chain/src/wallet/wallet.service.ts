@@ -11,6 +11,12 @@ import {
 } from './entities/wallet.entity';
 import { MoralisService } from 'src/moralis/moralis.service';
 import { EvmChain } from '@moralisweb3/common-evm-utils';
+import { promisify } from 'util';
+import * as crypto from 'crypto';
+
+const pbkdf2 = promisify(crypto.pbkdf2);
+const createCipheriv = crypto.createCipheriv;
+const createDecipheriv = crypto.createDecipheriv;
 
 const TURNKEY_BASE_URL = 'https://api.turnkey.com';
 
@@ -44,6 +50,50 @@ const initTurnkeyClient = async () =>
 @Injectable()
 export class WalletService {
   constructor(private readonly moralisService: MoralisService) {}
+  async encryptWallet(key: string): Promise<string> {
+    const salt = Buffer.from(process.env.KEY_SALT as string, 'hex');
+    const iterations = 100000;
+    const keyLength = 32;
+    const digest = 'sha512';
+    const algorithm = 'aes-256-cbc';
+
+    try {
+      const derivedKey = await pbkdf2(key, salt, iterations, keyLength, digest);
+      const iv = Buffer.from(process.env.KEY_IV as string, 'hex');
+      const cipher = createCipheriv(algorithm, derivedKey, iv);
+
+      let encrypted = cipher.update(key, 'utf8', 'hex');
+      encrypted += cipher.final('hex');
+
+      return encrypted;
+    } catch (err) {
+      console.error(err);
+      throw new Error('Encryption failed');
+    }
+  }
+
+  async decryptWallet(encryptedData: string, key: string): Promise<string> {
+    const salt = Buffer.from(process.env.KEY_SALT as string, 'hex');
+    const iterations = 100000;
+    const keyLength = 32;
+    const digest = 'sha512';
+    const algorithm = 'aes-256-cbc';
+
+    try {
+      const derivedKey = await pbkdf2(key, salt, iterations, keyLength, digest);
+      const iv = Buffer.from(process.env.KEY_IV as string, 'hex');
+      const decipher = createDecipheriv(algorithm, derivedKey, iv);
+
+      let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+      decrypted += decipher.final('utf8');
+
+      return decrypted;
+    } catch (err) {
+      console.error(err);
+      throw new Error('Decryption failed');
+    }
+  }
+
   async createWalletAddress(user_id: string): Promise<EthWallet> {
     try {
       const web3 = new Web3();

@@ -11,3 +11,18 @@ export class WalletInformationDto {
   @IsString()
   readonly address: string;
 }
+
+export class EncryptWalletDto {
+  @ApiProperty()
+  @IsString()
+  readonly key: string;
+}
+
+export class DecryptWalletDto {
+  @ApiProperty()
+  @IsString()
+  readonly key: string;
+  @ApiProperty()
+  @IsString()
+  readonly encryptedData: string;
+}
