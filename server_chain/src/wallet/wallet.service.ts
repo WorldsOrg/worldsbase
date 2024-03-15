@@ -110,7 +110,6 @@ export class WalletService {
     try {
       const web3 = new Web3();
       const result = web3.eth.accounts.create();
-      console.log(user_id, result.address, result.privateKey);
       // add user_id public_key and private_key to database
       return {
         address: result.address,
@@ -205,7 +204,6 @@ export class WalletService {
   }
 
   async getValue(wallet: string): Promise<Value> {
-    console.log(wallet);
     try {
       const options = {
         method: 'GET',
@@ -219,7 +217,6 @@ export class WalletService {
         options,
       );
       const response = await result.json();
-      console.log(response);
       return response;
     } catch (error) {
       console.error('Error getting wallet value:', error);
@@ -239,7 +236,6 @@ export class WalletService {
           address: wallet,
         });
 
-      console.log(response.raw);
       return response.raw as TokenResult[];
     } catch (error) {
       console.error('Error getting tokens:', error);
