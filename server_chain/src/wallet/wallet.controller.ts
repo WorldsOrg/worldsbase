@@ -67,7 +67,7 @@ export class WalletController {
   decryptWallet(@Body() decryptWalletDto: DecryptWalletDto): Promise<any> {
     return this.walletService.decryptWallet(
       decryptWalletDto.encryptedData,
-      decryptWalletDto.key,
+      decryptWalletDto.pass,
     );
   }
 
