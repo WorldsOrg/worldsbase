@@ -21,6 +21,8 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
+  app.enableCors();
+
   const config = new DocumentBuilder()
     .setTitle('WorldsBase')
     .setDescription('WorldsBase API description')
