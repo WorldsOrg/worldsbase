@@ -50,7 +50,7 @@ const initTurnkeyClient = async () =>
 @Injectable()
 export class WalletService {
   constructor(private readonly moralisService: MoralisService) {}
-  async encryptWallet(key: string, pass: string): Promise<string> {
+  async encryptWallet(key: string, pass: string): Promise<any> {
     const salt = Buffer.from(process.env.KEY_SALT as string, 'hex');
     const iterations = 100000;
     const keyLength = 32;
@@ -71,7 +71,7 @@ export class WalletService {
       let encrypted = cipher.update(key, 'utf8', 'hex');
       encrypted += cipher.final('hex');
 
-      return encrypted;
+      return { encrypted };
     } catch (err) {
       console.error(err);
       throw new Error('Encryption failed');
