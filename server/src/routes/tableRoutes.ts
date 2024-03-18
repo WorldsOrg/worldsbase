@@ -24,4 +24,7 @@ router.post("/insertData", controller.insertData);
 router.delete("/deleteData", controller.deleteData);
 router.put("/updateData", controller.updateData);
 
+router.get("/defaultTables",controller.getDefaultDefinedTables);
+
+
 export default router;

@@ -258,4 +258,17 @@ export class TableController {
       res.status(result.status).send(result.error);
     }
   };
+
+  getDefaultDefinedTables = async (req: Request, res: Response) => {
+    const query = "SELECT * FROM information_schema.tables;";
+    const result = await databaseService.executeQuery(query);
+    
+    const tableNames=result?.data?.filter(item => item.table_schema !== "public")?.map((item)=>item.table_name).filter(Boolean);
+
+    if (result.status === StatusCodes.OK) {
+      res.status(StatusCodes.OK).send(tableNames);
+    } else {
+      res.status(result.status).send(result.error);
+    }
+  };
 }
