@@ -42,6 +42,7 @@
     "dotenv": "^16.4.4",
     "ethers": "^5.7.2",
     "jsonwebtoken": "^9.0.2",
+    "moesif-nodejs": "^3.6.1",
     "moralis": "^2.25.0",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.0",
