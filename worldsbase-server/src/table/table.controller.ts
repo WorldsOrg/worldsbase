@@ -6,6 +6,7 @@ import {
   Get,
   Body,
   Param,
+  BadRequestException,
 } from '@nestjs/common';
 import { TableService } from './table.service';
 import {
@@ -331,5 +332,52 @@ export class TableController {
     return this.tableService.executeQuery(
       "SELECT table_name FROM information_schema.tables WHERE table_schema != 'public';",
     );
+  }
+  @Post('/addtrigger')
+  @ApiOperation({ summary: 'Add a trigger to a table' })
+  addTrigger(
+    @Body('tableName') tableName: string,
+  ): Promise<TableApiResponse<any>> {
+    if (!/^[A-Za-z0-9_]+$/.test(tableName)) {
+      throw new BadRequestException('Invalid table name');
+    }
+    const triggerName = `notify_trigger_${tableName}`;
+    const createTriggerQuery = `
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${triggerName}') THEN
+          EXECUTE format('CREATE TRIGGER %I
+                          AFTER INSERT OR UPDATE OR DELETE ON %I
+                          FOR EACH ROW EXECUTE FUNCTION notify_event()', '${triggerName}', '${tableName}');
+        END IF;
+      END
+      $$;
+      `;
+
+    return this.tableService.executeQuery(createTriggerQuery);
+  }
+
+  @Delete('/removetrigger')
+  @ApiOperation({ summary: 'Remove a trigger from a table' })
+  removeTrigger(
+    @Body('tableName') tableName: string,
+  ): Promise<TableApiResponse<any>> {
+    // Validate the tableName to ensure it's a valid identifier
+    if (!/^[A-Za-z0-9_]+$/.test(tableName)) {
+      throw new BadRequestException('Invalid table name');
+    }
+
+    const triggerName = `notify_trigger_${tableName}`;
+    const dropTriggerQuery = `
+    DO $$
+    BEGIN
+      IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${triggerName}') THEN
+        EXECUTE format('DROP TRIGGER %I ON %I', '${triggerName}', '${tableName}');
+      END IF;
+    END
+    $$;
+    `;
+
+    return this.tableService.executeQuery(dropTriggerQuery);
   }
 }

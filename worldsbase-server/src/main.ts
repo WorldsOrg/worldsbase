@@ -20,7 +20,6 @@ async function bootstrap() {
   const options = {
     applicationId: process.env.MOESIF_APPLICATION_ID as string,
     logBody: true,
-    debug: true,
   };
 
   const moesifMiddleware = moesif(options);
