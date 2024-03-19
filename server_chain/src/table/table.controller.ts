@@ -272,6 +272,8 @@ export class TableController {
   }
 
   @Delete('/deleteData')
+  @ApiOperation({ summary: 'Delete data from a table' })
+  @ApiBody({ type: DeleteDataDTO })
   deleteData(
     @Body() deleteDataDTO: DeleteDataDTO,
   ): Promise<TableApiResponse<any>> {
@@ -280,6 +282,8 @@ export class TableController {
   }
 
   @Put('/updateData')
+  @ApiOperation({ summary: 'Update data in a table' })
+  @ApiBody({ type: UpdateDataDTO })
   updateData(
     @Body() updateDataDTO: UpdateDataDTO,
   ): Promise<TableApiResponse<any>> {
@@ -300,6 +304,8 @@ export class TableController {
   }
 
   @Post('/incrementData')
+  @ApiOperation({ summary: 'Increment data in a table' })
+  @ApiBody({ type: IncrementDataDTO })
   incrementData(
     @Body() incrementDataDTO: IncrementDataDTO,
   ): Promise<TableApiResponse<any>> {
@@ -308,6 +314,8 @@ export class TableController {
   }
 
   @Post('/decrementData')
+  @ApiOperation({ summary: 'Decrement data in a table' })
+  @ApiBody({ type: IncrementDataDTO })
   decrementData(
     @Body() decrementDataDTO: IncrementDataDTO,
   ): Promise<TableApiResponse<any>> {
@@ -316,6 +324,9 @@ export class TableController {
   }
 
   @Get('/defaultTables')
+  @ApiOperation({
+    summary: 'Get default tables to prevent creating tables with same names',
+  })
   getDefaultDefinedTables(): Promise<TableApiResponse<any>> {
     return this.tableService.executeQuery(
       "SELECT table_name FROM information_schema.tables WHERE table_schema != 'public';",
