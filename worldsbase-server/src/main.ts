@@ -20,6 +20,7 @@ async function bootstrap() {
   const options = {
     applicationId: process.env.MOESIF_APPLICATION_ID as string,
     logBody: true,
+    debug: true,
   };
 
   const moesifMiddleware = moesif(options);
@@ -28,7 +29,7 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
   );
-
+  app.use(moesifMiddleware);
   app.enableCors();
 
   const config = new DocumentBuilder()
@@ -41,7 +42,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   app.useGlobalGuards(new XApiKeyGuard());
   app.useGlobalPipes(new ValidationPipe());
-  app.use(moesifMiddleware);
 
   await app.listen(port, '0.0.0.0');
   if (module.hot) {
