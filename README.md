@@ -55,6 +55,7 @@ SECRET_KEY= # The secret key for hashing
 KEY_SALT= # The salt for hashing
 KEY_IV= # The IV for hashing
 SERVER_URL=http://localhost:3005
+CONNECTION_STRING= # The connection string for the Postgres database
 ```
 
 ### Client Environment Variables
