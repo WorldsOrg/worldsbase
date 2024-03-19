@@ -179,6 +179,29 @@ export class TableController {
   }
 
   @Get('/getTableValue/:tableName/:columnName/:columnValue')
+  @ApiOperation({
+    summary:
+      'Get the table data by column value, example: /getTableValue/users/username/johndoe',
+  })
+  @ApiParam({
+    name: 'tableName',
+    type: 'string',
+    description: 'The name of the table to retrieve data from',
+  })
+  @ApiParam({
+    name: 'columnName',
+    type: 'string',
+    description: 'The name of the column to retrieve data from',
+  })
+  @ApiParam({
+    name: 'columnValue',
+    type: 'string',
+    description: 'The value of the column to retrieve data from',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Table data retrieved successfully',
+  })
   getTableValue(
     @Param()
     getTableNameDTO: GetTableNameDTO,
@@ -188,6 +211,8 @@ export class TableController {
   }
 
   @Post('/joinTables')
+  @ApiOperation({ summary: 'Joins two tables' })
+  @ApiBody({ type: JoinTablesDTO })
   joinTables(
     @Body() joinTablesDTO: JoinTablesDTO,
   ): Promise<TableApiResponse<any>> {
@@ -211,6 +236,8 @@ export class TableController {
   }
 
   @Post('/executeSelectQuery')
+  @ApiOperation({ summary: 'Execute a select query' })
+  @ApiBody({ type: QueryDTO })
   executeSelectQuery(
     @Body() queryDTO: QueryDTO,
   ): Promise<TableApiResponse<any>> {
@@ -230,6 +257,8 @@ export class TableController {
   }
 
   @Post('/insertData')
+  @ApiOperation({ summary: 'Insert data into a table' })
+  @ApiBody({ type: InsertDataDTO })
   insertData(
     @Body() insertDataDTO: InsertDataDTO,
   ): Promise<TableApiResponse<any>> {

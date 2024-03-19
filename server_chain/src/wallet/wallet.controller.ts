@@ -8,9 +8,12 @@ import {
   EncryptWalletDto,
   EncryptedKeyDto,
   EthWalletDto,
+  NFTResultDto,
+  StatsDto,
+  TokenResultDto,
   TurnkeyWalletDto,
+  ValueDto,
 } from './dto/wallet.dto';
-import { Stats, Value, NFTResult, TokenResult } from './entities/wallet.entity';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Wallet')
@@ -79,9 +82,9 @@ export class WalletController {
   @ApiResponse({
     status: 201,
     description: 'Wallet stats',
-    type: Stats,
+    type: StatsDto,
   })
-  getStats(@Query('wallet') wallet: string): Promise<any> {
+  getStats(@Query('wallet') wallet: string): Promise<StatsDto> {
     return this.walletService.getStats(wallet);
   }
 
@@ -90,9 +93,9 @@ export class WalletController {
   @ApiResponse({
     status: 201,
     description: 'Wallet value',
-    type: Value,
+    type: ValueDto,
   })
-  getValue(@Query('wallet') wallet: string): Promise<any> {
+  getValue(@Query('wallet') wallet: string): Promise<ValueDto> {
     return this.walletService.getValue(wallet);
   }
 
@@ -103,9 +106,9 @@ export class WalletController {
   @ApiResponse({
     status: 201,
     description: 'Tokens from wallet',
-    type: TokenResult,
+    type: TokenResultDto,
   })
-  getTokens(@Query('wallet') wallet: string): Promise<TokenResult[]> {
+  getTokens(@Query('wallet') wallet: string): Promise<TokenResultDto[]> {
     return this.walletService.getTokens(wallet);
   }
 
@@ -114,9 +117,9 @@ export class WalletController {
   @ApiResponse({
     status: 201,
     description: 'Returns NFTs from a wallet',
-    type: NFTResult,
+    type: NFTResultDto,
   })
-  getNFTs(@Query('wallet') wallet: string): Promise<NFTResult[]> {
+  getNFTs(@Query('wallet') wallet: string): Promise<NFTResultDto[]> {
     return this.walletService.getNFTs(wallet);
   }
 }

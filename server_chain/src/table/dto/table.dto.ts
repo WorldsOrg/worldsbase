@@ -1,28 +1,60 @@
 import { IsString, IsArray, IsObject, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 export class CreateTableDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
   @IsString()
   readonly tableName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: [
+      {
+        name: 'id',
+        type: 'serial',
+        constraints: 'PRIMARY KEY',
+      },
+      {
+        name: 'email',
+        type: 'TEXT',
+      },
+      {
+        name: 'password',
+        type: 'TEXT',
+      },
+    ],
+    description: 'Columns',
+  })
   @IsArray()
   readonly columns: any[];
 }
 
 export class DeleteTableColumnDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
   @IsString()
   readonly tableName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'email',
+    description: 'Column Name',
+  })
   @IsString()
   readonly columnName: string;
 }
 
 export class UpdateTableNameDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'users',
+    description: 'Old Table Name',
+  })
   @IsString()
   readonly oldTableName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'players',
+    description: 'New Table Name',
+  })
   @IsString()
   readonly newTableName: string;
 }
@@ -34,25 +66,43 @@ export class DeleteTableDTO {
 }
 
 export class AddColumnDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
   @IsString()
   readonly tableName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'username',
+    description: 'Column Name',
+  })
   @IsString()
   readonly columnName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'TEXT',
+    description: 'Column Type',
+  })
   @IsString()
   readonly columnType: string;
 }
 
 export class RenameColumnDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
   @IsString()
   readonly tableName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'username',
+    description: 'Old Column Name',
+  })
   @IsString()
   readonly oldColumnName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'user_name',
+    description: 'New Column Name',
+  })
   @IsString()
   readonly newColumnName: string;
 }
@@ -82,16 +132,31 @@ export class GetTableNameDTO {
 }
 
 export class JoinTablesDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: ['table1', 'table2'],
+    description: 'Tables to join',
+  })
   @IsArray()
   tables: string[];
-  @ApiProperty()
+  @ApiProperty({
+    example: ['column1', 'column2'],
+    description: 'Columns to join',
+  })
   @IsArray()
   joinColumns: string[];
-  @ApiProperty()
+  @ApiProperty({
+    example: 'INNER',
+    description: 'Join Type',
+  })
   @IsString()
   joinType: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: {
+      column: 'table1.someColumn',
+      value: 'someValue',
+    },
+    description: 'Filter',
+  })
   @IsObject()
   filter: {
     column: string;
@@ -100,37 +165,65 @@ export class JoinTablesDTO {
 }
 
 export class QueryDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'SELECT * FROM users',
+    description: 'SQL Query',
+  })
   @IsString()
   query: string;
 }
 
 export class InsertDataDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
   @IsString()
   tableName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: {
+      email: 'test@user.com',
+      username: 'testuser',
+    },
+  })
   @IsObject()
   data: any;
 }
 
 export class DeleteDataDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
   @IsString()
   tableName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'user_id=1',
+    description: 'Condition',
+  })
   @IsString()
   condition: string;
 }
 
 export class UpdateDataDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
   @IsString()
   tableName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'username=testuser',
+    description: 'Condition',
+  })
   @IsString()
   condition: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: {
+      email: 'test@user.com',
+      username: 'testuser',
+    },
+  })
   @IsObject()
   data: any;
 }
@@ -142,16 +235,28 @@ export class TableApiResponse<T> {
 }
 
 export class IncrementDataDTO {
-  @ApiProperty()
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
   @IsString()
   tableName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'user_id=1',
+    description: 'Condition',
+  })
   @IsString()
   condition: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 'points',
+    description: 'Column Name',
+  })
   @IsString()
   columnName: string;
-  @ApiProperty()
+  @ApiProperty({
+    example: 10,
+    description: 'Value to increment',
+  })
   @IsNumber()
   value: number;
 }

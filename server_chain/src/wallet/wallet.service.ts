@@ -2,7 +2,6 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { TurnkeyClient, createActivityPoller } from '@turnkey/http';
 import { ApiKeyStamper } from '@turnkey/api-key-stamper';
 import { Web3 } from 'web3';
-import { Value, Stats, TokenResult, NFTResult } from './entities/wallet.entity';
 import { MoralisService } from 'src/moralis/moralis.service';
 import { EvmChain } from '@moralisweb3/common-evm-utils';
 import { promisify } from 'util';
@@ -10,7 +9,11 @@ import * as crypto from 'crypto';
 import {
   DecryptedKeyDto,
   EthWalletDto,
+  StatsDto,
   TurnkeyWalletDto,
+  ValueDto,
+  TokenResultDto,
+  NFTResultDto,
 } from './dto/wallet.dto';
 
 const pbkdf2 = promisify(crypto.pbkdf2);
@@ -187,7 +190,7 @@ export class WalletService {
     }
   }
 
-  async getStats(wallet: string): Promise<Stats> {
+  async getStats(wallet: string): Promise<StatsDto> {
     try {
       const response = await this.moralisService
         .getMoralis()
@@ -205,7 +208,7 @@ export class WalletService {
     }
   }
 
-  async getValue(wallet: string): Promise<Value> {
+  async getValue(wallet: string): Promise<ValueDto> {
     try {
       const options = {
         method: 'GET',
@@ -229,7 +232,7 @@ export class WalletService {
     }
   }
 
-  async getTokens(wallet: string): Promise<TokenResult[]> {
+  async getTokens(wallet: string): Promise<TokenResultDto[]> {
     try {
       const response = await this.moralisService
         .getMoralis()
@@ -238,7 +241,7 @@ export class WalletService {
           address: wallet,
         });
 
-      return response.raw as TokenResult[];
+      return response.raw as TokenResultDto[];
     } catch (error) {
       console.error('Error getting tokens:', error);
       throw new HttpException(
@@ -248,7 +251,7 @@ export class WalletService {
     }
   }
 
-  async getNFTs(wallet: string): Promise<NFTResult[]> {
+  async getNFTs(wallet: string): Promise<NFTResultDto[]> {
     try {
       const response = await this.moralisService
         .getMoralis()
@@ -258,7 +261,7 @@ export class WalletService {
           mediaItems: false,
           address: wallet,
         });
-      return response.raw.result as unknown as NFTResult[];
+      return response.raw.result as unknown as NFTResultDto[];
     } catch (error) {
       console.error('Error getting NFTs:', error);
       throw new HttpException(
