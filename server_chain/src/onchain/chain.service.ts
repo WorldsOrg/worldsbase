@@ -1,11 +1,12 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 
 import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
+import { ReceiptDto } from './dto/onchain.dto';
 
 @Injectable()
 export class ChainService {
   constructor(private thirdwebService: ThirdwebService) {}
-  async mintTo(toAddress: string): Promise<{ receipt: string }> {
+  async mintTo(toAddress: string): Promise<ReceiptDto> {
     try {
       const sdk = this.thirdwebService.getSDK();
 

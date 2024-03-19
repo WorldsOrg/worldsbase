@@ -2,17 +2,16 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { TurnkeyClient, createActivityPoller } from '@turnkey/http';
 import { ApiKeyStamper } from '@turnkey/api-key-stamper';
 import { Web3 } from 'web3';
-import {
-  EthWallet,
-  Value,
-  Stats,
-  TokenResult,
-  NFTResult,
-} from './entities/wallet.entity';
+import { Value, Stats, TokenResult, NFTResult } from './entities/wallet.entity';
 import { MoralisService } from 'src/moralis/moralis.service';
 import { EvmChain } from '@moralisweb3/common-evm-utils';
 import { promisify } from 'util';
 import * as crypto from 'crypto';
+import {
+  DecryptedKeyDto,
+  EthWalletDto,
+  TurnkeyWalletDto,
+} from './dto/wallet.dto';
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 const createCipheriv = crypto.createCipheriv;
@@ -78,7 +77,10 @@ export class WalletService {
     }
   }
 
-  async decryptWallet(encryptedData: string, pass: string): Promise<string> {
+  async decryptWallet(
+    encryptedData: string,
+    pass: string,
+  ): Promise<DecryptedKeyDto> {
     const salt = Buffer.from(process.env.KEY_SALT as string, 'hex');
     const iterations = 100000;
     const keyLength = 32;
@@ -99,14 +101,14 @@ export class WalletService {
       let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
 
-      return decrypted;
+      return { decrypted };
     } catch (err) {
       console.error(err);
       throw new Error('Decryption failed');
     }
   }
 
-  async createWalletAddress(user_id: string): Promise<EthWallet> {
+  async createWalletAddress(user_id: string): Promise<EthWalletDto> {
     try {
       const web3 = new Web3();
       const result = web3.eth.accounts.create();
@@ -124,7 +126,7 @@ export class WalletService {
       );
     }
   }
-  async createWallet(user_id: string): Promise<string> {
+  async createWallet(user_id: string): Promise<TurnkeyWalletDto> {
     try {
       const turnkeyClient = await initTurnkeyClient();
       const activityPoller = createActivityPoller({
@@ -175,7 +177,7 @@ export class WalletService {
         );
       }
       // return walletAddress.addresses?.[0]?.address as string;
-      return walletAddress.walletId;
+      return { address: walletAddress.walletId };
     } catch (error) {
       console.error('Error creating wallet:', error);
       throw new HttpException(

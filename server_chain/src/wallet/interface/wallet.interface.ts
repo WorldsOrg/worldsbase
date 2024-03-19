@@ -7,3 +7,7 @@ export class EthWallet {
   readonly privateKey: string;
   readonly user_id: string;
 }
+
+export class EncrytedKey {
+  readonly encrypted: string;
+}

@@ -4,16 +4,13 @@ import { WalletService } from './wallet.service';
 import {
   CreateWalletDto,
   DecryptWalletDto,
+  DecryptedKeyDto,
   EncryptWalletDto,
+  EncryptedKeyDto,
+  EthWalletDto,
+  TurnkeyWalletDto,
 } from './dto/wallet.dto';
-import {
-  EthWallet,
-  TurnkeyWallet,
-  Stats,
-  Value,
-  NFTResult,
-  TokenResult,
-} from './entities/wallet.entity';
+import { Stats, Value, NFTResult, TokenResult } from './entities/wallet.entity';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Wallet')
@@ -26,9 +23,11 @@ export class WalletController {
   @ApiResponse({
     status: 201,
     description: 'Created wallet address',
-    type: TurnkeyWallet,
+    type: TurnkeyWalletDto,
   })
-  createWallet(@Body() createWalletDto: CreateWalletDto): Promise<string> {
+  createWallet(
+    @Body() createWalletDto: CreateWalletDto,
+  ): Promise<TurnkeyWalletDto> {
     return this.walletService.createWallet(createWalletDto.user_id);
   }
 
@@ -37,9 +36,11 @@ export class WalletController {
   @ApiResponse({
     status: 201,
     description: 'Created wallet information',
-    type: EthWallet,
+    type: EthWalletDto,
   })
-  createWalletAddress(@Body() createWalletDto: CreateWalletDto): Promise<any> {
+  createWalletAddress(
+    @Body() createWalletDto: CreateWalletDto,
+  ): Promise<EthWalletDto> {
     return this.walletService.createWalletAddress(createWalletDto.user_id);
   }
 
@@ -48,7 +49,7 @@ export class WalletController {
   @ApiResponse({
     status: 201,
     description: 'Encrypted private key',
-    type: EthWallet,
+    type: EncryptedKeyDto,
   })
   encryptWallet(@Body() encryptWalletDto: EncryptWalletDto): Promise<any> {
     return this.walletService.encryptWallet(
@@ -62,9 +63,11 @@ export class WalletController {
   @ApiResponse({
     status: 201,
     description: 'Decrypted private key',
-    type: EthWallet,
+    type: DecryptedKeyDto,
   })
-  decryptWallet(@Body() decryptWalletDto: DecryptWalletDto): Promise<any> {
+  decryptWallet(
+    @Body() decryptWalletDto: DecryptWalletDto,
+  ): Promise<DecryptedKeyDto> {
     return this.walletService.decryptWallet(
       decryptWalletDto.encryptedData,
       decryptWalletDto.pass,
