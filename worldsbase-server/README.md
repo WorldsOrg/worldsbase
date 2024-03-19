@@ -14,8 +14,8 @@ Before you begin, make sure you have the following installed on your system:
 Start by cloning the project repository and navigating to the root folder of the project:
 
 ```bash
-git clone https://github.com/Manifest-Git/wgs-mono.git
-cd wgs-mono
+git clone https://github.com/WorldsOrg/worldsbase.git
+cd worldsbase
 ```
 
 ## Step 2: Install Dependencies
@@ -45,13 +45,16 @@ apiPublicKey= # The public key for the Turnkey API
 apiPrivateKey= # The private key for the Turnkey API
 organizationId= # The organization ID for the Turnkey API
 MORALIS_API_KEY= # The API key for Moralis
+MOESIF_APPLICATION_ID= # The application ID for Moesif
 POSTGRES_HOST= # The host for the Postgres database
-POSTGRES_PORT= # The port for the Postgres database
-POSTGRES_USER= # The username for the Postgres database
-POSTGRES_DATABASE= # The name of the Postgres database
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_DATABASE=postgres
 POSTGRES_PASSWORD= # The password for the Postgres database
 SECRET_KEY= # The secret key for hashing
-
+KEY_SALT= # The salt for hashing
+KEY_IV= # The IV for hashing
+SERVER_URL=http://localhost:3005
 ```
 
 ### Client Environment Variables
@@ -62,6 +65,8 @@ Create a .env file inside the client folder with the following keys:
 NEXT_PUBLIC_API_BASE_URL=/api
 NEXT_PUBLIC_X_API_KEY=YOUR_MATCHING_SERVER_X_API_KEY
 NEXT_PUBLIC_BASE_URL=YOUR_COMPOSER_BACKEND_BASE_URL
+API_PATH=http://localhost:3005
+COMPOSER_API_PATH=http://localhost:3008
 ```
 
 Ensure the NEXT_PUBLIC_X_API_KEY matches the X_API_KEY set in the server's .env.

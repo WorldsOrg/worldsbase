@@ -14,8 +14,8 @@ Before you begin, make sure you have the following installed on your system:
 Start by cloning the project repository and navigating to the root folder of the project:
 
 ```bash
-git clone https://github.com/Manifest-Git/wgs-mono.git
-cd wgs-mono
+git clone https://github.com/WorldsOrg/worldsbase.git
+cd worldsbase
 ```
 
 ## Step 2: Install Dependencies
@@ -37,17 +37,24 @@ You will need to create .env files for both the server and the client. These fil
 Create a .env file inside the server folder and populate it with the following keys. Replace the placeholder comments with your actual values:
 
 ```env
-apiPublicKey=YOUR_API_PUBLIC_KEY
-apiPrivateKey=YOUR_API_PRIVATE_KEY
-organizationId=YOUR_ORGANIZATION_ID
-moesifId=YOUR_MOESIF_ID
-SYNDICATE_API_KEY=YOUR_SYNDICATE_API_KEY
-X_API_KEY=YOUR_CLIENT_HEADER_KEY
-POSTGRES_HOST=YOUR_POSTGRES_HOST
+MAIN_WALLET_PRIVATE_KEY= # The private key of the main wallet for minting and other operations
+THIRDWEB_SDK_SECRET_KEY= # The secret key for the thirdweb SDK
+X_API_KEY= # The API key for the server
+CONTRACT_ADDRESS= # The address of the deployed contract to mint
+apiPublicKey= # The public key for the Turnkey API
+apiPrivateKey= # The private key for the Turnkey API
+organizationId= # The organization ID for the Turnkey API
+MORALIS_API_KEY= # The API key for Moralis
+MOESIF_APPLICATION_ID= # The application ID for Moesif
+POSTGRES_HOST= # The host for the Postgres database
 POSTGRES_PORT=5432
-POSTGRES_USER=YOUR_POSTGRES_USER
-POSTGRES_DATABASE=YOUR_POSTGRES_DATABASE
-POSTGRES_PASSWORD=YOUR_POSTGRES_PASSWORD
+POSTGRES_USER=postgres
+POSTGRES_DATABASE=postgres
+POSTGRES_PASSWORD= # The password for the Postgres database
+SECRET_KEY= # The secret key for hashing
+KEY_SALT= # The salt for hashing
+KEY_IV= # The IV for hashing
+SERVER_URL=http://localhost:3005
 ```
 
 ### Client Environment Variables
@@ -58,6 +65,8 @@ Create a .env file inside the client folder with the following keys:
 NEXT_PUBLIC_API_BASE_URL=/api
 NEXT_PUBLIC_X_API_KEY=YOUR_MATCHING_SERVER_X_API_KEY
 NEXT_PUBLIC_BASE_URL=YOUR_COMPOSER_BACKEND_BASE_URL
+API_PATH=http://localhost:3005
+COMPOSER_API_PATH=http://localhost:3008
 ```
 
 Ensure the NEXT_PUBLIC_X_API_KEY matches the X_API_KEY set in the server's .env.
@@ -86,4 +95,4 @@ Once the development server is up and running, you can access the dashboard by n
 
 [http://localhost:3000](http://localhost:3000)
 
-Here, you can sign up or log in to start exploring and using the WGS.
+Here, you can sign up or log in to start exploring and using the WorldsBase.

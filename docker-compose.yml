@@ -24,8 +24,8 @@ services:
       - "3008:3008"
     networks:
       - wgs-network
-    build: ./server_composer
-    env_file: ./server_composer/packages/server/.env
+    build: ./composer_server
+    env_file: ./composer_server/packages/server/.env
 
   docs:
     image: docs
@@ -38,11 +38,11 @@ services:
   chain:
     image: chain
     ports:
-      - "3004:3004"
+      - "3005:3005"
     networks:
       - wgs-network
-    build: ./server_chain
-    env_file: ./server_chain/.env
+    build: ./worldsbase-server
+    env_file: ./worldsbase-server/.env
 
 networks:
   wgs-network:
