@@ -285,4 +285,11 @@ export class TableController {
     const query = `UPDATE "${decrementDataDTO.tableName}" SET ${decrementDataDTO.columnName} = ${decrementDataDTO.columnName} - ${decrementDataDTO.value} WHERE ${decrementDataDTO.condition};`;
     return this.tableService.executeQuery(query);
   }
+
+  @Get('/defaultTables')
+  getDefaultDefinedTables(): Promise<TableApiResponse<any>> {
+    return this.tableService.executeQuery(
+      "SELECT table_name FROM information_schema.tables WHERE table_schema != 'public';",
+    );
+  }
 }
