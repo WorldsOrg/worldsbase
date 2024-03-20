@@ -1,5 +1,6 @@
 "use client";
-import { createContext, useContext, ReactNode, useState, useMemo, useCallback, use, useEffect } from "react";
+import { createContext, useContext, ReactNode, useState, useMemo, useCallback, useEffect } from "react";
+import { usePathname,useRouter,useSearchParams} from "next/navigation";
 import { textColumn, keyColumn } from "react-datasheet-grid";
 import axios from "axios";
 import _sortBy from "lodash/sortBy";
@@ -23,6 +24,7 @@ interface TableContextProps {
   addColumnData: (tableName: string, columnName: string, columnType: string) => void;
   getTables: () => void;
   renameTable: (oldTableName: string, newTableName: string) => void;
+  handleSelectTable: (tableName: string) => void;
 }
 
 export const TableContext = createContext<TableContextProps>({
@@ -43,6 +45,7 @@ export const TableContext = createContext<TableContextProps>({
   addColumnData: (tableName: string, columnName: string, columnType: string) => {},
   getTables: () => {},
   renameTable: (oldTableName: string, newTableName: string) => {},
+  handleSelectTable: (tableName: string) => {},
 });
 
 interface Navigation {
@@ -62,6 +65,11 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY,
     },
   });
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams=useSearchParams();
+
   const { toastAlert } = useToastContext();
   const [loading, setLoading] = useState(false);
   const [selectedTable, setSelectTable] = useState("");
@@ -130,7 +138,10 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     if (status === 200 && data) {
       const sortedData = _sortBy(data, ['table_name']);
 
-      setSelectTable(sortedData[0].table_name as string);
+      const params=searchParams.get("tableName");
+      const tableName=params ?? sortedData[0].table_name
+
+      setSelectTable(tableName);
       setNavigation(sortedData as Array<Navigation>);
     }
   }, []);
@@ -211,6 +222,11 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     }
   }, []);
 
+  const handleSelectTable = useCallback((tableName: string) => {
+    setSelectTable(tableName);
+    router.push(`${pathname}/?tableName=${tableName}`)
+  }, []);
+
   const value = useMemo(
     () => ({
       renameTable,
@@ -230,6 +246,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       deleteColumnData,
       addColumnData,
       getTables,
+      handleSelectTable
     }),
     [
       renameTable,
@@ -247,6 +264,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       deleteColumnData,
       addColumnData,
       getTables,
+      handleSelectTable
     ]
   );
 

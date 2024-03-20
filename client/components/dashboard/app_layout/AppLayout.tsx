@@ -17,7 +17,7 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, addNewTableClicked }: AppLayoutProps) {
-  const { selectedTable, setSelectTable, navigation, getTables } = useTable();
+  const { selectedTable, navigation, getTables,handleSelectTable } = useTable();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchedTable, setSearchedTable] = useState("");
   const [filteredTables, setFilteredTables] = useState(navigation);
@@ -124,9 +124,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                                   tableName={item.table_name}
                                   textLength={32}
                                   maxWidth={270}
-                                  onClick={() => {
-                                    setSelectTable(item.table_name);
-                                  }}
+                                  onClick={() => handleSelectTable(item.table_name)}
                                   selectedTable={selectedTable}
                                 />
                               </li>
@@ -194,9 +192,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                         tableName={item.table_name}
                         textLength={27}
                         maxWidth={190}
-                        onClick={() => {
-                          setSelectTable(item.table_name);
-                        }}
+                        onClick={() => handleSelectTable(item.table_name)}
                         selectedTable={selectedTable}
                       />
                     </div>

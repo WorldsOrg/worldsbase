@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, ReactNode, useState, useEffect, useCallback } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useToastContext } from "./toastContext";
 import { axiosInstance } from "@/utils/axiosInstance";
 
@@ -33,7 +33,6 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const router = useRouter();
-  const pathname = usePathname();
   const { toastAlert } = useToastContext();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,10 +75,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       } catch (error) {
         console.error("Error fetching user data");
+      }finally{
+        setLoading(false);
       }
-      setLoading(false);
     },
-    [pathname, router]
+    [router]
   );
 
   const login = async (credentials: LoginCredentials) => {
