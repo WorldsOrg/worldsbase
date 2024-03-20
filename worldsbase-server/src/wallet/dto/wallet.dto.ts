@@ -39,6 +39,26 @@ export class EthWalletDto {
   user_id: string;
 }
 
+export class AwsKmsWalletDto {
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Wallet Address',
+  })
+  address: string;
+
+  @ApiProperty({
+    example: '0cea4c6e-738b-4c6d-ba7c-541111f9402a',
+    description: 'Key ID',
+  })
+  key_id: string;
+
+  @ApiProperty({
+    example: '1',
+    description: 'User ID',
+  })
+  user_id: string;
+}
+
 export class WalletInformationDto {
   @ApiProperty()
   @IsString()

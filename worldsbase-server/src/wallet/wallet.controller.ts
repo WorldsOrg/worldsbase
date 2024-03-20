@@ -2,6 +2,7 @@ import { Body, Controller, Post, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiHeader, ApiTags } from '@nestjs/swagger';
 import { WalletService } from './wallet.service';
 import {
+  AwsKmsWalletDto,
   CreateWalletDto,
   DecryptWalletDto,
   DecryptedKeyDto,
@@ -32,6 +33,19 @@ export class WalletController {
     @Body() createWalletDto: CreateWalletDto,
   ): Promise<TurnkeyWalletDto> {
     return this.walletService.createWallet(createWalletDto.user_id);
+  }
+
+  @Post('/create_kms_wallet')
+  @ApiOperation({ summary: 'Creates a wallet using AWS KMS' })
+  @ApiResponse({
+    status: 201,
+    description: 'Created wallet address',
+    type: AwsKmsWalletDto,
+  })
+  creaeteAwsKmsWallet(
+    @Body() createWalletDto: CreateWalletDto,
+  ): Promise<AwsKmsWalletDto> {
+    return this.walletService.creaeteAwsKmsWallet(createWalletDto.user_id);
   }
 
   @Post('/create_wallet')

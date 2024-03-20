@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@aws-sdk/client-kms": "^3.536.0",
     "@fastify/static": "^7.0.1",
     "@moralisweb3/common-evm-utils": "^2.25.1",
     "@nestjs/common": "^10.0.0",
@@ -36,6 +37,7 @@
     "@thirdweb-dev/sdk": "^4.0.47",
     "@turnkey/api-key-stamper": "^0.4.0",
     "@turnkey/http": "^2.7.1",
+    "asn1js": "^3.0.5",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
