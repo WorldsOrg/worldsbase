@@ -4,6 +4,7 @@ import { CgSpinner } from "react-icons/cg";
 import { useToast } from "@chakra-ui/react";
 import { useTable } from "@/context/tableContext";
 import FieldInput from "./FieldInput";
+import Modal from "@/components/ui/modal";
 
 type FieldType = {
   id: number;
@@ -34,6 +35,11 @@ const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFo
   const [fields, setFields] = useState<FieldType[]>([{ id: Math.random(), name: "", type: "text", editing: false }]);
   const [tableName, setTableName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState({
+    show: false,
+    title: "",
+    message: "",
+  });
   const toast = useToast();
 
   const handleToast = (message: string, status: "loading" | "info" | "warning" | "success" | "error" | undefined) => {
@@ -119,8 +125,21 @@ const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFo
   const saveForm = async () => {
     setLoading(true);
     if (editing) {
-      if (tableName !== selectedTable) {
-        renameTable(selectedTable, tableName);
+         if (tableName !== selectedTable) {
+          const { showModal, title, message } = await renameTable(selectedTable, tableName);
+          if (showModal) {
+            setTableName(selectedTable);
+            setLoading(false);
+  
+            return setShowModal({
+              show: true,
+              title,
+              message,
+            });
+          }
+          setLoading(false);
+          closeLayout();
+
       }
       compareColumns(columns, fields);
     } else {
@@ -137,14 +156,27 @@ const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFo
       } else if (columnsWithIdRemoved.some((column) => !column.name.trim())) {
         handleEmptyFieldError("Column");
       } else {
-        const columns = [{ name: "id", type: "serial", constraints: "PRIMARY KEY" }, ...columnsWithIdRemoved];
+        const columns = [
+          { name: "id", type: "serial", constraints: "PRIMARY KEY" },
+          ...columnsWithIdRemoved,
+        ];
 
-        createTableData(tableName, columns as { name: string; type: string; constraints: any }[]);
+        const { showModal, title, message } = await createTableData(
+          tableName,
+          columns as { name: string; type: string; constraints: any }[]
+        );
 
-        setLoading(false);
-        closeLayout();
-        setTableName("");
-        setFields([{ id: Math.random(), name: "", type: "text", editing: false }]);
+        if (showModal) {
+          setLoading(false);
+          setTableName("");
+
+          return setShowModal({
+            show: true,
+            title,
+            message,
+          });
+        }
+        return resetForm();
       }
     }
   };
@@ -201,6 +233,15 @@ const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFo
           "Create"
         )}
       </button>
+
+      {showModal.show && (
+        <Modal
+          show={showModal.show}
+          setShow={setShowModal}
+          title={showModal.title}
+          description={showModal.message}
+        />
+      )}
     </>
   );
 };

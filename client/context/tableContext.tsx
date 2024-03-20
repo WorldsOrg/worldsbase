@@ -19,11 +19,11 @@ interface TableContextProps {
   selectedTable: string;
   navigation: Array<any>;
   deleteTableData: (tableName: string) => void;
-  createTableData: (tableName: string, columns: { name: string; type: string; constraints: any }[]) => void;
+  createTableData: (tableName: string, columns: { name: string; type: string; constraints: any }[]) => Promise<any>;
   deleteColumnData: (tableName: string, columnName: string) => void;
   addColumnData: (tableName: string, columnName: string, columnType: string) => void;
   getTables: () => void;
-  renameTable: (oldTableName: string, newTableName: string) => void;
+  renameTable: (oldTableName: string, newTableName: string) => Promise<any>;
   handleSelectTable: (tableName: string) => void;
 }
 
@@ -40,11 +40,23 @@ export const TableContext = createContext<TableContextProps>({
   selectedTable: "",
   navigation: [],
   deleteTableData: (tableName: string) => {},
-  createTableData: (tableName: string, columns: { name: string; type: string; constraints: any }[]) => {},
+  createTableData: async(tableName: string, columns: { name: string; type: string; constraints: any }[]) => {
+    return {
+      showModal:false,
+      title:"",
+      message:""
+    }
+  } ,
   deleteColumnData: (tableName: string, columnName: string) => {},
   addColumnData: (tableName: string, columnName: string, columnType: string) => {},
   getTables: () => {},
-  renameTable: (oldTableName: string, newTableName: string) => {},
+  renameTable: async(oldTableName: string, newTableName: string) => {
+    return {
+      showModal:false,
+      title:"",
+      message:""
+    }
+  },
   handleSelectTable: (tableName: string) => {},
 });
 
@@ -119,6 +131,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
         });
 
         setColumns(col);
+        router.push(`${pathname}/?tableName=${tableName}`)
       }
       if (data && data.length > 0) {
         setData(data);
@@ -175,21 +188,48 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       return;
     }
     toastAlert(true, "Column deleted");
-    fetchData(tableName);
+    await fetchData(tableName);
+  }, []);
+
+  const checkIsTableNameValid = useCallback(async (tableName: string) => {
+    const { data} = await axiosInstance.get("/table/defaulttables");
+
+    const isTableNameValid=data.find((item: string)=>item === tableName.toLowerCase().trim())
+    return Boolean(isTableNameValid);
   }, []);
 
   const createTableData = useCallback(async (tableName: string, columns: { name: string; type: string; constraints: any }[]) => {
+
+    const isTableNameExists=await checkIsTableNameValid(tableName);
+    if(isTableNameExists){
+      return {
+        showModal:true,
+        title:"Error",
+        message:`"${tableName}" table name can not be used.`,
+      };
+    }
+    
     const { status } = await axiosInstance.post(`/table/createTable`, {
       tableName,
       columns,
     });
-
+    
     if (status !== 200) {
       toastAlert(false, "Error creating table");
+      return {
+        showModal:false,
+        title:"",
+        message:"",
+      };
     } else {
       toastAlert(true, "Table created successfully");
       await getTables();
       setSelectTable(tableName);
+      return {
+        showModal:false,
+        title:"",
+        message:"",
+      };
     }
   }, []);
 
@@ -204,11 +244,21 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       toastAlert(false, "Error adding column");
     } else {
       toastAlert(true, "Column added successfully");
-      fetchData(tableName);
+      await fetchData(tableName);
     }
   }, []);
 
   const renameTable = useCallback(async (oldTableName: string, newTableName: string) => {
+
+    const isTableNameExists=await checkIsTableNameValid(newTableName);
+    if(isTableNameExists){
+      return {
+        showModal:true,
+        title:"Error",
+        message:`"${newTableName}" table name can not be used.`,
+      };
+    }
+
     const { status } = await axiosInstance.put(`/table/updateTableName`, {
       oldTableName,
       newTableName,
@@ -216,9 +266,20 @@ export const TableProvider = ({ children }: TableProviderProps) => {
 
     if (status !== 200) {
       toastAlert(false, "Error updating table name");
+      return {
+        showModal:false,
+        title:"",
+        message:"",
+      };
+
     } else {
       toastAlert(true, "Table name updated successfully");
-      fetchData(newTableName);
+      await fetchData(newTableName);
+      return {
+        showModal:false,
+        title:"",
+        message:"",
+      };
     }
   }, []);
 
