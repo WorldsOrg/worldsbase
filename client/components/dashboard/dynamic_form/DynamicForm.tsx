@@ -181,14 +181,14 @@ const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFo
         ))}
         <button
           onClick={addField}
-          className="px-3 py-2 text-sm text-gray-900 rounded-md shadow-sm bg-background ring-1 ring-inset ring-secondary hover:bg-gray-50 dark:text-primary dark:hover:text-secondary"
+          className="px-3 py-2 text-sm border rounded-md shadow-sm text-primary ring-1 ring-inset ring-secondary bg-background hover:bg-hoverBg border-border"
         >
           Add column
         </button>
       </div>
       <button
         onClick={saveForm}
-        className={"w-full rounded-md bg-secondary px-3 py-2 text-sm text-white shadow-sm hover:text-black ring-1 ring-inset ring-secondary hover:bg-gray-50"}
+        className="w-full px-3 py-2 text-sm text-white border rounded-md shadow-smring-1 ring-inset ring-secondary bg-secondary hover:bg-secondaryHover border-border"
         disabled={loading}
       >
         {loading ? (

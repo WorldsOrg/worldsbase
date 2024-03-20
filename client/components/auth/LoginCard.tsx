@@ -42,7 +42,7 @@ export default function LoginCard({ handleLogin, changeSignupCard, loading }: Lo
                   <FormControl isInvalid={!!errors.password && touched.password}>
                     <Field className="rounded-md" as={Input} id="password" name="password" type="password" placeholder="Password" validate={passwordValidator} />
                   </FormControl>
-                  <button className="p-2 text-white border rounded-md bg-secondary hover:text-black hover:bg-white hover:border-secondary" type="submit">
+                  <button className="p-2 text-white border border-gray-400 rounded-md bg-secondary hover:bg-secondaryHover" type="submit">
                     <span className={loading ? "animate-ping" : ""}>Login</span>
                   </button>
                 </Stack>
