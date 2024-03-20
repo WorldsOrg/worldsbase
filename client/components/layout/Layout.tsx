@@ -21,6 +21,7 @@ import { GoWorkflow } from "react-icons/go";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/authContext";
 import ToggleButton from "../ui/ToggleButton";
+import Tooltip from "../ui/tooltip";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -197,43 +198,49 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <ul role="list" className="flex flex-col items-center space-y-1">
             <>
               {navigation.map((item) => (
-                <li key={item.name}>
+                <Tooltip key={item.name} label={item.name} placement="right">
+                  <li>
+                    <button
+                      onClick={() => {
+                        setNavigation(
+                          navigation.map((nav) => ({
+                            ...nav,
+                            current: nav.name === item.name,
+                          }))
+                        ),
+                          router.push(item.href);
+                      }}
+                      className={classNames(
+                        item.current
+                          ? "bg-hoverBg text-primary"
+                          : "text-gray-400 hover:text-primary hover:bg-hoverBg",
+                        "group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold"
+                      )}
+                    >
+                      <item.icon
+                        className="w-6 h-6 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span className="sr-only">{item.name}</span>
+                    </button>
+                  </li>
+                </Tooltip>
+              ))}
+              <Tooltip label="Theme" placement="right">
+                <li>
+                  <ToggleButton />
+                </li>
+              </Tooltip>
+              <Tooltip label="Logout" placement="right">
+                <li>
                   <button
-                    onClick={() => {
-                      setNavigation(
-                        navigation.map((nav) => ({
-                          ...nav,
-                          current: nav.name === item.name,
-                        }))
-                      ),
-                        router.push(item.href);
-                    }}
-                    className={classNames(
-                      item.current
-                        ? "bg-hoverBg text-primary"
-                        : "text-gray-400 hover:text-primary hover:bg-hoverBg",
-                      "group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold"
-                    )}
+                    onClick={logout}
+                    className="flex p-3 text-sm font-semibold leading-6 text-gray-400 rounded-md hover:text-primary hover:bg-hoverBg group gap-x-3"
                   >
-                    <item.icon
-                      className="w-6 h-6 shrink-0"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">{item.name}</span>
+                    <MdExitToApp className="w-6 h-6" />
                   </button>
                 </li>
-              ))}
-              <li>
-                <ToggleButton />
-              </li>
-              <li>
-                <button
-                  onClick={logout}
-                  className="flex p-3 text-sm font-semibold leading-6 text-gray-400 rounded-md hover:text-primary hover:bg-hoverBg group gap-x-3"
-                >
-                  <MdExitToApp className="w-6 h-6" />
-                </button>
-              </li>
+              </Tooltip>
             </>
           </ul>
         </nav>
