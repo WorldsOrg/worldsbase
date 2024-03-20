@@ -181,13 +181,18 @@ export default function Apps() {
     searchByKeyword(keyword);
   }, [keyword]);
 
+  const handleAddNewTableClicked = () => {
+    setEditing(false);
+    setOpen(true);
+  }
+
   return (
-    <AppLayout setOpen={setOpen}>
+    <AppLayout addNewTableClicked={handleAddNewTableClicked}>
       <DeletePrompt open={openDelete} setOpen={setOpenDelete} approveDelete={deleteTable} />
       <OverlayForm open={open} setOpen={setOpen} selectTable={setSelectTable} columns={columns} editing={editing} selectedTable={selectedTable} />
 
       {loadingData && (
-        <div className="flex flex-col justify-center gap-2 p-2 mb-2  md:flex-row border-borderColor text-primary ">
+        <div className="flex flex-col justify-center gap-2 p-2 mb-2 md:flex-row border-borderColor text-primary ">
           <h1 className="mt-2 text-lg font-semibold whitespace-nowrap ">Loading...</h1>
         </div>
       )}
@@ -229,7 +234,7 @@ export default function Apps() {
                   <input
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="block w-full  text-sm border border-borderColor text-primary bg-background hover:bg-hoverBg"
+                    className="block w-full text-sm border border-borderColor text-primary bg-background hover:bg-hoverBg"
                     type="text"
                     placeholder="Search"
                   />
@@ -242,7 +247,7 @@ export default function Apps() {
                   <select
                     id="key_value"
                     name="key_value"
-                    className="block w-full  text-sm border border-borderColor text-primary bg-background hover:bg-hoverBg"
+                    className="block w-full text-sm border border-borderColor text-primary bg-background hover:bg-hoverBg"
                     defaultValue="id"
                     onChange={(e) => setOrderKey(e.target.value)}
                   >

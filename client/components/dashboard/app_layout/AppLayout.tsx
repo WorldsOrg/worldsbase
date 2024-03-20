@@ -1,5 +1,5 @@
 "use client";
-import { ChangeEvent, Fragment, useEffect, useState } from "react";
+import { ChangeEvent, Fragment, ReactNode, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon, PencilSquareIcon, MagnifyingGlassIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { Tooltip } from "@chakra-ui/react";
@@ -11,7 +11,12 @@ import NoSearchResult from "@/components/ui/table/NoSearchResult";
 import TableNameButton from "@/components/ui/table/TableNameButton";
 import Button from "@/components/ui/table/Button";
 
-export default function AppLayout({ children, setOpen }: { children: React.ReactNode; setOpen: (state: boolean) => void }) {
+interface AppLayoutProps {
+  children: ReactNode,
+  addNewTableClicked: () => void,
+}
+
+export default function AppLayout({ children, addNewTableClicked }: AppLayoutProps) {
   const { selectedTable, setSelectTable, navigation, getTables } = useTable();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchedTable, setSearchedTable] = useState("");
@@ -91,7 +96,7 @@ export default function AppLayout({ children, setOpen }: { children: React.React
                             <li key="1">
                               <Button
                                 className="items-center w-full h-10 text-xs leading-6 border rounded-md border-primary text-primary bg-softBg hover:bg-hoverBg"
-                                onClick={() => setOpen(true)}
+                                onClick={addNewTableClicked}
                                 icon={<PencilSquareIcon className="w-4 h-4 text-primary" />}
                                 text="Add new table"
                               />
@@ -153,7 +158,7 @@ export default function AppLayout({ children, setOpen }: { children: React.React
                 <li key="1">
                   <Button
                     className="flex w-full h-10 text-xs font-semibold leading-6 border rounded-md border-primary text-primary hover:bg-softBg"
-                    onClick={() => setOpen(true)}
+                    onClick={addNewTableClicked}
                     icon={<PencilSquareIcon className="w-4 h-4 text-primary" />}
                     text="Add new table"
                   />
