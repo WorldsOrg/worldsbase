@@ -129,7 +129,6 @@ export class App {
 
         // Get all workflows
         this.app.get('/api/v1/workflows', async (req: Request, res: Response) => {
-            console.log('get all workflows')
             const workflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
                 .aggregate([
                     {

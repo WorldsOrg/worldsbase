@@ -6,7 +6,7 @@ export class Auth {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpYVCJ9.eyJlbWFpbCI3Im96Z3UyckBvemd1cnJiLmNvbSIsImlkIjoiZjRkMTZlM2QtZTJmNS00MmJlLTg0OGUtNTE5YWFhYzM3NmQ4IiwiaWF0IjoxNzEwMTY1MTE1LCJleHAiOjE3MTA3Njk5MTV9.cVE4GDgrbOejAoAzk_vgsEXenNLe2lfvMiLtWmB7TpQ',
     description: 'JWT',
   })
-  token: string;
+  accessToken: string;
 }
 
 export class Me {

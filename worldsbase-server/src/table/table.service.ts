@@ -8,7 +8,6 @@ export class TableService {
   async executeQuery(query: string, queryParams: any[] = []) {
     try {
       const result = await this.pool.query(query, queryParams);
-
       return { status: 200, data: result.rows };
     } catch (error) {
       console.error('Error executing query:', error);

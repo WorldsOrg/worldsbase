@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation";
 
 export default function Home() {
-  redirect("/table_editor");
+  redirect("dashboard/table_editor");
 
   return <></>;
 }

@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  console.log(request.nextUrl.pathname);
   if (request.nextUrl.pathname.startsWith("/api")) {
     const pathname = request.nextUrl.pathname.slice(4);
     return NextResponse.rewrite(new URL(`${process.env.API_PATH}${pathname}`, request.url));

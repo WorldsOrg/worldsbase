@@ -41,24 +41,28 @@ import {
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
-  @Post('/createTable')
+  @Post('/createtable')
   @ApiOperation({ summary: 'Create a new table' })
   @ApiBody({ type: CreateTableDTO })
   @ApiResponse({ status: 201, description: 'Table created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  createTable(
+  async createTable(
     @Body() createTableDTO: CreateTableDTO,
   ): Promise<TableApiResponse<any>> {
     const columnDefinitions = createTableDTO.columns
       .map((col) => `"${col.name}" ${col.type} ${col.constraints || ''}`)
       .join(', ');
+    const query = `CREATE TABLE IF NOT EXISTS "${createTableDTO.tableName}" (${columnDefinitions});`;
+    const result = await this.tableService.executeQuery(query);
 
-    return this.tableService.executeQuery(
-      `CREATE TABLE IF NOT EXISTS "${createTableDTO.tableName}" (${columnDefinitions});`,
-    );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Delete('/deleteTable/:tableName')
+  @Delete('/deletetable/:tableName')
   @ApiOperation({ summary: 'Delete an existing table' })
   @ApiParam({
     name: 'tableName',
@@ -67,67 +71,92 @@ export class TableController {
   })
   @ApiResponse({ status: 200, description: 'Table deleted successfully' })
   @ApiResponse({ status: 404, description: 'Table not found' })
-  deleteTable(
+  async deleteTable(
     @Param('tableName') tableNameDTO: TableNameDTO,
   ): Promise<TableApiResponse<any>> {
-    return this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       `DROP TABLE IF EXISTS "${tableNameDTO.tableName}";`,
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Put('/updateTableName')
+  @Put('/updatetablename')
   @ApiOperation({ summary: 'Update the name of an existing table' })
   @ApiBody({ type: UpdateTableNameDTO })
   @ApiResponse({ status: 200, description: 'Table name updated successfully' })
   @ApiResponse({ status: 404, description: 'Table not found' })
-  updateTableName(
+  async updateTableName(
     @Body() updateTableNameDTO: UpdateTableNameDTO,
   ): Promise<TableApiResponse<any>> {
-    return this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       `ALTER TABLE "${updateTableNameDTO.oldTableName}" RENAME TO "${updateTableNameDTO.newTableName}";`,
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Post('/addColumn')
+  @Post('/addcolumn')
   @ApiOperation({ summary: 'Add a new column to an existing table' })
   @ApiBody({ type: AddColumnDTO })
   @ApiResponse({ status: 200, description: 'Column added successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  addColumn(
+  async addColumn(
     @Body() addColumnDTO: AddColumnDTO,
   ): Promise<TableApiResponse<any>> {
-    return this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       `ALTER TABLE "${addColumnDTO.tableName}" ADD COLUMN "${addColumnDTO.columnName}" ${addColumnDTO.columnType};`,
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Delete('/deleteColumn')
+  @Delete('/deletecolumn')
   @ApiOperation({ summary: 'Delete a column from a table' })
   @ApiBody({ type: DeleteTableColumnDTO })
   @ApiResponse({ status: 200, description: 'Column deleted successfully' })
   @ApiResponse({ status: 404, description: 'Column not found' })
-  deleteColumn(
+  async deleteColumn(
     @Body() deleteTableColumnDTO: DeleteTableColumnDTO,
   ): Promise<TableApiResponse<any>> {
-    return this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       `ALTER TABLE "${deleteTableColumnDTO.tableName}" DROP COLUMN "${deleteTableColumnDTO.columnName}";`,
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Put('/renameColumn')
+  @Put('/renamecolumn')
   @ApiOperation({ summary: 'Rename an existing column in a table' })
   @ApiBody({ type: RenameColumnDTO })
   @ApiResponse({ status: 200, description: 'Column renamed successfully' })
   @ApiResponse({ status: 404, description: 'Column not found' })
-  renameColumn(
+  async renameColumn(
     @Body() renameColumnDTO: RenameColumnDTO,
   ): Promise<TableApiResponse<any>> {
-    return this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       `ALTER TABLE "${renameColumnDTO.tableName}" RENAME COLUMN "${renameColumnDTO.oldColumnName}" TO "${renameColumnDTO.newColumnName}";`,
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Get('/getColumns/:tableName')
+  @Get('/getcolumns/:tableName')
   @ApiOperation({ summary: 'Get all columns from a specific table' })
   @ApiParam({
     name: 'tableName',
@@ -136,16 +165,21 @@ export class TableController {
   })
   @ApiResponse({ status: 200, description: 'Columns retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Table not found' })
-  getColumns(
+  async getColumns(
     @Param() tableNameDTO: TableNameDTO,
   ): Promise<TableApiResponse<any>> {
-    return this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       "SELECT c.column_name, c.data_type, CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN true ELSE false END AS is_primary_key FROM information_schema.columns AS c LEFT JOIN information_schema.key_column_usage AS kcu ON c.table_name = kcu.table_name AND c.column_name = kcu.column_name LEFT JOIN information_schema.table_constraints AS tc ON kcu.table_name = tc.table_name AND kcu.constraint_name = tc.constraint_name AND tc.constraint_type = 'PRIMARY KEY' WHERE c.table_name = $1 AND c.table_schema = 'public';",
       [tableNameDTO.tableName],
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Get('/getTables/:schema')
+  @Get('/gettables/:schema')
   @ApiOperation({ summary: 'Get all tables from a specific schema' })
   @ApiParam({
     name: 'schema',
@@ -153,13 +187,20 @@ export class TableController {
     description: 'The schema to list tables from',
   })
   @ApiResponse({ status: 200, description: 'Tables retrieved successfully' })
-  getTables(@Param() schemaDTO: SchemaDTO): Promise<TableApiResponse<any>> {
-    return this.tableService.executeQuery(
+  async getTables(
+    @Param() schemaDTO: SchemaDTO,
+  ): Promise<TableApiResponse<any>> {
+    const result = await this.tableService.executeQuery(
       `SELECT table_name FROM information_schema.tables WHERE table_schema = '${schemaDTO.schema}';`,
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Get('/getTable/:tableName')
+  @Get('/gettable/:tableName')
   @ApiOperation({ summary: 'Get the entire table data by table name' })
   @ApiParam({
     name: 'tableName',
@@ -171,15 +212,20 @@ export class TableController {
     description: 'Table data retrieved successfully',
   })
   @ApiResponse({ status: 404, description: 'Table not found' })
-  getTable(
+  async getTable(
     @Param() tableNameDTO: TableNameDTO,
   ): Promise<TableApiResponse<any>> {
-    return this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       `SELECT * FROM "${tableNameDTO.tableName}";`,
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Get('/getTableValue/:tableName/:columnName/:columnValue')
+  @Get('/gettablevalue/:tableName/:columnName/:columnValue')
   @ApiOperation({
     summary:
       'Get the table data by column value, example: /getTableValue/users/username/johndoe',
@@ -203,18 +249,25 @@ export class TableController {
     status: 200,
     description: 'Table data retrieved successfully',
   })
-  getTableValue(
+  async getTableValue(
     @Param()
     getTableNameDTO: GetTableNameDTO,
   ): Promise<TableApiResponse<any>> {
     const query = `SELECT * FROM "${getTableNameDTO.tableName}" WHERE "${getTableNameDTO.columnName}" = $1;`;
-    return this.tableService.executeQuery(query, [getTableNameDTO.columnValue]);
+    const result = await this.tableService.executeQuery(query, [
+      getTableNameDTO.columnValue,
+    ]);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Post('/joinTables')
+  @Post('/jointables')
   @ApiOperation({ summary: 'Joins two tables' })
   @ApiBody({ type: JoinTablesDTO })
-  joinTables(
+  async joinTables(
     @Body() joinTablesDTO: JoinTablesDTO,
   ): Promise<TableApiResponse<any>> {
     const joinQuery = `FROM ${joinTablesDTO.tables[0]} ${joinTablesDTO.joinType} JOIN ${joinTablesDTO.tables[1]} ON ${joinTablesDTO.tables[0]}.${joinTablesDTO.joinColumns[0]} = ${joinTablesDTO.tables[1]}.${joinTablesDTO.joinColumns[1]}`;
@@ -230,16 +283,21 @@ export class TableController {
 
     query += ';';
 
-    return this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       query,
       joinTablesDTO.filter ? [joinTablesDTO.filter.value] : [],
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Post('/executeSelectQuery')
+  @Post('/executeselectQuery')
   @ApiOperation({ summary: 'Execute a select query' })
   @ApiBody({ type: QueryDTO })
-  executeSelectQuery(
+  async executeSelectQuery(
     @Body() queryDTO: QueryDTO,
   ): Promise<TableApiResponse<any>> {
     if (
@@ -254,13 +312,18 @@ export class TableController {
       });
     }
 
-    return this.tableService.executeQuery(queryDTO.query, []);
+    const result = await this.tableService.executeQuery(queryDTO.query, []);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Post('/insertData')
+  @Post('/insertdata')
   @ApiOperation({ summary: 'Insert data into a table' })
   @ApiBody({ type: InsertDataDTO })
-  insertData(
+  async insertData(
     @Body() insertDataDTO: InsertDataDTO,
   ): Promise<TableApiResponse<any>> {
     const columns = Object.keys(insertDataDTO.data).join(', ');
@@ -269,23 +332,33 @@ export class TableController {
       .map((_, index) => `$${index + 1}`)
       .join(', ');
     const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) VALUES (${valuePlaceholders});`;
-    return this.tableService.executeQuery(query, values);
+    const result = await this.tableService.executeQuery(query, values);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Delete('/deleteData')
+  @Delete('/deletedata')
   @ApiOperation({ summary: 'Delete data from a table' })
   @ApiBody({ type: DeleteDataDTO })
-  deleteData(
+  async deleteData(
     @Body() deleteDataDTO: DeleteDataDTO,
   ): Promise<TableApiResponse<any>> {
     const query = `DELETE FROM "${deleteDataDTO.tableName}" WHERE ${deleteDataDTO.condition};`;
-    return this.tableService.executeQuery(query);
+    const result = await this.tableService.executeQuery(query);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Put('/updateData')
+  @Put('/updatedata')
   @ApiOperation({ summary: 'Update data in a table' })
   @ApiBody({ type: UpdateDataDTO })
-  updateData(
+  async updateData(
     @Body() updateDataDTO: UpdateDataDTO,
   ): Promise<TableApiResponse<any>> {
     const values: any[] | undefined = [];
@@ -301,41 +374,62 @@ export class TableController {
     // Construct the full SQL query
     const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition};`;
 
-    return this.tableService.executeQuery(query, values);
+    const result = await this.tableService.executeQuery(query, values);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Post('/incrementData')
+  @Post('/incrementdata')
   @ApiOperation({ summary: 'Increment data in a table' })
   @ApiBody({ type: IncrementDataDTO })
-  incrementData(
+  async incrementData(
     @Body() incrementDataDTO: IncrementDataDTO,
   ): Promise<TableApiResponse<any>> {
     const query = `UPDATE "${incrementDataDTO.tableName}" SET ${incrementDataDTO.columnName} = ${incrementDataDTO.columnName} + ${incrementDataDTO.value} WHERE ${incrementDataDTO.condition};`;
-    return this.tableService.executeQuery(query);
+    const result = await this.tableService.executeQuery(query);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Post('/decrementData')
+  @Post('/decrementdata')
   @ApiOperation({ summary: 'Decrement data in a table' })
   @ApiBody({ type: IncrementDataDTO })
-  decrementData(
+  async decrementData(
     @Body() decrementDataDTO: IncrementDataDTO,
   ): Promise<TableApiResponse<any>> {
     const query = `UPDATE "${decrementDataDTO.tableName}" SET ${decrementDataDTO.columnName} = ${decrementDataDTO.columnName} - ${decrementDataDTO.value} WHERE ${decrementDataDTO.condition};`;
-    return this.tableService.executeQuery(query);
+    const result = await this.tableService.executeQuery(query);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
-  @Get('/defaultTables')
+  @Get('/defaulttables')
   @ApiOperation({
     summary: 'Get default tables to prevent creating tables with same names',
   })
-  getDefaultDefinedTables(): Promise<TableApiResponse<any>> {
-    return this.tableService.executeQuery(
+  async getDefaultDefinedTables(): Promise<TableApiResponse<any>> {
+    const result = await this.tableService.executeQuery(
       "SELECT table_name FROM information_schema.tables WHERE table_schema != 'public';",
     );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
+
   @Post('/addtrigger')
   @ApiOperation({ summary: 'Add a trigger to a table' })
-  addTrigger(
+  async addTrigger(
     @Body('tableName') tableName: string,
   ): Promise<TableApiResponse<any>> {
     if (!/^[A-Za-z0-9_]+$/.test(tableName)) {
@@ -354,12 +448,17 @@ export class TableController {
       $$;
       `;
 
-    return this.tableService.executeQuery(createTriggerQuery);
+    const result = await this.tableService.executeQuery(createTriggerQuery);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 
   @Delete('/removetrigger')
   @ApiOperation({ summary: 'Remove a trigger from a table' })
-  removeTrigger(
+  async removeTrigger(
     @Body('tableName') tableName: string,
   ): Promise<TableApiResponse<any>> {
     // Validate the tableName to ensure it's a valid identifier
@@ -378,6 +477,11 @@ export class TableController {
     $$;
     `;
 
-    return this.tableService.executeQuery(dropTriggerQuery);
+    const result = await this.tableService.executeQuery(dropTriggerQuery);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
   }
 }
