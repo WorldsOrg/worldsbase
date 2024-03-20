@@ -38,7 +38,7 @@ export class AuthController {
   })
   @ApiOperation({ summary: 'Returns users information generated from JWT' })
   @Get('/me')
-  getMe(@Headers() header: any): Promise<Me> {
+  async getMe(@Headers() header: any): Promise<Me> {
     const authHeader = header.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     if (token == null) {

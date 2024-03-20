@@ -36,7 +36,10 @@ export class AuthService {
     }
   }
 
-  async login(email: string, password: string): Promise<{ token: string }> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ accessToken: string }> {
     try {
       const query = 'SELECT * FROM dashboard_users WHERE email = $1';
       const values = [email];
@@ -50,7 +53,7 @@ export class AuthService {
             email: user.email,
             id: user.id,
           });
-          return { token: accessToken };
+          return { accessToken: accessToken };
         } else {
           throw new UnauthorizedException('Invalid credentials');
         }
@@ -63,7 +66,10 @@ export class AuthService {
     }
   }
 
-  async signup(email: string, password: string): Promise<{ token: string }> {
+  async signup(
+    email: string,
+    password: string,
+  ): Promise<{ accessToken: string }> {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       const query =
@@ -77,7 +83,7 @@ export class AuthService {
           email: user.email,
           id: user.id,
         });
-        return { token: accessToken };
+        return { accessToken: accessToken };
       } else {
         throw new UnauthorizedException('User already exists');
       }

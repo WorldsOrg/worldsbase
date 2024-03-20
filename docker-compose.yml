@@ -1,20 +1,11 @@
 version: "3"
 services:
-  server:
-    image: server-docker
-    ports:
-      - "3003:3003"
-    networks:
-      - wgs-network
-    build: ./server
-    env_file: ./server/.env
-
   client:
     image: nextjs-docker
     ports:
       - "3000:3000"
     networks:
-      - wgs-network
+      - wb-network
     build: ./client
     env_file: ./client/.env
 
@@ -23,7 +14,7 @@ services:
     ports:
       - "3008:3008"
     networks:
-      - wgs-network
+      - wb-network
     build: ./composer_server
     env_file: ./composer_server/packages/server/.env
 
@@ -32,17 +23,17 @@ services:
     ports:
       - "3001:3001"
     networks:
-      - wgs-network
+      - wb-network
     build: ./docs
 
-  chain:
-    image: chain
+  worldsbase-server:
+    image: worldsbase-server
     ports:
       - "3005:3005"
     networks:
-      - wgs-network
+      - wb-network
     build: ./worldsbase-server
     env_file: ./worldsbase-server/.env
 
 networks:
-  wgs-network:
+  wb-network:

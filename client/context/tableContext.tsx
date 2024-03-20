@@ -165,7 +165,6 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   }, []);
 
   const createTableData = useCallback(async (tableName: string, columns: { name: string; type: string; constraints: any }[]) => {
-    console.log(tableName, columns);
     const { status } = await axiosInstance.post(`/table/createTable`, {
       tableName,
       columns,
