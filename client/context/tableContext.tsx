@@ -1,8 +1,9 @@
 "use client";
 import { createContext, useContext, ReactNode, useState, useMemo, useCallback, use, useEffect } from "react";
 import { textColumn, keyColumn } from "react-datasheet-grid";
-import { useToastContext } from "./toastContext";
 import axios from "axios";
+import _sortBy from "lodash/sortBy";
+import { useToastContext } from "./toastContext";
 
 interface TableContextProps {
   loading: boolean;
@@ -127,8 +128,10 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const getTables = useCallback(async () => {
     const { data, status } = await axiosInstance.get("/table/gettables/public");
     if (status === 200 && data) {
-      setSelectTable(data[0].table_name as string);
-      setNavigation(data as Array<Navigation>);
+      const sortedData = _sortBy(data, ['table_name']);
+
+      setSelectTable(sortedData[0].table_name as string);
+      setNavigation(sortedData as Array<Navigation>);
     }
   }, []);
 
