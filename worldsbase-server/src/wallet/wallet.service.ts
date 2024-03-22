@@ -1,5 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { TurnkeyClient, createActivityPoller } from '@turnkey/http';
+import { CreateKeyCommand } from '@aws-sdk/client-kms';
+import { getPublicKey, kms } from './utils/awsUtils';
 import { ApiKeyStamper } from '@turnkey/api-key-stamper';
 import { Web3 } from 'web3';
 import { MoralisService } from 'src/moralis/moralis.service';
@@ -14,6 +16,7 @@ import {
   ValueDto,
   TokenResultDto,
   NFTResultDto,
+  AwsKmsWalletDto,
 } from './dto/wallet.dto';
 
 const pbkdf2 = promisify(crypto.pbkdf2);
@@ -108,6 +111,35 @@ export class WalletService {
     } catch (err) {
       console.error(err);
       throw new Error('Decryption failed');
+    }
+  }
+
+  async creaeteAwsKmsWallet(user_id: string): Promise<AwsKmsWalletDto> {
+    try {
+      const response = await kms.send(
+        new CreateKeyCommand({
+          KeySpec: 'ECC_SECG_P256K1',
+          KeyUsage: 'SIGN_VERIFY',
+        }),
+      );
+      if (!response.KeyMetadata?.KeyId) {
+        throw new HttpException(
+          'Error creating wallet',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      const key_id = response.KeyMetadata?.KeyId;
+      const public_key = await getPublicKey(key_id);
+      return {
+        address: public_key,
+        key_id: key_id,
+        user_id: user_id,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Error determining wallet address',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
