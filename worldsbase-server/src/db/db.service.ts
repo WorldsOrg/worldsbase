@@ -2,15 +2,20 @@ import { Injectable, Inject } from '@nestjs/common';
 import { PG_CONNECTION } from '../constants';
 import { Pool } from 'pg';
 import createSubscriber from 'pg-listen';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DBService {
   private pool: Pool;
   private subscriber: ReturnType<typeof createSubscriber>;
 
-  constructor(@Inject(PG_CONNECTION) private readonly connectionPool: Pool) {
+  constructor(
+    @Inject(PG_CONNECTION) private readonly connectionPool: Pool,
+    private configService: ConfigService,
+  ) {
     this.pool = this.connectionPool;
   }
+
   async onModuleInit() {
     await this.initSubscriber();
     await this.sendSampleMessage();
@@ -18,7 +23,7 @@ export class DBService {
 
   private async initSubscriber() {
     this.subscriber = createSubscriber({
-      connectionString: process.env.CONNECTION_STRING,
+      connectionString: this.configService.get<string>('CONNECTION_STRING'),
     });
 
     this.subscriber.notifications.on('my_event_channel', (payload) => {
