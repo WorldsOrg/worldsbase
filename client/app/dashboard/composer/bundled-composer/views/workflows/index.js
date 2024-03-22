@@ -98,7 +98,7 @@ const Workflows = () => {
               aria-haspopup="true"
               aria-expanded={open ? "true" : undefined}
               onClick={handleClick}
-              className="border bg-sidebar dark:bg-softBg hover:bg-hoverBg"
+              className="text-white border bg-secondary hover:bg-secondaryHover"
             >
               Add new
             </Button>

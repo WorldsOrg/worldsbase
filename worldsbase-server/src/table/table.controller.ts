@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   Delete,
@@ -54,7 +55,7 @@ export class TableController {
       .join(', ');
     const query = `CREATE TABLE IF NOT EXISTS "${createTableDTO.tableName}" (${columnDefinitions});`;
     const result = await this.tableService.executeQuery(query);
-
+    
     if (result.status === 200) {
       return result.data;
     } else {
@@ -74,7 +75,7 @@ export class TableController {
   async deleteTable(
     @Param('tableName') tableNameDTO: TableNameDTO,
   ): Promise<TableApiResponse<any>> {
-    const result = await this.tableService.executeQuery(
+        const result = await this.tableService.executeQuery(
       `DROP TABLE IF EXISTS "${tableNameDTO.tableName}";`,
     );
     if (result.status === 200) {
@@ -420,8 +421,14 @@ export class TableController {
     const result = await this.tableService.executeQuery(
       "SELECT table_name FROM information_schema.tables WHERE table_schema != 'public';",
     );
+
+    const tableNames = result?.data
+      ?.filter((item:any) => item.table_schema !== 'public')
+      ?.map((item:any) => item.table_name)
+      .filter(Boolean);
+
     if (result.status === 200) {
-      return result.data;
+      return tableNames;
     } else {
       return result.error || result.data;
     }

@@ -74,7 +74,7 @@ function Game() {
     }
 
     if (variables) {
-      variables.forEach((variable: any) => {
+      variables?.forEach((variable: any) => {
         if (variable.name === "initialMonsterHealth") {
           setHealth(parseInt(variable.value));
         } else if (variable.name === "headshotDamage") {
