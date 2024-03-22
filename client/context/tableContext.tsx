@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, ReactNode, useState, useMemo, useCallback, useEffect } from "react";
-import { usePathname,useRouter,useSearchParams} from "next/navigation";
+import { useRouter,useSearchParams} from "next/navigation";
 import { textColumn, keyColumn } from "react-datasheet-grid";
 import axios from "axios";
 import _sortBy from "lodash/sortBy";
@@ -8,7 +8,7 @@ import { useToastContext } from "./toastContext";
 
 interface TableContextProps {
   loading: boolean;
-  fetchData: (table: string) => void;
+  fetchData: (table: string, page?: string) => void;
   data: any[];
   columns: any[];
   loadingData: boolean;
@@ -29,7 +29,7 @@ interface TableContextProps {
 
 export const TableContext = createContext<TableContextProps>({
   loading: false,
-  fetchData: async (table: string) => {},
+  fetchData: async (table: string, page?: string) => {},
   data: [],
   columns: [],
   loadingData: false,
@@ -79,7 +79,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   });
 
   const router = useRouter();
-  const pathname = usePathname();
+  const path="/dashboard/table_editor"
   const searchParams=useSearchParams();
 
   const { toastAlert } = useToastContext();
@@ -93,7 +93,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const [navigation, setNavigation] = useState<Array<Navigation>>([]);
 
   const fetchData = useCallback(
-    async (tableName: string) => {
+    async (tableName: string,page?:string) => {
       setLoadingData(true);
       setPrimaryColumn(null);
       setColumns([]);
@@ -131,7 +131,9 @@ export const TableProvider = ({ children }: TableProviderProps) => {
         });
 
         setColumns(col);
-        router.push(`${pathname}/?tableName=${tableName}`)
+        if (page === "tableEditor") {
+          router.push(`${path}/?tableName=${tableName}`);
+        }
       }
       if (data && data.length > 0) {
         setData(data);
@@ -160,10 +162,9 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   }, []);
 
   const deleteTableData = useCallback(async (tableName: string) => {
-    setLoading(true);
-    const { status } = await axiosInstance.delete(`/table/deleteTable/${tableName}`);
-
-    setLoading(false);
+        setLoading(true);
+    try {
+    const { status } = await axiosInstance.delete(`/table/deletetable/${tableName}`,);
     if (status !== 200) {
       console.error("Deleting table error");
       toastAlert(false, "Deleting table error");
@@ -171,8 +172,10 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     }
 
     getTables();
-
     toastAlert(true, "Table deleted");
+  } finally  {
+    setLoading(false);
+  }
   }, []);
 
   const deleteColumnData = useCallback(async (tableName: string, columnName: string) => {
@@ -259,7 +262,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       };
     }
 
-    const { status } = await axiosInstance.put(`/table/updateTableName`, {
+    const { status } = await axiosInstance.put(`/table/updatetablename`, {
       oldTableName,
       newTableName,
     });
@@ -274,6 +277,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
 
     } else {
       toastAlert(true, "Table name updated successfully");
+      setSelectTable(newTableName);
       await fetchData(newTableName);
       return {
         showModal:false,
@@ -285,7 +289,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
 
   const handleSelectTable = useCallback((tableName: string) => {
     setSelectTable(tableName);
-    router.push(`${pathname}/?tableName=${tableName}`)
+    router.push(`${path}/?tableName=${tableName}`)
   }, []);
 
   const value = useMemo(

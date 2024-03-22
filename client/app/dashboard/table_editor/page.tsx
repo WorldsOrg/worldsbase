@@ -34,7 +34,7 @@ export default function Apps() {
 
   useEffect(() => {
     if (selectedTable) {
-      fetchData(selectedTable);
+      fetchData(selectedTable,"tableEditor");
     }
   }, [selectedTable]);
 
@@ -87,7 +87,7 @@ export default function Apps() {
       ...result.deleted.map((item) => handleDelete(item)),
     ]);
 
-    fetchData(selectedTable);
+    fetchData(selectedTable,"tableEditor");
   };
 
   const handleCreate = async (data: any) => {
