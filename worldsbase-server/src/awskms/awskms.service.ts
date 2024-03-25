@@ -3,9 +3,11 @@ import {
   KMSClient,
   GetPublicKeyCommand,
   CreateKeyCommand,
+  SignCommand,
 } from '@aws-sdk/client-kms';
 import * as asn1js from 'asn1js';
 import { keccak256 } from 'ethers/lib/utils';
+import { ethers } from 'ethers';
 
 @Injectable()
 export class AwsKmsService {
@@ -38,6 +40,21 @@ export class AwsKmsService {
     }
     const key_id = response.KeyMetadata?.KeyId;
     return key_id;
+  }
+
+  async sign(messageHash: Uint8Array): Promise<Buffer> {
+    const response = await this.kms.send(
+      new SignCommand({
+        KeyId: 'e2b2acdb-3dbc-4f64-9515-50a60ae42f64',
+        Message: messageHash,
+        MessageType: 'DIGEST',
+        SigningAlgorithm: 'ECDSA_SHA_256',
+      }),
+    );
+    if (!response.Signature) {
+      throw new Error('AWSKMS: Signature is undefined.');
+    }
+    return Buffer.from(response.Signature);
   }
 
   /**
