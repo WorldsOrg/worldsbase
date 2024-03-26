@@ -36,4 +36,10 @@ export class BuyFromListingMarketplaceDto {
     description: 'price of the item on the marketplace',
   })
   price: string;
+
+  @ApiProperty({
+    example: '0cea4c6e-738b-4c6d-ba7c-541111f9402a',
+    description: 'Key ID',
+  })
+  keyId: string;
 }

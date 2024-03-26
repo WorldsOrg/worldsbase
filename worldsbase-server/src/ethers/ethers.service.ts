@@ -46,12 +46,35 @@ export class EthersService {
       nonce: (await this.getNonce(senderAddress)) || 0,
       maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei').toString(),
       maxFeePerGas: ethers.parseUnits('100', 'gwei').toString(),
-      gasLimit: ethers.toBigInt('25000').toString(),
+      gasLimit: ethers.toBigInt('250000').toString(),
       to: to,
       value: ethers.parseEther(value).toString(),
       data: '0x',
     };
     return standardTx;
+  }
+
+  public async signAndSendTxSepolia(
+    senderAddress: string,
+    KeyId: string,
+    txData: any,
+  ): Promise<any> {
+    const signedTx = await this.awsKmsService.signTransaction(
+      senderAddress,
+      KeyId,
+      txData,
+      11155111,
+    );
+    this.sepoliaProvider
+      .send('eth_sendRawTransaction', [signedTx])
+      .then((txHash) => {
+        console.log(txHash);
+        return txHash;
+      })
+      .catch((error) => {
+        console.log(error);
+        return error;
+      });
   }
 
   public async createBuyFromListingTx(

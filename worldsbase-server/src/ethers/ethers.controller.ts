@@ -15,10 +15,10 @@ export class EthersController {
     description: 'Tx created',
     type: StandardTxData,
   })
-  makeTx(
+  async makeTx(
     @Body() buyFromListingMarketplaceDto: BuyFromListingMarketplaceDto,
-  ): Promise<StandardTxData> {
-    return this.ethersService.createBuyFromListingTx(
+  ): Promise<string> {
+    const txData = await this.ethersService.createBuyFromListingTx(
       buyFromListingMarketplaceDto.contractAddress,
       buyFromListingMarketplaceDto.listingId,
       buyFromListingMarketplaceDto.buyerAddress,
@@ -26,5 +26,20 @@ export class EthersController {
       buyFromListingMarketplaceDto.currency,
       buyFromListingMarketplaceDto.price,
     );
+
+    return this.ethersService.signAndSendTxSepolia(
+      buyFromListingMarketplaceDto.buyerAddress,
+      buyFromListingMarketplaceDto.keyId,
+      txData,
+    );
+
+    // return this.ethersService.createBuyFromListingTx(
+    //   buyFromListingMarketplaceDto.contractAddress,
+    //   buyFromListingMarketplaceDto.listingId,
+    //   buyFromListingMarketplaceDto.buyerAddress,
+    //   buyFromListingMarketplaceDto.quantity,
+    //   buyFromListingMarketplaceDto.currency,
+    //   buyFromListingMarketplaceDto.price,
+    // );
   }
 }

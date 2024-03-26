@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-kms';
 import * as asn1js from 'asn1js';
 import { keccak256, ethers } from 'ethersV6';
-import BN from 'bn.js';
+import * as BN from 'bn.js';
 import * as ethutil from '@ethereumjs/util';
 
 @Injectable()
@@ -132,7 +132,7 @@ export class AwsKmsService {
    * This works because the value of s does not define a distinct point on the curve. The value can be +s or -s,
    * either signature is valid from an ECDSA perspective.
    */
-  decodeRS(signature: Buffer): { r: Buffer; s: Buffer } {
+  decodeRS(signature: any) {
     /**
      * According to section 2.2.3 of RFC 3279 this function expects to find two integers r and s
      * in the signature that will be returned as two BigNumber (BN.js) objects.
@@ -226,7 +226,7 @@ export class AwsKmsService {
    * @returns The tnx serialized ECDSA signature as a '0x'-prefixed string.
    */
   async signTransaction(
-    address: string,
+    senderAddress: string,
     KeyId: string,
     txData: any,
     chainId: any,
@@ -236,7 +236,7 @@ export class AwsKmsService {
 
     const { r, s } = this.decodeRS(await this.signDigest(KeyId, digest));
 
-    const addressBuffer = Buffer.from(address.replace('0x', ''), 'hex');
+    const addressBuffer = Buffer.from(senderAddress.replace('0x', ''), 'hex');
     const v = this.calculateV(addressBuffer, digest, r, s, BigInt(chainId));
 
     const signedTx = { ...txData, r, s, v };
