@@ -9,6 +9,7 @@ import { TableModule } from './table/table.module';
 import { AuthModule } from './auth/auth.module';
 import { DbModule } from './db/db.module';
 import { TasksModule } from './tasks/tasks.module';
+import { EthersModule } from './ethers/ethers.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { TasksModule } from './tasks/tasks.module';
     WalletModule,
     TableModule,
     AuthModule,
+    EthersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
