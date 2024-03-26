@@ -6,7 +6,7 @@ import {
   SignCommand,
 } from '@aws-sdk/client-kms';
 import * as asn1js from 'asn1js';
-import { keccak256, ethers } from 'ethers';
+import { keccak256, ethers } from 'ethersV6';
 import BN from 'bn.js';
 import * as ethutil from '@ethereumjs/util';
 

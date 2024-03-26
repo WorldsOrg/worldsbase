@@ -1,12 +1,30 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { EthersService } from './ethers.service';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { StandardTxData } from './ethers.service';
+import { BuyFromListingMarketplaceDto } from './dto/ethers.dto';
 
 @Controller('ethers')
 export class EthersController {
   constructor(private readonly ethersService: EthersService) {}
 
-  @Get('test')
-  public async makeTransaction() {
-    // return this.ethersService.createBuyFromListingTx();
+  @Post('/create_buy_from_listing_tx')
+  @ApiOperation({ summary: 'Creates a wallet using AWS KMS' })
+  @ApiResponse({
+    status: 201,
+    description: 'Tx created',
+    type: StandardTxData,
+  })
+  makeTx(
+    @Body() buyFromListingMarketplaceDto: BuyFromListingMarketplaceDto,
+  ): Promise<StandardTxData> {
+    return this.ethersService.createBuyFromListingTx(
+      buyFromListingMarketplaceDto.contractAddress,
+      buyFromListingMarketplaceDto.listingId,
+      buyFromListingMarketplaceDto.buyerAddress,
+      buyFromListingMarketplaceDto.quantity,
+      buyFromListingMarketplaceDto.currency,
+      buyFromListingMarketplaceDto.price,
+    );
   }
 }

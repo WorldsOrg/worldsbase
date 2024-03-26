@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { ethers } from 'ethers';
+import { ethers } from 'ethersV6';
 import { AwsKmsService } from 'src/awskms/awskms.service';
 import { marketplaceAbi } from './abi/marketplaceAbi';
 
-type StandardTxData = {
+export class StandardTxData {
   type: number;
   chainId: number;
   nonce: number;
-  maxPriorityFeePerGas: ethers.BigNumberish;
-  maxFeePerGas: ethers.BigNumberish;
-  gasLimit: ethers.BigNumberish;
+  maxPriorityFeePerGas: string;
+  maxFeePerGas: string;
+  gasLimit: string;
   to: string;
-  value: ethers.BigNumberish;
+  value: string;
   data: string;
-};
+}
 
 @Injectable()
 export class EthersService {
@@ -44,11 +44,11 @@ export class EthersService {
       type: 2,
       chainId: 11155111,
       nonce: (await this.getNonce(senderAddress)) || 0,
-      maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei'),
-      maxFeePerGas: ethers.parseUnits('100', 'gwei'),
-      gasLimit: ethers.toBigInt('21000'),
+      maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei').toString(),
+      maxFeePerGas: ethers.parseUnits('100', 'gwei').toString(),
+      gasLimit: ethers.toBigInt('25000').toString(),
       to: to,
-      value: ethers.parseEther(value),
+      value: ethers.parseEther(value).toString(),
       data: '0x',
     };
     return standardTx;
@@ -69,7 +69,7 @@ export class EthersService {
       buyerAddress,
       quantity,
       currency,
-      price,
+      ethers.parseEther(price).toString(),
     );
 
     const tx = await this.createStandardSepoliaTx(
