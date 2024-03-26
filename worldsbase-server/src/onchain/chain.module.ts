@@ -7,5 +7,6 @@ import { ThirdwebModule } from 'src/thirdweb/thirdweb.module';
   imports: [ThirdwebModule],
   controllers: [ChainController],
   providers: [ChainService],
+  exports: [ChainService],
 })
 export class ChainModule {}

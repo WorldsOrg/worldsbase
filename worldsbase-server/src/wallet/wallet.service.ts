@@ -1,7 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { TurnkeyClient, createActivityPoller } from '@turnkey/http';
-import { CreateKeyCommand } from '@aws-sdk/client-kms';
-import { getPublicKey, kms } from './utils/awsUtils';
 import { ApiKeyStamper } from '@turnkey/api-key-stamper';
 import { Web3 } from 'web3';
 import { MoralisService } from 'src/moralis/moralis.service';
@@ -18,6 +16,7 @@ import {
   NFTResultDto,
   AwsKmsWalletDto,
 } from './dto/wallet.dto';
+import { AwsKmsService } from 'src/awskms/awskms.service';
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 const createCipheriv = crypto.createCipheriv;
@@ -54,7 +53,10 @@ const initTurnkeyClient = async () =>
 
 @Injectable()
 export class WalletService {
-  constructor(private readonly moralisService: MoralisService) {}
+  constructor(
+    private readonly moralisService: MoralisService,
+    private awsKmsService: AwsKmsService,
+  ) {}
   async encryptWallet(key: string, pass: string): Promise<any> {
     const salt = Buffer.from(process.env.KEY_SALT as string, 'hex');
     const iterations = 100000;
@@ -114,32 +116,17 @@ export class WalletService {
     }
   }
 
-  async creaeteAwsKmsWallet(user_id: string): Promise<AwsKmsWalletDto> {
+  async createAwsKmsWallet(user_id: string): Promise<AwsKmsWalletDto> {
     try {
-      const response = await kms.send(
-        new CreateKeyCommand({
-          KeySpec: 'ECC_SECG_P256K1',
-          KeyUsage: 'SIGN_VERIFY',
-        }),
-      );
-      if (!response.KeyMetadata?.KeyId) {
-        throw new HttpException(
-          'Error creating wallet',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      const key_id = response.KeyMetadata?.KeyId;
-      const public_key = await getPublicKey(key_id);
+      const key_id = await this.awsKmsService.createKey();
+      const public_key = await this.awsKmsService.getPublicKey(key_id);
       return {
         address: public_key,
         key_id: key_id,
         user_id: user_id,
       };
     } catch (error) {
-      throw new HttpException(
-        'Error determining wallet address',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

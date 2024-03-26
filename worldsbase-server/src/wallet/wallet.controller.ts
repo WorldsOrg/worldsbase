@@ -45,7 +45,7 @@ export class WalletController {
   creaeteAwsKmsWallet(
     @Body() createWalletDto: CreateWalletDto,
   ): Promise<AwsKmsWalletDto> {
-    return this.walletService.creaeteAwsKmsWallet(createWalletDto.user_id);
+    return this.walletService.createAwsKmsWallet(createWalletDto.user_id);
   }
 
   @Post('/create_wallet')
