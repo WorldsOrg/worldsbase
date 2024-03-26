@@ -116,7 +116,7 @@ export class WalletService {
     }
   }
 
-  async creaeteAwsKmsWallet(user_id: string): Promise<AwsKmsWalletDto> {
+  async createAwsKmsWallet(user_id: string): Promise<AwsKmsWalletDto> {
     try {
       const key_id = await this.awsKmsService.createKey();
       const public_key = await this.awsKmsService.getPublicKey(key_id);

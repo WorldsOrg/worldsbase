@@ -7,6 +7,6 @@ export class EthersController {
 
   @Get('test')
   public async makeTransaction() {
-    return this.ethersService.makeTransaction();
+    // return this.ethersService.createBuyFromListingTx();
   }
 }
