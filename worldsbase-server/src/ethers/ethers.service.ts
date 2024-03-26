@@ -54,10 +54,10 @@ export class EthersService {
     return standardTx;
   }
 
-  public async signAndSendTxSepolia(
+  public async signAndSendTxAwsKmsSepolia(
     senderAddress: string,
     KeyId: string,
-    txData: any,
+    txData: StandardTxData,
   ): Promise<any> {
     const signedTx = await this.awsKmsService.signTransaction(
       senderAddress,
