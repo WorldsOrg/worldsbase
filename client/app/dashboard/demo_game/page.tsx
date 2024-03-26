@@ -1,9 +1,8 @@
 "use client";
 import useCopyToClipboard from "@/hooks/useCopyToClipboard";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { axiosInstance } from "@/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 
 function Game() {
   const [stats, setStats] = useState({ kill: 0, headshot: 0, hit: 0, gold: 0 });
