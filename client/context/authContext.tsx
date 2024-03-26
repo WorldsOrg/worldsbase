@@ -2,7 +2,7 @@
 import { createContext, useContext, ReactNode, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useToastContext } from "./toastContext";
-import { axiosInstance } from "@/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 
 interface AuthContextProps {
   token: string | null;

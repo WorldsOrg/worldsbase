@@ -1,5 +1,5 @@
-import Layout from "@/components/layout/Layout";
 import type { Metadata } from "next";
+import Layout from "@/components/layout/Layout";
 
 export const metadata: Metadata = {
   title: "Worlds Dashboard",

@@ -1,13 +1,5 @@
 // services/apiService.js
-import axios from "axios";
-
-const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-    "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY,
-  },
-});
+import axiosInstance from "../utils/axiosInstance";
 
 export const createData = async (tableName: string, data: any) => axiosInstance.post("/table/insertData", { tableName, data });
 

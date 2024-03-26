@@ -18,7 +18,7 @@ import {
   MdVerifiedUser,
 } from "react-icons/md";
 import { GoWorkflow } from "react-icons/go";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/authContext";
 import ToggleButton from "../ui/ToggleButton";
 import Tooltip from "../ui/tooltip";
@@ -30,6 +30,7 @@ function classNames(...classes: string[]) {
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
+  const searchParams=useSearchParams();
   const { logout } = useAuth();
   const pathname = usePathname();
 
@@ -88,6 +89,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       }))
     );
   }, [pathname]); // Depend on pathname
+
+  useEffect(()=>{
+    const token=localStorage.getItem("token");
+
+    if(!token){
+      router.push("/auth")
+    }
+    
+  },[searchParams])
 
   return (
     <div className="tableFont">

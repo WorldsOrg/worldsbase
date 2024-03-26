@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { DataSheetGrid, keyColumn, textColumn } from "react-datasheet-grid";
 import "react-datasheet-grid/dist/style.css";
 import { TbEditOff } from "react-icons/tb";
-import axios from "axios";
+import axiosInstance from "@/utils/axiosInstance";
 
 export default function Apps() {
   const columns = [
@@ -19,13 +19,6 @@ export default function Apps() {
   }, []);
 
   const getUsers = async () => {
-    const axiosInstance = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY,
-      },
-    });
     const { data } = await axiosInstance.get("table/getTable/monster_players");
     if (data) {
       setData(data);
