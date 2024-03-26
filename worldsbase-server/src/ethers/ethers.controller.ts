@@ -31,6 +31,7 @@ export class EthersController {
       buyFromListingMarketplaceDto.quantity,
       buyFromListingMarketplaceDto.currency,
       buyFromListingMarketplaceDto.price,
+      buyFromListingMarketplaceDto.chainId,
     );
   }
 
@@ -47,7 +48,7 @@ export class EthersController {
   async signAndSend(
     @Body() signAndSendAwsKmsDto: SignAndSendAwsKmsDto,
   ): Promise<StandardTxData> {
-    return this.ethersService.signAndSendTxAwsKmsSepolia(
+    return this.ethersService.signAndSendTxAwsKms(
       signAndSendAwsKmsDto.senderAddress,
       signAndSendAwsKmsDto.key_id,
       signAndSendAwsKmsDto.txData,

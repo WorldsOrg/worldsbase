@@ -37,6 +37,12 @@ export class BuyFromListingMarketplaceDto {
     description: 'price of the item on the marketplace',
   })
   price: string;
+
+  @ApiProperty({
+    example: 1,
+    description: 'Chain ID for the network being used',
+  })
+  chainId: number;
 }
 
 export class SignAndSendAwsKmsDto {
