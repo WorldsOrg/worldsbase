@@ -2,7 +2,7 @@
 import { createContext, useContext, ReactNode, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useToastContext } from "./toastContext";
-import { axiosInstance } from "@/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 
 interface AuthContextProps {
   token: string | null;
@@ -68,11 +68,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!data) {
-          clearAuthData();
-          router.push("/auth");
-          return;
+        
+        if (!data?.email || data?.statusCode === 500) {
+          return logout();
         }
+
       } catch (error) {
         console.error("Error fetching user data");
       }finally{

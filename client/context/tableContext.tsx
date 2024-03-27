@@ -2,9 +2,9 @@
 import { createContext, useContext, ReactNode, useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter,useSearchParams} from "next/navigation";
 import { textColumn, keyColumn } from "react-datasheet-grid";
-import axios from "axios";
 import _sortBy from "lodash/sortBy";
 import { useToastContext } from "./toastContext";
+import axiosInstance from "../utils/axiosInstance";
 
 interface TableContextProps {
   loading: boolean;
@@ -69,14 +69,6 @@ interface TableProviderProps {
 }
 
 export const TableProvider = ({ children }: TableProviderProps) => {
-  // create axios instance with header
-  const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY,
-    },
-  });
 
   const router = useRouter();
   const path="/dashboard/table_editor"
