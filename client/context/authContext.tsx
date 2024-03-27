@@ -75,6 +75,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       } catch (error) {
         console.error("Error fetching user data");
+        logout();
       }finally{
         setLoading(false);
       }
