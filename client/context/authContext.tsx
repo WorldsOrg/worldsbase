@@ -68,14 +68,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!data) {
-          clearAuthData();
-          router.push("/auth");
-          return;
+        
+        if (!data?.email || data?.statusCode === 500) {
+          return logout();
         }
+
       } catch (error) {
         console.error("Error fetching user data");
-        logout();
       }finally{
         setLoading(false);
       }
