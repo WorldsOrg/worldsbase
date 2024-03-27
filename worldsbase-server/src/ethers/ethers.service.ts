@@ -17,33 +17,46 @@ export class StandardTxData {
 
 @Injectable()
 export class EthersService {
-  private sepoliaProvider: ethers.JsonRpcProvider;
+  private providers: { [chainId: number]: ethers.JsonRpcProvider } = {};
 
   constructor(private awsKmsService: AwsKmsService) {
-    this.sepoliaProvider = new ethers.JsonRpcProvider(
+    this.providers[11155111] = new ethers.JsonRpcProvider(
       'https://rpc.sepolia.org/',
+    );
+    this.providers[421614] = new ethers.JsonRpcProvider(
+      'https://arbitrum-sepolia.blockpi.network/v1/rpc/public',
+    );
+    this.providers[84532] = new ethers.JsonRpcProvider(
+      'https://sepolia.base.org	',
     );
   }
 
-  public async getNonce(address: string) {
+  public async getNonce(address: string, chainId: number) {
     try {
-      const nonce = await this.sepoliaProvider.getTransactionCount(address);
-      return nonce;
+      if (this.providers[chainId] !== undefined) {
+        const nonce =
+          await this.providers[chainId].getTransactionCount(address);
+        return nonce;
+      } else {
+        console.log('Chain Id not supported');
+        return null;
+      }
     } catch (error) {
       console.error('Error getting nonce:', error);
       return null;
     }
   }
 
-  public async createStandardSepoliaTx(
+  public async createStandardTx(
     to: string,
     value: string,
     senderAddress: string,
+    chainId: number,
   ): Promise<StandardTxData> {
     const standardTx: StandardTxData = {
       type: 2,
-      chainId: 11155111,
-      nonce: (await this.getNonce(senderAddress)) || 0,
+      chainId: chainId,
+      nonce: (await this.getNonce(senderAddress, chainId)) || 0,
       maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei').toString(),
       maxFeePerGas: ethers.parseUnits('100', 'gwei').toString(),
       gasLimit: ethers.toBigInt('250000').toString(),
@@ -54,27 +67,33 @@ export class EthersService {
     return standardTx;
   }
 
-  public async signAndSendTxSepolia(
+  public async signAndSendTxAwsKms(
     senderAddress: string,
     KeyId: string,
-    txData: any,
+    txData: StandardTxData,
   ): Promise<any> {
+    const chainId = txData.chainId;
     const signedTx = await this.awsKmsService.signTransaction(
       senderAddress,
       KeyId,
       txData,
-      11155111,
+      chainId,
     );
-    this.sepoliaProvider
-      .send('eth_sendRawTransaction', [signedTx])
-      .then((txHash) => {
-        console.log(txHash);
-        return txHash;
-      })
-      .catch((error) => {
-        console.log(error);
-        return error;
-      });
+    if (this.providers[chainId] !== undefined) {
+      this.providers[chainId]
+        .send('eth_sendRawTransaction', [signedTx])
+        .then((txHash) => {
+          console.log(txHash);
+          return txHash;
+        })
+        .catch((error) => {
+          console.log(error);
+          return error;
+        });
+    } else {
+      console.log('Chain Id not supported');
+      return null;
+    }
   }
 
   public async createBuyFromListingTx(
@@ -84,6 +103,7 @@ export class EthersService {
     quantity: string,
     currency: string,
     price: string,
+    chainId: number,
   ) {
     const contract = new ethers.BaseContract(contractAddress, marketplaceAbi);
     const buyFromListing = contract.getFunction('buyFromListing');
@@ -95,10 +115,11 @@ export class EthersService {
       ethers.parseEther(price).toString(),
     );
 
-    const tx = await this.createStandardSepoliaTx(
+    const tx = await this.createStandardTx(
       contractAddress,
       price,
       buyerAddress,
+      chainId,
     );
 
     tx.data = populatedTx.data;
