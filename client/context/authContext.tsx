@@ -85,12 +85,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (credentials: LoginCredentials) => {
     setLoading(true);
     try {
-      const result = await axiosInstance.post("/auth/login", credentials);
-      if (result.data) {
-        updateToken(result.data.accessToken);
-        toastAlert(true, `Welcome to WGS`);
-        router.push("/dashboard");
+      const {status,data} = await axiosInstance.post("/auth/login", credentials);
+      if (status !== 201) {
+      toastAlert(false, data?.message);
+      return;
       }
+      
+      updateToken(data?.accessToken);
+      toastAlert(true, `Welcome to WGS`);
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error logging in", error);
       toastAlert(false, "Something went wrong");
