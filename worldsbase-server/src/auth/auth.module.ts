@@ -12,8 +12,8 @@ import { JwtModule } from '@nestjs/jwt';
     DbModule,
     JwtModule.register({
       global: true,
-      secret: 'mysercreadsfgaslhgeradsg',
-      signOptions: { expiresIn: '60s' },
+      secret: 'mysercreadsfgaslhgeradsg!a098324.as!,ase',
+      signOptions: { expiresIn: '7 days' },
     }),
   ],
 })
