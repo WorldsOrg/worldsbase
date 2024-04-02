@@ -1,19 +1,14 @@
 {
-  "index": "Introduction",
-  "start": "Getting Started",
-  "services": "Services",
-  "apireference": "API Reference",
-  "unrealguide": "Unreal Engine Tutorial",
-  "jsguide": "Javascript Tutorial",
-  "unityguide": "Unity Tutorial",
-  "about": {
-    "title": "About",
-    "type": "page"
+  "index": {
+    "title": "Introduction"
   },
+  "start": "Getting Started",
+  "guides": "Guides",
+  "plugins": "Plugins & SDKs",
   "contact": {
     "title": "Contact ↗",
     "type": "page",
-    "href": "https://twitter.com/waifu_force",
+    "href": "https://twitter.com/WorldsOrg",
     "newWindow": true
   }
 }

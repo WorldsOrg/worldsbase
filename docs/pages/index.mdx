@@ -1,15 +1,26 @@
-# Worlds Gaming Services (WGS) Introduction
+# Worldsbase
  
-WGS is here to help game developers by providing tools that work for them. You can use your own database, personalize your schemas, 
-integrate third party software, and seamlessly interact with the blockchain. 
+Worldsbase is an API for interacting with a game's database and seamlessly integrating with the blockchain.
 
-We can talk about problems we have heard with devs using Playfab/Accelbyte and how we are different from them here?
-For example:
-We have talked to game developers that have used Playfab and Accelbyte and their experience has told us that there is a need for a simpler
-game developement tool kit. Why should you be locked in to someone else's schemas or database? There is a need for no-code automation 
-tools so that non-developers can contribute. We noticed teams have friction when teams when integrating thirdparty software into these products. 
-There are no easy web3 integrations. 
+The backend architecture provides three key functionalities: User management, web3 integration, and database interaction.
+
+Clients connect to Worldsbase via a REST API. There are multiple SDKs and plugins allowing game engines to connect.
+<br/>
+<img src="/images/architecture-main.png" width="800"/>
+
+## User Management
+
+User ids, connected socials, connected wallets, and more are accessible via the Worldsbase user management API. Provisioned wallets can also be generated via the key management service.
+
+## Database Integration
+
+Read, write, or listen to the database via the Database Integration API. Composer allows no-code workflow automation to be configured and triggered off change data capture in the database.
+
+## Web3 Capabilities
+
+Call integrated smart contracts functions, such as mint/transfer/burn tokens and more. The key management service will automatically sign transactions on the user's behalf (for provisioned wallets). All of this is integrated into a custom L2 rollup with a block explorer. The event listener allows syncing of smart contract events with web2 data.
+
 
 ## License
 
-Do we want to include open-source here?
+MIT

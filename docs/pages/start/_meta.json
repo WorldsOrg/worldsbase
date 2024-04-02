@@ -1,5 +1,4 @@
 {
-  "install": "Install WGS",
-  "test": "Test Monster Game",
-  "connect": "Connect to WGS"
+  "install": "Installation",
+  "quickstart": "Quick Start"
 }
