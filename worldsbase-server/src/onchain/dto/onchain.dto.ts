@@ -7,6 +7,15 @@ export class MintToDto {
   @IsString()
   readonly toAddress: string;
 }
+
+export class SendToDto {
+  @ApiProperty({ example: '0x350845DD3f03F1355233a3A7CEBC24b5aAD05eC5' })
+  @IsString()
+  readonly toAddress: string;
+  @ApiProperty({ example: 1 })
+  readonly amount: number;
+}
+
 export class ReceiptDto {
   @ApiProperty({
     example:

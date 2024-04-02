@@ -40,6 +40,27 @@ export class ChainService {
       );
     }
   }
+
+  async sendToken(toAddress: string, amount: number): Promise<ReceiptDto> {
+    try {
+      const sdk = this.thirdwebService.getSDK();
+
+      const token = await sdk.getContract(
+        this.configService.get<string>('TOKEN_CONTRACT_ADDRESS') as string,
+      );
+      // The amount of tokens you want to send
+      const tx = await token.erc20.transfer(toAddress, amount);
+      const receipt = tx.receipt;
+      return { receipt: receipt.transactionHash };
+    } catch (error) {
+      console.error('Error sending token:', error);
+      throw new HttpException(
+        'Error sending token',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async deploy(): Promise<any> {
     const sdk = this.thirdwebService.getSDK();
     const address = await sdk.deployer.deployBuiltInContract('nft-collection', {

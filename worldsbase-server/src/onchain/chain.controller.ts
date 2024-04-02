@@ -6,6 +6,7 @@ import {
   DirectListingDto,
   MintToDto,
   ReceiptDto,
+  SendToDto,
 } from './dto/onchain.dto';
 import { DirectListingV3, EnglishAuction } from '@thirdweb-dev/sdk';
 
@@ -28,6 +29,24 @@ export class ChainController {
   @Post('/mintto')
   mintTo(@Body() mintToDto: MintToDto): Promise<ReceiptDto> {
     return this.controllerService.mintTo(mintToDto.toAddress);
+  }
+
+  @Post('/send_token')
+  @ApiOperation({ summary: 'Sends token to given address' })
+  @ApiResponse({
+    status: 201,
+    description: 'Token sent to the given address',
+    type: ReceiptDto,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error sending token',
+  })
+  sendToken(@Body() sendToDto: SendToDto): Promise<ReceiptDto> {
+    return this.controllerService.sendToken(
+      sendToDto.toAddress,
+      sendToDto.amount,
+    );
   }
 
   @Get('/marketplace_direct')
