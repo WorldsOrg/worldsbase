@@ -33,6 +33,7 @@
   --secondary: #1c1c1c;
   --secondaryHover: #333333;
   --sidebar: #1c1c1c;
+  --scrollbarColor:#ededed;
 
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
@@ -72,6 +73,7 @@
   --secondary: #2e2e2e;
   --secondaryHover: #282828;
   --sidebar: #1c1c1c;
+  --scrollbarColor:#2e2e2e;
 
   /*Data Sheet Grid  */
   --dsg-border-color: var(--borderColor) !important;
@@ -116,4 +118,21 @@
 
 .tableFont {
   font-family: "circular", sans-serif;
+}
+
+.scrollbar-class::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-class::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbarColor);
+  border-radius: 4px;
+}
+
+.scrollbar-class::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+.scrollbar-class::-webkit-scrollbar-thumb:hover {
+  background-color: var(--hoverBg);
 }

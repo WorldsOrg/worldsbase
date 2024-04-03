@@ -10,6 +10,7 @@ import IconInput from "@/components/ui/IconInput";
 import NoSearchResult from "@/components/ui/table/NoSearchResult";
 import TableNameButton from "@/components/ui/table/TableNameButton";
 import Button from "@/components/ui/table/Button";
+import SchemaButton from "@/components/ui/table/SchemaButton";
 
 interface AppLayoutProps {
   children: ReactNode,
@@ -17,10 +18,11 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, addNewTableClicked }: AppLayoutProps) {
-  const { selectedTable, navigation, getTables,handleSelectTable } = useTable();
+  const { selectedTable, navigation, getTables, handleSelectTable } = useTable();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchedTable, setSearchedTable] = useState("");
   const [filteredTables, setFilteredTables] = useState(navigation);
+  const [selectedSchema, setSelectedSchema] = useState("");
 
   useEffect(() => {
     setFilteredTables(navigation);
@@ -41,6 +43,10 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
     setSearchedTable("");
     setFilteredTables(navigation);
   };
+
+  const handleSelectSchema = (schema: string) => {
+    setSelectedSchema(schema);
+  }
 
   return (
     <div>
@@ -154,6 +160,12 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
             <ul role="list" className="space-y-1">
               <div className="flex flex-col gap-2 mb-4 mr-8">
                 <li key="1">
+                  <SchemaButton 
+                  selectedSchema={selectedSchema}
+                  handleSelectSchema={handleSelectSchema}
+                  />
+                </li>
+                <li>
                   <Button
                     className="flex w-full h-10 text-xs font-semibold leading-6 border rounded-md border-primary text-primary hover:bg-softBg"
                     onClick={addNewTableClicked}
@@ -180,7 +192,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                 </Tooltip>
               </div>
               <li
-                className="flex flex-col gap-2 overflow-y-auto"
+                className="flex flex-col gap-2 overflow-y-auto scrollbar-class"
                 style={{
                   maxHeight: "calc(100vh - 240px)",
                 }}
