@@ -1,6 +1,7 @@
 "use client";
 import { ChangeEvent, useState } from "react";
 import _debounce from "lodash/debounce";
+import { isEmpty } from "lodash";
 import {
   Popover as PopoverUI,
   PopoverTrigger,
@@ -16,9 +17,8 @@ import {
   CheckIcon,
 } from "@heroicons/react/24/outline";
 import IconInput from "../IconInput";
-import { isEmpty } from "lodash";
 
-interface PopoverProps {
+interface SchemaButtonProps {
   selectedSchema: string;
   handleSelectSchema: (schema: string) => void;
 }
@@ -37,7 +37,7 @@ const schemas = [
   "vault",
 ];
 
-const SchemaButton = ({ selectedSchema, handleSelectSchema }: PopoverProps) => {
+const SchemaButton = ({ selectedSchema, handleSelectSchema }: SchemaButtonProps) => {
   const { onOpen, onClose, isOpen } = useDisclosure();
 
   const [searchedSchema, setSearchedSchema] = useState("");
