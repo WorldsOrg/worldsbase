@@ -18,15 +18,16 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, addNewTableClicked }: AppLayoutProps) {
-  const { selectedTable, navigation, getTables, handleSelectTable } = useTable();
+  const { selectedTable, navigation, getTables, handleSelectTable,schemas } = useTable();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchedTable, setSearchedTable] = useState("");
   const [filteredTables, setFilteredTables] = useState(navigation);
-  const [selectedSchema, setSelectedSchema] = useState("");
+  const [selectedSchema, setSelectedSchema] = useState("public");
 
   useEffect(() => {
     setFilteredTables(navigation);
   }, [navigation]);
+
 
   const debouncedSearch = _debounce((value: string) => {
     const filteredData = navigation.filter((item) => item.table_name.toLowerCase().includes(value.toLowerCase().trim()));
@@ -161,6 +162,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
               <div className="flex flex-col gap-2 mb-4 mr-8">
                 <li key="1">
                   <SchemaButton 
+                  schemas={schemas}
                   selectedSchema={selectedSchema}
                   handleSelectSchema={handleSelectSchema}
                   />

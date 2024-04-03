@@ -1,5 +1,5 @@
 "use client";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import _debounce from "lodash/debounce";
 import { isEmpty } from "lodash";
 import {
@@ -20,25 +20,13 @@ import IconInput from "../IconInput";
 import SchemaOverlay from "./SchemaOverlay";
 
 interface SchemaButtonProps {
+  schemas: any[];
   selectedSchema: string;
   handleSelectSchema: (schema: string) => void;
 }
 
-const schemas = [
-  "auth",
-  "extensions",
-  "graphql",
-  "net",
-  "pgsodium",
-  "pgsodium_masks",
-  "public",
-  "realtime",
-  "storage",
-  "supabase_functions",
-  "vault",
-];
-
 const SchemaButton = ({
+  schemas,
   selectedSchema,
   handleSelectSchema,
 }: SchemaButtonProps) => {
@@ -48,14 +36,18 @@ const SchemaButton = ({
   const [filteredSchemas, setFilteredSchemas] = useState(schemas);
   const [openModal, setOpenModal] = useState(false);
 
+  useEffect(() => {
+    setFilteredSchemas(schemas);
+  }, [schemas]);
+
   const handleItemClicked = (schema: string) => {
     handleSelectSchema(schema);
     onClose();
   };
 
   const debouncedSearch = _debounce((value: string) => {
-    const filteredData = schemas.filter((item) =>
-      item.toLowerCase().includes(value.toLowerCase().trim())
+    const filteredData = schemas?.filter((item) =>
+      item?.schema_name?.toLowerCase().includes(value.toLowerCase().trim())
     );
     setFilteredSchemas(filteredData);
   }, 500);
@@ -113,10 +105,10 @@ const SchemaButton = ({
                   <li
                     key={item}
                     className="flex items-center justify-between w-full px-4 cursor-pointer h-7 hover:bg-hoverBg"
-                    onClick={() => handleItemClicked(item)}
+                    onClick={() => handleItemClicked(item?.schema_name)}
                   >
-                    {item}
-                    {item === selectedSchema ? (
+                    {item?.schema_name}
+                    {item?.schema_name === selectedSchema ? (
                       <CheckIcon className="w-4 text-green-800" />
                     ) : null}
                   </li>

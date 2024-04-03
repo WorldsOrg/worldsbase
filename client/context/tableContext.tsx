@@ -18,11 +18,13 @@ interface TableContextProps {
   setSelectTable: (table: string) => void;
   selectedTable: string;
   navigation: Array<any>;
+  schemas:Array<any>;
   deleteTableData: (tableName: string) => void;
   createTableData: (tableName: string, columns: { name: string; type: string; constraints: any }[]) => Promise<any>;
   deleteColumnData: (tableName: string, columnName: string) => void;
   addColumnData: (tableName: string, columnName: string, columnType: string) => void;
   getTables: () => void;
+  getSchemas: () => void;
   renameTable: (oldTableName: string, newTableName: string) => Promise<any>;
   handleSelectTable: (tableName: string) => void;
 }
@@ -39,6 +41,7 @@ export const TableContext = createContext<TableContextProps>({
   setSelectTable: (table: string) => {},
   selectedTable: "",
   navigation: [],
+  schemas:[],
   deleteTableData: (tableName: string) => {},
   createTableData: async(tableName: string, columns: { name: string; type: string; constraints: any }[]) => {
     return {
@@ -50,6 +53,7 @@ export const TableContext = createContext<TableContextProps>({
   deleteColumnData: (tableName: string, columnName: string) => {},
   addColumnData: (tableName: string, columnName: string, columnType: string) => {},
   getTables: () => {},
+  getSchemas: () => {},
   renameTable: async(oldTableName: string, newTableName: string) => {
     return {
       showModal:false,
@@ -62,6 +66,10 @@ export const TableContext = createContext<TableContextProps>({
 
 interface Navigation {
   table_name: string;
+}
+
+interface Schema {
+  schema_name: string;
 }
 
 interface TableProviderProps {
@@ -83,6 +91,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const [loadingData, setLoadingData] = useState(false);
   const [primaryColumn, setPrimaryColumn] = useState<any>(null);
   const [navigation, setNavigation] = useState<Array<Navigation>>([]);
+  const [schemas, setSchemas] = useState<Array<Schema>>([]);
 
   const fetchData = useCallback(
     async (tableName: string,page?:string) => {
@@ -137,8 +146,12 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   );
 
   useEffect(() => {
-    getTables();
-  }, []);
+    const fetchData = async () => {
+        await Promise.all([getTables(), getSchemas()]);
+    };
+
+    fetchData();
+}, []);
 
   const getTables = useCallback(async () => {
     const { data, status } = await axiosInstance.get("/table/gettables/public");
@@ -152,6 +165,15 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       setNavigation(sortedData as Array<Navigation>);
     }
   }, []);
+
+  const getSchemas = useCallback(async () => {
+    const { data, status } = await axiosInstance.get("/table/getschemas");
+    if (status === 200 && data) {
+       const sortedData = _sortBy(data, ['schema_name']);
+      setSchemas(sortedData as Array<Schema>);
+    }
+  }, []);
+
 
   const deleteTableData = useCallback(async (tableName: string) => {
         setLoading(true);
@@ -298,11 +320,13 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       setSelectTable,
       selectedTable,
       navigation,
+      schemas,
       deleteTableData,
       createTableData,
       deleteColumnData,
       addColumnData,
       getTables,
+      getSchemas,
       handleSelectTable
     }),
     [
@@ -316,11 +340,13 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       resetData,
       selectedTable,
       navigation,
+      schemas,
       deleteTableData,
       createTableData,
       deleteColumnData,
       addColumnData,
       getTables,
+      getSchemas,
       handleSelectTable
     ]
   );

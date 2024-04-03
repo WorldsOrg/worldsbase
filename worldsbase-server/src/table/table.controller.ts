@@ -75,7 +75,7 @@ export class TableController {
   async deleteTable(
     @Param('tableName') tableNameDTO: TableNameDTO,
   ): Promise<TableApiResponse<any>> {
-        const result = await this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       `DROP TABLE IF EXISTS "${tableNameDTO.tableName}";`,
     );
     if (result.status === 200) {
@@ -485,6 +485,20 @@ export class TableController {
     `;
 
     const result = await this.tableService.executeQuery(dropTriggerQuery);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
+  }
+
+  @Get('/getschemas')
+  @ApiOperation({ summary: 'Get all schemas' })
+  @ApiResponse({ status: 200, description: 'Schemas retrieved successfully' })
+  async getSchemas(): Promise<TableApiResponse<any>> {
+    const result = await this.tableService.executeQuery(
+      `SELECT schema_name FROM information_schema.schemata;`,
+    );
     if (result.status === 200) {
       return result.data;
     } else {
