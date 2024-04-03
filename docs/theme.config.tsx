@@ -2,9 +2,9 @@ import React from "react";
 import { DocsThemeConfig } from "nextra-theme-docs";
 
 const config: DocsThemeConfig = {
-  logo: <span>WGS</span>,
+  logo: <span>Worldsbase</span>,
   project: {
-    link: "https://github.com/Manifest-Git/wgs-mono",
+    link: "https://github.com/WorldsOrg/worldsbase",
   },
   chat: {
     link: "https://discord.com",
