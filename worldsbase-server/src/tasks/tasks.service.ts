@@ -33,6 +33,8 @@ export class TasksService {
       item.asset,
       item.endTimeInSeconds,
       item.status,
+      item.pricePerToken,
+      item.currencyValuePerToken.symbol,
     ]);
 
     // Flatten the array to pass as query parameters
@@ -42,18 +44,20 @@ export class TasksService {
     const placeholders = dataToWrite
       .map(
         (_, index) =>
-          `($${index * 5 + 1}, $${index * 5 + 2}, $${index * 5 + 3}, $${index * 5 + 4}, $${index * 5 + 5})`,
+          `($${index * 7 + 1}, $${index * 7 + 2}, $${index * 7 + 3}, $${index * 7 + 4}, $${index * 7 + 5}, $${index * 7 + 6}, $${index * 7 + 7})`,
       )
       .join(', ');
 
     const query = `
-          INSERT INTO direct_listings ("assetContractAddress", id, "asset", "endTimeInSeconds", status)
+          INSERT INTO direct_listings ("assetContractAddress", id, "asset", "endTimeInSeconds", status, "price", "currency")
           VALUES ${placeholders}
           ON CONFLICT (id) DO UPDATE SET
               "assetContractAddress" = EXCLUDED."assetContractAddress",
               "asset" = EXCLUDED."asset",
               "endTimeInSeconds" = EXCLUDED."endTimeInSeconds",
-              status = EXCLUDED.status;
+              status = EXCLUDED.status,
+              "price" = EXCLUDED."price",
+              "currency" = EXCLUDED."currency";
       `;
 
     this.dbService.executeQuery(query, flattenedData);

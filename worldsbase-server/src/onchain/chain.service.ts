@@ -75,7 +75,7 @@ export class ChainService {
     const sdk = this.thirdwebService.getSDK();
     const contract = await sdk.getContract(address);
     const listings = await contract.directListings.getAll();
-
+    console.log('Listings:', listings);
     return listings;
   }
 
