@@ -18,7 +18,7 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, addNewTableClicked }: AppLayoutProps) {
-  const { selectedTable, navigation, getTables, handleSelectTable,schemas } = useTable();
+  const { selectedTable, navigation, getTables, handleSelectTable,schemas,schemasLoading } = useTable();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchedTable, setSearchedTable] = useState("");
   const [filteredTables, setFilteredTables] = useState(navigation);
@@ -163,6 +163,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                 <li key="1">
                   <SchemaButton 
                   schemas={schemas}
+                  schemasLoading={schemasLoading}
                   selectedSchema={selectedSchema}
                   handleSelectSchema={handleSelectSchema}
                   />

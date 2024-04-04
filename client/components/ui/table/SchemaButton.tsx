@@ -16,17 +16,20 @@ import {
   PlusIcon,
   CheckIcon,
 } from "@heroicons/react/24/outline";
+import { PiSpinnerBold } from "react-icons/pi";
 import IconInput from "../IconInput";
 import SchemaOverlay from "./SchemaOverlay";
 
 interface SchemaButtonProps {
   schemas: any[];
+  schemasLoading: boolean;
   selectedSchema: string;
   handleSelectSchema: (schema: string) => void;
 }
 
 const SchemaButton = ({
   schemas,
+  schemasLoading,
   selectedSchema,
   handleSelectSchema,
 }: SchemaButtonProps) => {
@@ -70,12 +73,21 @@ const SchemaButton = ({
 
   return (
     <>
-      <PopoverUI isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+      <PopoverUI isOpen={!schemasLoading && isOpen} onOpen={onOpen} onClose={onClose}>
         <PopoverTrigger>
           <button className="flex items-center w-full gap-2 px-3 py-2 border rounded-md border-primary text-primary bg-background hover:bg-hoverBg">
             <div className="flex items-center gap-1 text-xs">
-              <span className="text-gray-500 ">schema:</span>
-              <span className=" text-primary">{selectedSchema}</span>
+              {schemasLoading ? (
+                <div className="flex items-center gap-2">
+                  <PiSpinnerBold className="w-4 h-4 animate-spin" />
+                  <span>Loading schemas...</span>
+                  </div>
+              ) : (
+                <>
+                  <span className="text-gray-500 ">schema:</span>
+                  <span className=" text-primary">{selectedSchema}</span>
+                </>
+              )}
             </div>
           </button>
         </PopoverTrigger>

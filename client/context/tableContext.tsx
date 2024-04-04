@@ -12,6 +12,7 @@ interface TableContextProps {
   data: any[];
   columns: any[];
   loadingData: boolean;
+  schemasLoading:boolean;
   primaryColumn?: any;
   resetData: any[];
   setData: (data: any[]) => void;
@@ -35,6 +36,7 @@ export const TableContext = createContext<TableContextProps>({
   data: [],
   columns: [],
   loadingData: false,
+  schemasLoading:false,
   primaryColumn: null,
   resetData: [],
   setData: (data: any[]) => {},
@@ -89,6 +91,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const [resetData, setResetData] = useState<any[]>([]);
   const [columns, setColumns] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(false);
+  const [schemasLoading, setSchemasLoading] = useState(false);
   const [primaryColumn, setPrimaryColumn] = useState<any>(null);
   const [navigation, setNavigation] = useState<Array<Navigation>>([]);
   const [schemas, setSchemas] = useState<Array<Schema>>([]);
@@ -167,11 +170,18 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   }, []);
 
   const getSchemas = useCallback(async () => {
+    setSchemasLoading(true);
+    try {
     const { data, status } = await axiosInstance.get("/table/getschemas");
+
     if (status === 200 && data) {
        const sortedData = _sortBy(data, ['schema_name']);
       setSchemas(sortedData as Array<Schema>);
     }
+
+  }finally {
+      setSchemasLoading(false);
+  }
   }, []);
 
 
@@ -314,6 +324,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       data,
       columns,
       loadingData,
+      schemasLoading,
       primaryColumn,
       resetData,
       setData,
@@ -336,6 +347,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       data,
       columns,
       loadingData,
+      schemasLoading,
       primaryColumn,
       resetData,
       selectedTable,
