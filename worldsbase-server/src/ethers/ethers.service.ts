@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ethers } from 'ethersV6';
 import { AwsKmsService } from 'src/awskms/awskms.service';
 import { marketplaceAbi } from './abi/marketplaceAbi';
@@ -38,7 +38,7 @@ export class EthersService {
           await this.providers[chainId].getTransactionCount(address);
         return nonce;
       } else {
-        console.log('Chain Id not supported');
+        console.error('Chain Id not supported');
         return null;
       }
     } catch (error) {
@@ -80,19 +80,19 @@ export class EthersService {
       chainId,
     );
     if (this.providers[chainId] !== undefined) {
-      this.providers[chainId]
-        .send('eth_sendRawTransaction', [signedTx])
-        .then((txHash) => {
-          console.log(txHash);
-          return txHash;
-        })
-        .catch((error) => {
-          console.log(error);
-          return error;
-        });
+      try {
+        const txHash = await this.providers[chainId].send(
+          'eth_sendRawTransaction',
+          [signedTx],
+        );
+        return { txHash: txHash };
+      } catch (error) {
+        console.error('Error sending tx:', error);
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
     } else {
-      console.log('Chain Id not supported');
-      return null;
+      console.error('Chain Id not supported');
+      throw new HttpException('Chain Id not supported', HttpStatus.BAD_REQUEST);
     }
   }
 
