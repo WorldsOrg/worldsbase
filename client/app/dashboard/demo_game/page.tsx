@@ -38,7 +38,7 @@ function Game() {
         data: data,
         tableName: tableName,
       };
-      const result = await axiosInstance.post(`/table/insertData/`, payload);
+      const result = await axiosInstance.post(`/table/insertdata/`, payload);
       return result.data;
     } catch (error) {
       console.error(error);

@@ -1,7 +1,7 @@
 // services/apiService.js
 import axiosInstance from "../utils/axiosInstance";
 
-export const createData = async (tableName: string, data: any) => axiosInstance.post("/table/insertData", { tableName, data });
+export const createData = async (tableName: string, data: any) => axiosInstance.post("/table/insertdata", { tableName, data });
 
 export const updateData = async (tableName: string, data: { [x: string]: any }, primaryColumn: string | number) =>
   axiosInstance.put("/table/updateData", {

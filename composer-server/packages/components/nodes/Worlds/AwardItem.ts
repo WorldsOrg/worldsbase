@@ -49,7 +49,7 @@ class AwardItem implements INode {
         const playerId = inputParametersData.playerId as string
         const returnData: ICommonObject[] = []
         let responseData: any
-        let url = `${process.env.WGS_API_URL}/table/insertData`
+        let url = `${process.env.WGS_API_URL}/table/insertdata`
         const requestBody = {
             tableName: 'player_inventory',
             data: {
