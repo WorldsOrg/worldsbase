@@ -26,6 +26,8 @@ interface TableContextProps {
   setData: (data: any[]) => void;
   setSelectTable: (table: string) => void;
   selectedTable: string;
+  handleSelectSchema: (schema: string) => Promise<void>;
+  selectedSchema: string;
   navigation: Array<any>;
   schemas: Array<any>;
   deleteTableData: (tableName: string) => void;
@@ -58,6 +60,8 @@ export const TableContext = createContext<TableContextProps>({
   setData: (data: any[]) => {},
   setSelectTable: (table: string) => {},
   selectedTable: "",
+  handleSelectSchema: async(schema: string) => {},
+  selectedSchema: "",
   navigation: [],
   schemas: [],
   deleteTableData: (tableName: string) => {},
@@ -118,6 +122,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const [primaryColumn, setPrimaryColumn] = useState<any>(null);
   const [navigation, setNavigation] = useState<Array<Navigation>>([]);
   const [schemas, setSchemas] = useState<Array<Schema>>([]);
+  const [selectedSchema, setSelectedSchema] = useState("public");
 
   const fetchData = useCallback(
     async (tableName: string, page?: string) => {
@@ -192,8 +197,8 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     fetchData();
   }, []);
 
-  const getTables = useCallback(async () => {
-    const { data, status } = await axiosInstance.get("/table/gettables/public");
+  const getTables = useCallback(async (selectedSchema?:string) => {
+    const { data, status } = await axiosInstance.get(`/table/gettables/${selectedSchema || "public"}`);
     if (status === 200 && data) {
       const sortedData = _sortBy(data, ["table_name"]);
 
@@ -218,6 +223,11 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       setSchemasLoading(false);
     }
   }, []);
+
+  const handleSelectSchema=async(schema:string)=>{
+      setSelectedSchema(schema);
+      await getTables(schema);
+  }
 
   const deleteTableData = useCallback(async (tableName: string) => {
     setLoading(true);
@@ -379,6 +389,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     }
   }, []);
 
+
   const value = useMemo(
     () => ({
       renameTable,
@@ -403,6 +414,8 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       getSchemas,
       handleSelectTable,
       createSchema,
+      selectedSchema,
+      handleSelectSchema
     }),
     [
       renameTable,
@@ -425,6 +438,8 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       getSchemas,
       handleSelectTable,
       createSchema,
+      selectedSchema,
+      handleSelectSchema
     ]
   );
 

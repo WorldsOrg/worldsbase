@@ -18,11 +18,10 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, addNewTableClicked }: AppLayoutProps) {
-  const { selectedTable, navigation, getTables, handleSelectTable,schemas,schemasLoading } = useTable();
+  const { selectedTable, navigation, getTables, handleSelectTable,schemas,schemasLoading,selectedSchema,handleSelectSchema } = useTable();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchedTable, setSearchedTable] = useState("");
   const [filteredTables, setFilteredTables] = useState(navigation);
-  const [selectedSchema, setSelectedSchema] = useState("public");
 
   useEffect(() => {
     setFilteredTables(navigation);
@@ -44,10 +43,6 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
     setSearchedTable("");
     setFilteredTables(navigation);
   };
-
-  const handleSelectSchema = (schema: string) => {
-    setSelectedSchema(schema);
-  }
 
   return (
     <div>
