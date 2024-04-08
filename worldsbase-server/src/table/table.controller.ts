@@ -505,4 +505,20 @@ export class TableController {
       return result.error || result.data;
     }
   }
+
+  @Post('/createschema')
+  @ApiOperation({ summary: 'Create a new schema' })
+  @ApiResponse({ status: 201, description: 'Schema created successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  async createSchema(
+    @Body('schemaName') schemaName: string,
+  ): Promise<TableApiResponse<any>> {
+    const query = `CREATE SCHEMA IF NOT EXISTS "${schemaName}";`;
+    const result = await this.tableService.executeQuery(query);
+    if (result.status === 201) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
+  }
 }

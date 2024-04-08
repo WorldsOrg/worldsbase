@@ -1,6 +1,10 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { isEmpty } from "lodash";
+import { useToastContext } from "@/context/toastContext";
+import { PiSpinnerBold } from "react-icons/pi";
+import { useTable } from "@/context/tableContext";
 
 export default function SchemaOverlay({
   open,
@@ -9,7 +13,26 @@ export default function SchemaOverlay({
   open: boolean;
   setOpen: (state: boolean) => void;
 }) {
+  const { toastAlert } = useToastContext();
+  const { createSchema } = useTable();
+
   const [name, setName] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  const submit = async () => {
+    if (isEmpty(name)) {
+      toastAlert(false, "Schema name cannot be empty");
+      return;
+    }
+    setLoading(true);
+    try {
+      await createSchema(name);
+    } finally {
+      setName("");
+      setLoading(false);
+      setOpen(false);
+    }
+  };
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -56,17 +79,17 @@ export default function SchemaOverlay({
                           <div className="pt-6 pb-5 space-y-6">
                             <div className="flex-grow mb-4 mr-2">
                               <label
-                                htmlFor="table-name"
+                                htmlFor="schema-name"
                                 className="block text-sm font-medium leading-6 text-gray-900 dark:text-primary"
                               >
                                 Name
                               </label>
                               <input
                                 type="text"
-                                name="table-name"
-                                id="table-name"
+                                name="schema-name"
+                                id="schema-name"
                                 className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                placeholder="Table Name"
+                                placeholder="Name"
                                 onChange={(e) => setName(e.target.value)}
                                 value={name}
                               />
@@ -77,11 +100,16 @@ export default function SchemaOverlay({
                     </div>
                     <div className="px-4">
                       <button
-                        onClick={() => {}}
-                        className="w-full px-3 py-2 mb-6 text-sm text-white rounded-md bg-secondary hover:bg-secondaryHover"
+                        onClick={submit}
+                        className={`flex items-center justify-center w-full gap-2 px-3 py-2 mb-6 text-sm text-white rounded-md ${
+                          loading ? "bg-secondaryHover" : "bg-secondary"
+                        } hover:bg-secondaryHover`}
                         disabled={false}
                       >
-                        Create
+                        {loading && (
+                          <PiSpinnerBold className="w-4 h-4 animate-spin" />
+                        )}
+                        <span>Save</span>
                       </button>
                     </div>
                   </div>
