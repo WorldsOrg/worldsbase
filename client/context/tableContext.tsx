@@ -21,6 +21,7 @@ interface TableContextProps {
   columns: any[];
   loadingData: boolean;
   schemasLoading: boolean;
+  tableLoading:boolean;
   primaryColumn?: any;
   resetData: any[];
   setData: (data: any[]) => void;
@@ -54,6 +55,7 @@ export const TableContext = createContext<TableContextProps>({
   data: [],
   columns: [],
   loadingData: false,
+  tableLoading:false,
   schemasLoading: false,
   primaryColumn: null,
   resetData: [],
@@ -118,6 +120,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const [resetData, setResetData] = useState<any[]>([]);
   const [columns, setColumns] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
   const [schemasLoading, setSchemasLoading] = useState(false);
   const [primaryColumn, setPrimaryColumn] = useState<any>(null);
   const [navigation, setNavigation] = useState<Array<Navigation>>([]);
@@ -198,6 +201,8 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   }, []);
 
   const getTables = useCallback(async (selectedSchema?:string) => {
+    setTableLoading(true);
+    try {
     const { data, status } = await axiosInstance.get(`/table/gettables/${selectedSchema || "public"}`);
     if (status === 200 && data) {
       const sortedData = _sortBy(data, ["table_name"]);
@@ -207,6 +212,9 @@ export const TableProvider = ({ children }: TableProviderProps) => {
 
       setSelectTable(tableName);
       setNavigation(sortedData as Array<Navigation>);
+    }
+  } finally {
+    setTableLoading(false);
     }
   }, []);
 
@@ -415,7 +423,8 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       handleSelectTable,
       createSchema,
       selectedSchema,
-      handleSelectSchema
+      handleSelectSchema,
+      tableLoading,
     }),
     [
       renameTable,
@@ -439,7 +448,8 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       handleSelectTable,
       createSchema,
       selectedSchema,
-      handleSelectSchema
+      handleSelectSchema,
+      tableLoading,
     ]
   );
 

@@ -5,6 +5,7 @@ import { Bars3Icon, XMarkIcon, PencilSquareIcon, MagnifyingGlassIcon, ArrowPathI
 import { Tooltip } from "@chakra-ui/react";
 import _debounce from "lodash/debounce";
 import { isEmpty } from "lodash";
+import { PiSpinnerBold } from "react-icons/pi";
 import { useTable } from "@/context/tableContext";
 import IconInput from "@/components/ui/IconInput";
 import NoSearchResult from "@/components/ui/table/NoSearchResult";
@@ -18,7 +19,7 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, addNewTableClicked }: AppLayoutProps) {
-  const { selectedTable, navigation, getTables, handleSelectTable,schemas,schemasLoading,selectedSchema,handleSelectSchema } = useTable();
+  const { selectedTable, navigation, getTables, handleSelectTable,schemas,schemasLoading,selectedSchema,handleSelectSchema,tableLoading } = useTable();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchedTable, setSearchedTable] = useState("");
   const [filteredTables, setFilteredTables] = useState(navigation);
@@ -43,6 +44,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
     setSearchedTable("");
     setFilteredTables(navigation);
   };
+
 
   return (
     <div>
@@ -127,7 +129,10 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                             Tables ({filteredTables?.length})
                             <ArrowPathIcon className="w-4 h-4 text-primary" />
                           </div>
-                          {!isEmpty(filteredTables) ? (
+                          {tableLoading ? (
+                            <div className="absolute flex justify-center w-full h-full pt-20 text-primary"><PiSpinnerBold className="w-6 h-6 animate-spin" /></div> 
+                          ) : 
+                          !isEmpty(filteredTables) ? (
                             filteredTables.map((item) => (
                               <li key={item.table_name}>
                                 <TableNameButton
@@ -203,7 +208,8 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                   maxHeight: "calc(100vh - 240px)",
                 }}
               >
-                {!isEmpty(filteredTables) ? (
+                {tableLoading ? <div className="absolute flex justify-center w-full h-full mt-10 text-primary"><PiSpinnerBold className="w-6 h-6 animate-spin" /></div> : 
+                !isEmpty(filteredTables) ? (
                   filteredTables.map((item) => (
                     <div key={item.table_name}>
                       <TableNameButton
