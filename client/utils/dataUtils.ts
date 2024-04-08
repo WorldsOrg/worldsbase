@@ -28,7 +28,7 @@ export const compareArrays = (primaryColumn: any, arr1: any[], arr2: any[]) => {
 };
 
 export const sortByKey = (array: any[], key: string, order = "asc") => {
-  return array.sort((a, b) => {
+  return array?.sort((a, b) => {
     let x = a[key];
     let y = b[key];
 

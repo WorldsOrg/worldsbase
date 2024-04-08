@@ -210,7 +210,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       const sortedData = _sortBy(data, ["table_name"]);
 
       const params = searchParams.get("tableName");
-      const tableName = params ?? sortedData[0].table_name;
+      const tableName = params ?? sortedData[0]?.table_name;
 
       setSelectTable(tableName);
       setNavigation(sortedData as Array<Navigation>);
