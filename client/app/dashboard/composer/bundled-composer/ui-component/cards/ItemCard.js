@@ -1,45 +1,15 @@
 import PropTypes from "prop-types";
 
-// material-ui
-import { styled, useTheme } from "@mui/material/styles";
-import { Box, Grid, Chip, Typography } from "@mui/material";
-
 // project imports
-import MainCard from "./MainCard";
+import MainCard from "./MainCard"; // Make sure MainCard is also adapted to Tailwind
 import SkeletonWorkflowCard from "./Skeleton/WorkflowCard";
 
 // Const
 import { networks } from "../../store/constant";
 
-const CardWrapper = styled(MainCard)(({ theme }) => ({
-  background: theme.palette.card.main,
-  color: theme.darkTextPrimary,
-  overflow: "hidden",
-  position: "relative",
-  boxShadow: "0 2px 14px 0 rgb(32 40 45 / 8%)",
-  cursor: "pointer",
-  "&:hover": {
-    background: theme.palette.card.hover,
-    boxShadow: "0 2px 14px 0 rgb(32 40 45 / 20%)",
-  },
-}));
-
 // ===========================|| CONTRACT CARD ||=========================== //
 
 const ItemCard = ({ isLoading, data, images, onClick }) => {
-  const theme = useTheme();
-
-  const chipSX = {
-    height: 24,
-    padding: "0 6px",
-  };
-
-  const activeWorkflowSX = {
-    ...chipSX,
-    color: "white",
-    backgroundColor: theme.palette.success.dark,
-  };
-
   const getNetworkItem = (network) => {
     return networks.find((ntw) => ntw.name === network);
   };
@@ -47,87 +17,53 @@ const ItemCard = ({ isLoading, data, images, onClick }) => {
   // get random number between 11 and 2000 (for demo purposes to provide for execution count)
   const getRandomNumber = () => {
     return Math.floor(Math.random() * (2000 - 11 + 1)) + 11;
-};
+  };
 
   return (
     <>
       {isLoading ? (
         <SkeletonWorkflowCard />
       ) : (
-        <CardWrapper border={false} content={false} onClick={onClick}>
-          <Box sx={{ p: 2.25 }}>
-            <Grid container direction="column">
-              <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>{data.name}</Typography>
+        <MainCard content={false} onClick={onClick} className="relative overflow-hidden cursor-pointer hover:bg-gray-100">
+          <div className="p-2.25">
+            <div className="flex flex-col">
+              <div className="flex flex-row items-center">
+                <h2 className="text-1.5rem font-medium">{data.name}</h2>
               </div>
-              <Grid sx={{ mt: 1, mb: 1 }} container direction="row">
-                <Grid item sx={{ flexGrow: 1 }}>
+              <div className="flex flex-row mt-1 mb-1">
+                <div className="flex-grow">
                   {data.address && (
-                    <Typography
-                      sx={{
-                        fontSize: "1rem",
-                        fontWeight: 500,
-                        color: "GrayText",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        maxWidth: 250,
-                      }}
-                    >
+                    <p className="text-base font-medium text-gray-600 overflow-hidden whitespace-nowrap text-ellipsis max-w-[250px]">
                       {`${data.address.substring(0, 8)}...${data.address.slice(-4)}`}
-                    </Typography>
+                    </p>
                   )}
-                  {data.flowData && (
-                    <Typography
-                      sx={{
-                        fontSize: "1rem",
-                        fontWeight: 500,
-                        color: "GrayText",
-                      }}
-                    >
-                      Total Executions: {getRandomNumber() || "0"}
-                    </Typography>
-                  )}
-                </Grid>
+                  {data.flowData && <p className="text-base font-medium text-gray-600">Total Executions: {getRandomNumber() || "0"}</p>}
+                </div>
                 {data.deployed && (
-                  <Grid item>
-                    <Chip label="Deployed" sx={activeWorkflowSX} />
-                  </Grid>
+                  <div>
+                    <span className="px-2 py-1 bg-green-700 text-black text-sm rounded-full">Deployed</span>
+                  </div>
                 )}
-              </Grid>
+              </div>
               {data.network && (
-                <Grid item>
-                  <Chip
-                    label={getNetworkItem(data.network)?.label || `${data.network} (DEPRECATED)`}
-                    sx={{
-                      ...chipSX,
-                      backgroundColor: getNetworkItem(data.network)?.color || "#666666",
-                      color: "white",
-                    }}
-                  />
-                </Grid>
+                <div>
+                  <span className={`px-2 py-1 text-white text-sm rounded-full ${getNetworkItem(data.network)?.color || "bg-gray-600"}`}>
+                    {getNetworkItem(data.network)?.label || `${data.network} (DEPRECATED)`}
+                  </span>
+                </div>
               )}
               {images && (
-                <div style={{ display: "flex", flexDirection: "row", marginTop: 10 }}>
+                <div className="flex flex-row mt-2.5">
                   {images.map((img) => (
-                    <div
-                      key={img}
-                      style={{
-                        width: 40,
-                        height: 40,
-                        marginRight: 5,
-                        borderRadius: "50%",
-                        backgroundColor: "white",
-                      }}
-                    >
-                      <img style={{ width: "100%", height: "100%", padding: 5, objectFit: "contain" }} alt="" src={img} />
+                    <div key={img} className="w-10 h-10 mr-1.25 bg-white rounded-full">
+                      <img className="w-full h-full p-1.25 object-contain" alt="" src={img} />
                     </div>
                   ))}
                 </div>
               )}
-            </Grid>
-          </Box>
-        </CardWrapper>
+            </div>
+          </div>
+        </MainCard>
       )}
     </>
   );

@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+.tooltip {
+  @apply invisible absolute;
+}
+
+.has-tooltip:hover .tooltip {
+  @apply visible z-50;
+}
+
 @font-face {
   font-family: "CircularStd";
   src: url("/fonts/CircularStd-Regular.woff") format("woff");
@@ -78,12 +86,7 @@
   --dsg-cell-background-color: var(--background) !important;
   --dsg-header-active-text-color: var(--primary) !important;
   --dsg-header-text-color: var(--primary);
-  --dsg-selection-disabled-background-color: rgba(
-    192,
-    183,
-    183,
-    0.1
-  ) !important;
+  --dsg-selection-disabled-background-color: rgba(192, 183, 183, 0.1) !important;
   --dsg-cell-disabled-background-color: rgba(192, 183, 183, 0.1) !important;
   --dsg-selection-disabled-border-color: gray !important;
 
