@@ -72,27 +72,30 @@ export class EthersService {
     KeyId: string,
     txData: StandardTxData,
   ): Promise<any> {
-    const chainId = txData.chainId;
-    const signedTx = await this.awsKmsService.signTransaction(
-      senderAddress,
-      KeyId,
-      txData,
-      chainId,
-    );
-    if (this.providers[chainId] !== undefined) {
-      try {
+    try {
+      const chainId = txData.chainId;
+      const signedTx = await this.awsKmsService.signTransaction(
+        senderAddress,
+        KeyId,
+        txData,
+        chainId,
+      );
+      if (this.providers[chainId] !== undefined) {
         const txHash = await this.providers[chainId].send(
           'eth_sendRawTransaction',
           [signedTx],
         );
         return { txHash: txHash };
-      } catch (error) {
-        console.error('Error sending tx:', error);
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      } else {
+        console.error('Chain Id not supported');
+        throw new HttpException(
+          'Chain Id not supported',
+          HttpStatus.BAD_REQUEST,
+        );
       }
-    } else {
-      console.error('Chain Id not supported');
-      throw new HttpException('Chain Id not supported', HttpStatus.BAD_REQUEST);
+    } catch (error) {
+      console.error('Error sending tx:', error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
