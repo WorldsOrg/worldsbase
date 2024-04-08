@@ -91,7 +91,7 @@ const SchemaButton = ({
             </div>
           </button>
         </PopoverTrigger>
-        <PopoverContent className="bg-background text-primary w-[197px] max-h-[292px] text-xs">
+        <PopoverContent className="bg-background text-primary md:w-[197px] max-h-[292px] w-[280px] text-xs">
           <IconInput
             type="string"
             icon={<MagnifyingGlassIcon className="w-4 h-4 text-primary" />}

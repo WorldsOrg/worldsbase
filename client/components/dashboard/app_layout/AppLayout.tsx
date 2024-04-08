@@ -95,7 +95,15 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                       <li>
                         <ul role="list" className="-mx-2 space-y-1">
                           <div className="flex flex-col gap-2 mb-4">
-                            <li key="1">
+                          <li key="1">
+                            <SchemaButton 
+                            schemas={schemas}
+                            schemasLoading={schemasLoading}
+                            selectedSchema={selectedSchema}
+                            handleSelectSchema={handleSelectSchema}
+                          />
+                          </li>
+                            <li >
                               <Button
                                 className="items-center w-full h-10 text-xs leading-6 border rounded-md border-primary text-primary bg-softBg hover:bg-hoverBg"
                                 onClick={addNewTableClicked}
