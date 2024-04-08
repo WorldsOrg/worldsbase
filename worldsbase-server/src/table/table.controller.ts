@@ -53,7 +53,7 @@ export class TableController {
     const columnDefinitions = createTableDTO.columns
       .map((col) => `"${col.name}" ${col.type} ${col.constraints || ''}`)
       .join(', ');
-    const query = `CREATE TABLE IF NOT EXISTS "${createTableDTO.tableName}" (${columnDefinitions});`;
+    const query = `CREATE TABLE IF NOT EXISTS ${createTableDTO.schemaName || "public"}."${createTableDTO.tableName}" (${columnDefinitions});`;
     const result = await this.tableService.executeQuery(query);
     
     if (result.status === 200) {

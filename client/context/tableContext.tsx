@@ -34,7 +34,8 @@ interface TableContextProps {
   deleteTableData: (tableName: string) => void;
   createTableData: (
     tableName: string,
-    columns: { name: string; type: string; constraints: any }[]
+    columns: { name: string; type: string; constraints: any }[],
+    selectedSchema:string
   ) => Promise<any>;
   deleteColumnData: (tableName: string, columnName: string) => void;
   addColumnData: (
@@ -69,7 +70,8 @@ export const TableContext = createContext<TableContextProps>({
   deleteTableData: (tableName: string) => {},
   createTableData: async (
     tableName: string,
-    columns: { name: string; type: string; constraints: any }[]
+    columns: { name: string; type: string; constraints: any }[],
+    selectedSchema:string
   ) => {
     return {
       showModal: false,
@@ -200,10 +202,10 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     fetchData();
   }, []);
 
-  const getTables = useCallback(async (selectedSchema?:string) => {
+  const getTables = useCallback(async (schema?:string) => {
     setTableLoading(true);
     try {
-    const { data, status } = await axiosInstance.get(`/table/gettables/${selectedSchema || "public"}`);
+    const { data, status } = await axiosInstance.get(`/table/gettables/${schema || "public"}`);
     if (status === 200 && data) {
       const sortedData = _sortBy(data, ["table_name"]);
 
@@ -241,7 +243,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     setLoading(true);
     try {
       const { status } = await axiosInstance.delete(
-        `/table/deletetable/${tableName}`
+        `/table/deleteTable/${tableName}`
       );
       if (status !== 200) {
         console.error("Deleting table error");
@@ -249,7 +251,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
         return;
       }
 
-      getTables();
+      await getTables();
       toastAlert(true, "Table deleted");
     } finally {
       setLoading(false);
@@ -259,7 +261,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const deleteColumnData = useCallback(
     async (tableName: string, columnName: string) => {
       setLoading(true);
-      const { status } = await axiosInstance.delete(`/table/deleteColumn`, {
+      const { status } = await axiosInstance.delete(`/table/deletecolumn`, {
         data: { tableName, columnName },
       });
 
@@ -287,7 +289,8 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const createTableData = useCallback(
     async (
       tableName: string,
-      columns: { name: string; type: string; constraints: any }[]
+      columns: { name: string; type: string; constraints: any }[],
+      selectedSchema:string
     ) => {
       const isTableNameExists = await checkIsTableNameValid(tableName);
       if (isTableNameExists) {
@@ -298,12 +301,13 @@ export const TableProvider = ({ children }: TableProviderProps) => {
         };
       }
 
-      const { status } = await axiosInstance.post(`/table/createTable`, {
+      const { status } = await axiosInstance.post(`/table/createtable`, {
         tableName,
         columns,
+        schemaName:selectedSchema
       });
 
-      if (status !== 200) {
+      if (status !== 201) {
         toastAlert(false, "Error creating table");
         return {
           showModal: false,
@@ -312,7 +316,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
         };
       } else {
         toastAlert(true, "Table created successfully");
-        await getTables();
+        await getTables(selectedSchema);
         setSelectTable(tableName);
         return {
           showModal: false,
@@ -321,12 +325,12 @@ export const TableProvider = ({ children }: TableProviderProps) => {
         };
       }
     },
-    []
+    [selectedSchema]
   );
 
   const addColumnData = useCallback(
     async (tableName: string, columnName: string, columnType: string) => {
-      const { status } = await axiosInstance.post(`/table/addColumn`, {
+      const { status } = await axiosInstance.post(`/table/addcolumn`, {
         tableName,
         columnName,
         columnType,
