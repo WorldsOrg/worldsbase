@@ -44,7 +44,7 @@ interface TableContextProps {
     columnType: string
   ) => void;
   createSchema: (schemaName: string) => Promise<any>;
-  getTables: () => void;
+  getTables: (schema?:string) => void;
   getSchemas: () => void;
   renameTable: (oldTableName: string, newTableName: string) => Promise<any>;
   handleSelectTable: (tableName: string) => void;
@@ -85,7 +85,7 @@ export const TableContext = createContext<TableContextProps>({
     columnName: string,
     columnType: string
   ) => {},
-  getTables: () => {},
+  getTables: (schema?:string) => {},
   getSchemas: () => {},
   renameTable: async (oldTableName: string, newTableName: string) => {
     return {

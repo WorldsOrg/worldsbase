@@ -199,7 +199,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
               <div className="flex items-center justify-between text-sm text-primary">
                 Tables ({filteredTables?.length})
                 <Tooltip label="Refresh" className=" bg-background text-primary">
-                  <ArrowPathIcon className="w-4 h-4 cursor-pointer text-primary" onClick={getTables} />
+                  <ArrowPathIcon className="w-4 h-4 cursor-pointer text-primary" onClick={()=> getTables(selectedSchema)} />
                 </Tooltip>
               </div>
               <li
