@@ -5,11 +5,13 @@ import { Bars3Icon, XMarkIcon, PencilSquareIcon, MagnifyingGlassIcon, ArrowPathI
 import { Tooltip } from "@chakra-ui/react";
 import _debounce from "lodash/debounce";
 import { isEmpty } from "lodash";
+import { PiSpinnerBold } from "react-icons/pi";
 import { useTable } from "@/context/tableContext";
 import IconInput from "@/components/ui/IconInput";
 import NoSearchResult from "@/components/ui/table/NoSearchResult";
 import TableNameButton from "@/components/ui/table/TableNameButton";
 import Button from "@/components/ui/table/Button";
+import SchemaButton from "@/components/ui/table/SchemaButton";
 
 interface AppLayoutProps {
   children: ReactNode,
@@ -17,7 +19,7 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, addNewTableClicked }: AppLayoutProps) {
-  const { selectedTable, navigation, getTables,handleSelectTable } = useTable();
+  const { selectedTable, navigation, getTables, handleSelectTable,schemas,schemasLoading,selectedSchema,handleSelectSchema,tableLoading } = useTable();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchedTable, setSearchedTable] = useState("");
   const [filteredTables, setFilteredTables] = useState(navigation);
@@ -25,6 +27,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
   useEffect(() => {
     setFilteredTables(navigation);
   }, [navigation]);
+
 
   const debouncedSearch = _debounce((value: string) => {
     const filteredData = navigation.filter((item) => item.table_name.toLowerCase().includes(value.toLowerCase().trim()));
@@ -41,6 +44,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
     setSearchedTable("");
     setFilteredTables(navigation);
   };
+
 
   return (
     <div>
@@ -93,7 +97,15 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                       <li>
                         <ul role="list" className="-mx-2 space-y-1">
                           <div className="flex flex-col gap-2 mb-4">
-                            <li key="1">
+                          <li key="1">
+                            <SchemaButton 
+                            schemas={schemas}
+                            schemasLoading={schemasLoading}
+                            selectedSchema={selectedSchema}
+                            handleSelectSchema={handleSelectSchema}
+                          />
+                          </li>
+                            <li >
                               <Button
                                 className="items-center w-full h-10 text-xs leading-6 border rounded-md border-primary text-primary bg-softBg hover:bg-hoverBg"
                                 onClick={addNewTableClicked}
@@ -117,7 +129,10 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                             Tables ({filteredTables?.length})
                             <ArrowPathIcon className="w-4 h-4 text-primary" />
                           </div>
-                          {!isEmpty(filteredTables) ? (
+                          {tableLoading ? (
+                            <div className="absolute flex justify-center w-full h-full pt-20 text-primary"><PiSpinnerBold className="w-6 h-6 animate-spin" /></div> 
+                          ) : 
+                          !isEmpty(filteredTables) ? (
                             filteredTables.map((item) => (
                               <li key={item.table_name}>
                                 <TableNameButton
@@ -154,6 +169,14 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
             <ul role="list" className="space-y-1">
               <div className="flex flex-col gap-2 mb-4 mr-8">
                 <li key="1">
+                  <SchemaButton 
+                  schemas={schemas}
+                  schemasLoading={schemasLoading}
+                  selectedSchema={selectedSchema}
+                  handleSelectSchema={handleSelectSchema}
+                  />
+                </li>
+                <li>
                   <Button
                     className="flex w-full h-10 text-xs font-semibold leading-6 border rounded-md border-primary text-primary hover:bg-softBg"
                     onClick={addNewTableClicked}
@@ -176,16 +199,17 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
               <div className="flex items-center justify-between text-sm text-primary">
                 Tables ({filteredTables?.length})
                 <Tooltip label="Refresh" className=" bg-background text-primary">
-                  <ArrowPathIcon className="w-4 h-4 cursor-pointer text-primary" onClick={getTables} />
+                  <ArrowPathIcon className="w-4 h-4 cursor-pointer text-primary" onClick={()=> getTables(selectedSchema)} />
                 </Tooltip>
               </div>
               <li
-                className="flex flex-col gap-2 overflow-y-auto"
+                className="flex flex-col gap-2 overflow-y-auto scrollbar-class"
                 style={{
                   maxHeight: "calc(100vh - 240px)",
                 }}
               >
-                {!isEmpty(filteredTables) ? (
+                {tableLoading ? <div className="absolute flex justify-center w-full h-full mt-10 text-primary"><PiSpinnerBold className="w-6 h-6 animate-spin" /></div> : 
+                !isEmpty(filteredTables) ? (
                   filteredTables.map((item) => (
                     <div key={item.table_name}>
                       <TableNameButton

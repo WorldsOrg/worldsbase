@@ -53,7 +53,7 @@ export class TableController {
     const columnDefinitions = createTableDTO.columns
       .map((col) => `"${col.name}" ${col.type} ${col.constraints || ''}`)
       .join(', ');
-    const query = `CREATE TABLE IF NOT EXISTS "${createTableDTO.tableName}" (${columnDefinitions});`;
+    const query = `CREATE TABLE IF NOT EXISTS ${createTableDTO.schemaName || "public"}."${createTableDTO.tableName}" (${columnDefinitions});`;
     const result = await this.tableService.executeQuery(query);
     
     if (result.status === 200) {
@@ -75,7 +75,7 @@ export class TableController {
   async deleteTable(
     @Param('tableName') tableNameDTO: TableNameDTO,
   ): Promise<TableApiResponse<any>> {
-        const result = await this.tableService.executeQuery(
+    const result = await this.tableService.executeQuery(
       `DROP TABLE IF EXISTS "${tableNameDTO.tableName}";`,
     );
     if (result.status === 200) {
@@ -486,6 +486,36 @@ export class TableController {
 
     const result = await this.tableService.executeQuery(dropTriggerQuery);
     if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
+  }
+
+  @Get('/getschemas')
+  @ApiOperation({ summary: 'Get all schemas' })
+  @ApiResponse({ status: 200, description: 'Schemas retrieved successfully' })
+  async getSchemas(): Promise<TableApiResponse<any>> {
+    const result = await this.tableService.executeQuery(
+      `SELECT schema_name FROM information_schema.schemata;`,
+    );
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
+  }
+
+  @Post('/createschema')
+  @ApiOperation({ summary: 'Create a new schema' })
+  @ApiResponse({ status: 201, description: 'Schema created successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  async createSchema(
+    @Body('schemaName') schemaName: string,
+  ): Promise<TableApiResponse<any>> {
+    const query = `CREATE SCHEMA IF NOT EXISTS "${schemaName}";`;
+    const result = await this.tableService.executeQuery(query);
+    if (result.status === 201) {
       return result.data;
     } else {
       return result.error || result.data;
