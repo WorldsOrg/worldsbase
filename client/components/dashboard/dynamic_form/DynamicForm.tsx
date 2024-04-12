@@ -31,7 +31,7 @@ interface DynamicFormProps {
 }
 
 const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFormProps) => {
-  const { createTableData, addColumnData, deleteColumnData, setSelectTable, renameTable } = useTable();
+  const { createTableData, addColumnData, deleteColumnData, setSelectTable, renameTable,selectedSchema } = useTable();
   const [fields, setFields] = useState<FieldType[]>([{ id: Math.random(), name: "", type: "text", editing: false }]);
   const [tableName, setTableName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -163,7 +163,8 @@ const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFo
 
         const { showModal, title, message } = await createTableData(
           tableName,
-          columns as { name: string; type: string; constraints: any }[]
+          columns as { name: string; type: string; constraints: any }[],
+          selectedSchema
         );
 
         if (showModal) {
@@ -220,7 +221,7 @@ const DynamicForm = ({ closeLayout, columns, editing, selectedTable }: DynamicFo
       </div>
       <button
         onClick={saveForm}
-        className="w-full px-3 py-2 text-sm text-white border rounded-md shadow-smring-1 ring-inset ring-secondary bg-secondary hover:bg-secondaryHover border-border"
+        className={`w-full px-3 py-2 text-sm text-white rounded-md ${loading ? "bg-secondaryHover" : "bg-secondary"} hover:bg-secondaryHover`}
         disabled={loading}
       >
         {loading ? (

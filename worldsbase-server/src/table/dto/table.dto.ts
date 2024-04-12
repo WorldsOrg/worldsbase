@@ -27,6 +27,8 @@ export class CreateTableDTO {
   })
   @IsArray()
   readonly columns: any[];
+  @IsString()
+  readonly schemaName: string;
 }
 
 export class DeleteTableColumnDTO {
