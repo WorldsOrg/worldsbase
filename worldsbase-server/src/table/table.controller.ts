@@ -55,7 +55,7 @@ export class TableController {
       .join(', ');
     const query = `CREATE TABLE IF NOT EXISTS ${createTableDTO.schemaName || "public"}."${createTableDTO.tableName}" (${columnDefinitions});`;
     const result = await this.tableService.executeQuery(query);
-    
+
     if (result.status === 200) {
       return result.data;
     } else {
@@ -333,7 +333,9 @@ export class TableController {
       .map((_, index) => `$${index + 1}`)
       .join(', ');
     const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) VALUES (${valuePlaceholders});`;
+    console.log(query);
     const result = await this.tableService.executeQuery(query, values);
+    console.log(result);
     if (result.status === 200) {
       return result.data;
     } else {
@@ -423,8 +425,8 @@ export class TableController {
     );
 
     const tableNames = result?.data
-      ?.filter((item:any) => item.table_schema !== 'public')
-      ?.map((item:any) => item.table_name)
+      ?.filter((item: any) => item.table_schema !== 'public')
+      ?.map((item: any) => item.table_name)
       .filter(Boolean);
 
     if (result.status === 200) {

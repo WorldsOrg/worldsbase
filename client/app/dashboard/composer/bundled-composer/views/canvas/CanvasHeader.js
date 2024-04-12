@@ -4,10 +4,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 
-// material-ui
-import { useTheme } from "@mui/material/styles";
-import { Box, ButtonBase, Typography, Stack, TextField, Chip } from "@mui/material";
-
 // icons
 import { IconSettings, IconChevronLeft, IconDeviceFloppy, IconRocket, IconPencil, IconCheck, IconX, IconPlayerPause, IconListCheck } from "@tabler/icons";
 
@@ -28,7 +24,6 @@ import { generateExportFlowData } from "../../utils/genericHelper";
 // ==============================|| CANVAS HEADER ||============================== //
 
 const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleStopWorkflow, handleDeleteWorkflow, handleLoadWorkflow }) => {
-  const theme = useTheme();
   const workflowNameRef = useRef();
   const viewExecutionRef = useRef();
   const settingsRef = useRef();
@@ -57,7 +52,7 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
 
         let exportFileDefaultName = `${workflow.name} Workflow.json`;
 
-        if(typeof window !== undefined) {
+        if (typeof window !== undefined) {
           let linkElement = window.document.createElement("a");
           linkElement.setAttribute("href", dataUri);
           linkElement.setAttribute("download", exportFileDefaultName);
@@ -115,89 +110,56 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
   };
 
   return (
-    <>
-      <Box>
-        <ButtonBase title="Back" sx={{ borderRadius: "50%" }}>
-          <IconChevronLeft stroke={1.5} size="28px" onClick={() => goBack()} />
-        </ButtonBase>
-      </Box>
-      <Box sx={{ flexGrow: 1 }}>
-        {!isEditingWorkflowName && (
-          <Stack flexDirection="row">
-            <Typography
-              sx={{
-                fontSize: "1.5rem",
-                fontWeight: 500,
-                ml: 2,
-              }}
-            >
-              {canvas.isDirty && <strong style={{ color: "orange" }}>*</strong>} {workflowName}
-            </Typography>
-            {workflow?.shortId && (
-              <ButtonBase title="Edit Name" sx={{ borderRadius: "50%", mr: 2, ml: 2 }}>
-                <IconPencil stroke={1.5} size="28px" onClick={() => setEditingWorkflowName(true)} />
-              </ButtonBase>
-            )}
-            {workflow?.deployed && (
-              <Chip
-                sx={{
-                  color: theme.palette.success.dark,
-                  borderStyle: "solid",
+    <div className="flex items-center justify-between p-4">
+      <button onClick={goBack} className="rounded-full p-2">
+        <IconChevronLeft stroke={1.5} size="28" />
+      </button>
 
-                  backgroundColor: "rgba(72, 187, 120, 0.25)",
-                  ml: 1,
-                }}
-                label="Deployed"
-                color="success"
-                variant="outlined"
-              />
-            )}
-          </Stack>
-        )}
-        {isEditingWorkflowName && (
-          <Stack flexDirection="row">
-            <TextField
-              size="small"
-              inputRef={workflowNameRef}
-              sx={{
-                width: "50%",
-                ml: 2,
-              }}
-              defaultValue={workflowName}
-            />
-            <ButtonBase title="Save Name" sx={{ borderRadius: "50%" }}>
-              <IconCheck stroke={1.5} size="28px" onClick={submitWorkflowName} />
-            </ButtonBase>
-            <ButtonBase title="Cancel" sx={{ borderRadius: "50%" }}>
-              <IconX stroke={1.5} size="28px" onClick={() => setEditingWorkflowName(false)} />
-            </ButtonBase>
-          </Stack>
-        )}
-      </Box>
-      <Box>
+      {!isEditingWorkflowName && (
+        <div className="flex items-center">
+          {canvas.isDirty && <strong style={{ color: "orange" }}>*</strong>} {workflowName}
+          {canvas.isDirty && <h1 className="text-xl font-semibold ml-2">{workflowName}</h1>}
+          {workflow?.shortId && (
+            <button onClick={() => setEditingWorkflowName(true)} className="p-2 ml-2">
+              <IconPencil stroke={1.5} size="28" />
+            </button>
+          )}
+          {workflow?.deployed && <span className="bg-green-100 text-green-800 border border-green-800 ml-1 px-2 py-1 rounded-full">Deployed</span>}
+        </div>
+      )}
+      {isEditingWorkflowName && (
+        <div className="flex items-center">
+          <input ref={workflowNameRef} type="text" defaultValue={workflowName} className="input border-2 border-gray-200 p-1 rounded ml-2" />
+          <button onClick={submitWorkflowName} className="p-2">
+            <IconCheck stroke={1.5} size="28" />
+          </button>
+          <button onClick={() => setEditingWorkflowName(false)} className="p-2">
+            <IconX stroke={1.5} size="28" />
+          </button>
+        </div>
+      )}
+
+      <div className="flex items-center">
         {workflow?.shortId && (
-          <ButtonBase ref={viewExecutionRef} title="View Executions" sx={{ borderRadius: "50%", mr: 2 }}>
-            <h6>{workflow?.executionCount}</h6>&nbsp;
-            <IconListCheck stroke={1.5} size="28px" onClick={() => setExecutionOpen(!isExecutionOpen)} />
-          </ButtonBase>
-        )}
-        {workflow?.shortId && (
-          <ButtonBase title={workflow?.deployed ? "Stop Workflow" : "Deploy Workflow"} sx={{ borderRadius: "50%", mr: 2 }}>
-            {workflow?.deployed ? (
-              <IconPlayerPause stroke={1.5} size="28px" onClick={handleStopWorkflow} />
-            ) : (
-              <IconRocket stroke={1.5} size="28px" onClick={handleDeployWorkflow} />
-            )}
-          </ButtonBase>
+          <button ref={viewExecutionRef} onClick={() => setExecutionOpen(!isExecutionOpen)} className="rounded-full p-2 mr-2">
+            <IconListCheck stroke={1.5} size="28" />
+          </button>
         )}
 
-        <ButtonBase title="Save Workflow" sx={{ mr: 2 }}>
-          <IconDeviceFloppy stroke={1.5} size="28px" onClick={onSaveWorkflowClick} />
-        </ButtonBase>
-        <ButtonBase ref={settingsRef} title="Settings" sx={{ mr: 2 }}>
-          <IconSettings stroke={1.5} size="28px" onClick={() => setSettingsOpen(!isSettingsOpen)} />
-        </ButtonBase>
-      </Box>
+        {workflow?.shortId && (
+          <button onClick={workflow?.deployed ? handleStopWorkflow : handleDeployWorkflow} className="rounded-full p-2 mr-2">
+            {workflow?.deployed ? <IconPlayerPause stroke={1.5} size="28" /> : <IconRocket stroke={1.5} size="28" />}
+          </button>
+        )}
+
+        <button onClick={onSaveWorkflowClick} className="rounded-full p-2 mr-2">
+          <IconDeviceFloppy stroke={1.5} size="28" />
+        </button>
+
+        <button ref={settingsRef} onClick={() => setSettingsOpen(!isSettingsOpen)} className="rounded-full p-2 mr-2">
+          <IconSettings stroke={1.5} size="28" />
+        </button>
+      </div>
       {workflow?.shortId && (
         <Executions
           workflowShortId={workflow?.shortId}
@@ -218,7 +180,7 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
         onCancel={() => setWorkfowDialogOpen(false)}
         onConfirm={onConfirmSaveName}
       />
-    </>
+    </div>
   );
 };
 

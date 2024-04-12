@@ -1,3 +1,4 @@
+// store/reducers/customizationReducer.js
 // project imports
 import config from "../../config";
 
@@ -8,9 +9,7 @@ export const initialState = {
   isOpen: [], // for active default menu
   fontFamily: config.fontFamily,
   borderRadius: config.borderRadius,
-  opened: true,
-  isHorizontal: true,//localStorage.getItem("isHorizontal") === "true" ? true : false,
-  //isDarkMode: localStorage.getItem('isDarkMode') === 'true' ? true : false
+  opened: false,
   isDarkMode: false,
 };
 
@@ -40,11 +39,7 @@ const customizationReducer = (state = initialState, action) => {
         ...state,
         borderRadius: action.borderRadius,
       };
-    case actionTypes.SET_LAYOUT:
-      return {
-        ...state,
-        isHorizontal: action.isHorizontal,
-      };
+
     case actionTypes.SET_DARKMODE:
       return {
         ...state,

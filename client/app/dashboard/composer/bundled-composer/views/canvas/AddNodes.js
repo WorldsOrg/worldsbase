@@ -1,37 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { useSelector } from "react-redux";
+
 import PropTypes from "prop-types";
 
-// material-ui
-import { useTheme } from "@mui/material/styles";
-import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Box,
-  ClickAwayListener,
-  Divider,
-  InputAdornment,
-  List,
-  ListItemButton,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  OutlinedInput,
-  Paper,
-  Popper,
-  Stack,
-  Typography,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
-// third-party
-import PerfectScrollbar from "react-perfect-scrollbar";
-
-// project imports
-import MainCard from "../../ui-component/cards/MainCard";
-import Transitions from "../../ui-component/extended/Transitions";
-import { StyledFab } from "../../ui-component/StyledFab";
+import { Popper } from "@mui/material";
 
 // icons
 import { IconPlus, IconSearch, IconMinus } from "@tabler/icons";
@@ -39,32 +10,12 @@ import { IconPlus, IconSearch, IconMinus } from "@tabler/icons";
 // const
 import { baseURL } from "../../store/constant";
 
-// ==============================|| ADD NODES||============================== //
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div role="tabpanel" hidden={value !== index} id={`attachment-tabpanel-${index}`} aria-labelledby={`attachment-tab-${index}`} {...other}>
-      {value === index && <Box sx={{ p: 1 }}>{children}</Box>}
-    </div>
-  );
-}
-
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
 const AddNodes = ({ nodesData, node, trigger }) => {
-  const theme = useTheme();
-  const customization = useSelector((state) => state.customization);
-
   const [searchValue, setSearchValue] = useState("");
   const [nodes, setNodes] = useState({});
   const [open, setOpen] = useState(false);
 
-  const [categoryExpanded, setCategoryExpanded] = useState({});
-
+  const wrapperRef = useRef(null);
   const anchorRef = useRef(null);
   const prevOpen = useRef(open);
   const ps = useRef();
@@ -99,20 +50,6 @@ const AddNodes = ({ nodesData, node, trigger }) => {
       return r;
     }, Object.create(null));
     setNodes(result);
-    setCategoryExpanded(accordianCategories);
-  };
-
-  const handleAccordionChange = (category) => (event, isExpanded) => {
-    const accordianCategories = { ...categoryExpanded };
-    accordianCategories[category] = isExpanded;
-    setCategoryExpanded(accordianCategories);
-  };
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-    setOpen(false);
   };
 
   const handleToggle = () => {
@@ -143,19 +80,23 @@ const AddNodes = ({ nodesData, node, trigger }) => {
     if (nodesData) groupByCategory(nodesData);
   }, [nodesData]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setOpen(false); // Close the component or execute other logic
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [wrapperRef]);
+
   return (
     <>
-      <StyledFab
-        className="bg-black"
-        sx={{ left: 30, top: 30, background: "#1B212B", color: "white" }}
-        ref={anchorRef}
-        size="small"
-        aria-label="add"
-        title="Add Node"
-        onClick={handleToggle}
-      >
+      <button ref={anchorRef} className="z-10 fixed bg-black text-white p-2 rounded-full" style={{ left: "150px", top: "150px" }} onClick={handleToggle}>
         {open ? <IconMinus /> : <IconPlus />}
-      </StyledFab>
+      </button>
       <Popper
         placement="bottom-end"
         open={open}
@@ -175,117 +116,56 @@ const AddNodes = ({ nodesData, node, trigger }) => {
         }}
         sx={{ zIndex: 800 }}
       >
-        {({ TransitionProps }) => (
-          <Transitions in={open} {...TransitionProps}>
-            <Paper>
-              <ClickAwayListener onClickAway={handleClose}>
-                <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
-                  <Box sx={{ p: 2 }}>
-                    <Stack>
-                      <Typography variant="h4">Add Nodes</Typography>
-                    </Stack>
-                    <OutlinedInput
-                      sx={{ width: "100%", pr: 1, pl: 2, my: 2 }}
-                      id="input-search-node"
-                      value={searchValue}
-                      onChange={(e) => filterSearch(e.target.value)}
-                      placeholder="Search nodes"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <IconSearch stroke={1.5} size="1rem" color={theme.palette.grey[500]} />
-                        </InputAdornment>
-                      }
-                      aria-describedby="search-helper-text"
-                      inputProps={{
-                        "aria-label": "weight",
-                      }}
-                    />
-                    <Divider />
-                  </Box>
-
-                  <PerfectScrollbar
-                    containerRef={(el) => {
-                      ps.current = el;
-                    }}
-                    style={{ height: "100%", maxHeight: "calc(100vh - 375px)", overflowX: "hidden" }}
-                  >
-                    <Box sx={{ p: 2 }}>
-                      <List
-                        sx={{
-                          width: "100%",
-                          maxWidth: 370,
-                          py: 0,
-                          borderRadius: "10px",
-                          [theme.breakpoints.down("md")]: {
-                            maxWidth: 370,
-                          },
-                          "& .MuiListItemSecondaryAction-root": {
-                            top: 22,
-                          },
-                          "& .MuiDivider-root": {
-                            my: 0,
-                          },
-                          "& .list-container": {
-                            pl: 7,
-                          },
-                        }}
-                      >
-                        {Object.keys(nodes)
-                          .sort()
-                          .map((category) => (
-                            <Accordion expanded={categoryExpanded[category] || false} onChange={handleAccordionChange(category)} key={category}>
-                              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`nodes-accordian-${category}`} id={`nodes-accordian-header-${category}`}>
-                                <Typography variant="h5">{category}</Typography>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                {nodes[category].map((node, index) => (
-                                  <div key={node.name} onDragStart={(event) => onDragStart(event, node)} draggable>
-                                    <ListItemButton
-                                      sx={{
-                                        p: 0,
-                                        borderRadius: `${customization.borderRadius}px`,
-                                        cursor: "move",
-                                      }}
-                                    >
-                                      <ListItem alignItems="center">
-                                        <ListItemAvatar>
-                                          <div
-                                            style={{
-                                              width: 50,
-                                              height: 50,
-                                              borderRadius: "50%",
-                                              backgroundColor: "white",
-                                            }}
-                                          >
-                                            <img
-                                              style={{
-                                                width: "100%",
-                                                height: "100%",
-                                                padding: 10,
-                                                objectFit: "contain",
-                                              }}
-                                              alt={node.name}
-                                              src={`${baseURL}/api/v1/node-icon/${node.name}`}
-                                            />
-                                          </div>
-                                        </ListItemAvatar>
-                                        <ListItemText sx={{ ml: 1 }} primary={node.label} secondary={node.description} />
-                                      </ListItem>
-                                    </ListItemButton>
-                                    {index === nodes[category].length - 1 ? null : <Divider />}
-                                  </div>
-                                ))}
-                              </AccordionDetails>
-                            </Accordion>
-                          ))}
-                      </List>
-                    </Box>
-                  </PerfectScrollbar>
-                </MainCard>
-              </ClickAwayListener>
-            </Paper>
-          </Transitions>
-        )}
+        <div ref={wrapperRef} className="absolute z-50 bg-white shadow-lg rounded-lg" style={{ width: "370px", top: "200px", left: "150px" }}>
+          <div className="p-4">
+            <div className="flex justify-between items-center">
+              <h4 className="text-lg font-semibold">Add Nodes</h4>
+              <IconSearch className="m-2" />
+              <input className="p-1" value={searchValue} onChange={(e) => filterSearch(e.target.value)} placeholder="Search nodes" />
+            </div>
+          </div>
+          <div className="flex items-center border-2 rounded-lg" />
+          <div style={{ height: "100%", maxHeight: "calc(100vh - 375px)", overflowX: "hidden" }}>
+            <div className="my-2">
+              <div
+                style={{
+                  width: "100%",
+                  maxWidth: 370,
+                  py: 0,
+                  borderRadius: "10px",
+                }}
+              >
+                {Object.keys(nodes)
+                  .sort()
+                  .map((category) => (
+                    <div key={category} className="border-b border-gray-200">
+                      <button className="flex justify-between items-center w-full p-4 focus:outline-none">
+                        <div variant="h5" className="text-lg font-semibold">
+                          {category}
+                        </div>
+                      </button>
+                      <div className={`overflow-hidden transition-max-height duration-500 ease-in-out "max-h-screen`}>
+                        {nodes[category].map((node, index) => (
+                          <div key={node.name} onDragStart={(event) => onDragStart(event, node)} draggable className="cursor-move rounded-lg">
+                            <div className="flex items-center p-0">
+                              <div className="w-12 h-12 rounded-full bg-white mr-4 flex-shrink-0">
+                                <img src={`${baseURL}/api/v1/node-icon/${node.name}`} alt={node.name} className="w-full h-full object-contain p-2.5" />
+                              </div>
+                              <div>
+                                <div className="font-bold">{node.label}</div>
+                                <div className="text-sm text-gray-600">{node.description}</div>
+                              </div>
+                            </div>
+                            {index < nodes[category].length - 1 && <div className="border-b" />}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </Popper>
     </>
   );

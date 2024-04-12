@@ -11,7 +11,7 @@ export const updateData = async (tableName: string, data: { [x: string]: any }, 
   });
 
 export const deleteData = async (tableName: string, data: { [x: string]: any }, primaryColumn: string | number) =>
-  axiosInstance.delete("/table/deleteData", {
+  axiosInstance.delete("/table/deletedata", {
     data: {
       tableName,
       condition: `${primaryColumn} = ${data[primaryColumn]}`,
