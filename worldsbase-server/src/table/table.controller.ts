@@ -8,6 +8,7 @@ import {
   Body,
   Param,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { TableService } from './table.service';
 import {
@@ -34,6 +35,7 @@ import {
   ApiResponse,
   ApiTags,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 
 @ApiHeader({ name: 'x-api-key', required: true })
@@ -53,7 +55,7 @@ export class TableController {
     const columnDefinitions = createTableDTO.columns
       .map((col) => `"${col.name}" ${col.type} ${col.constraints || ''}`)
       .join(', ');
-    const query = `CREATE TABLE IF NOT EXISTS ${createTableDTO.schemaName || "public"}."${createTableDTO.tableName}" (${columnDefinitions});`;
+    const query = `CREATE TABLE IF NOT EXISTS ${createTableDTO.schemaName || 'public'}."${createTableDTO.tableName}" (${columnDefinitions});`;
     const result = await this.tableService.executeQuery(query);
 
     if (result.status === 200) {
@@ -258,6 +260,60 @@ export class TableController {
     const result = await this.tableService.executeQuery(query, [
       getTableNameDTO.columnValue,
     ]);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
+  }
+
+  @Get('/gettablevalues/:tableName')
+  @ApiOperation({
+    summary:
+      'Get the table data with optional filtering by multiple column values.',
+  })
+  @ApiParam({
+    name: 'tableName',
+    type: 'string',
+    description: 'The name of the table to retrieve data from',
+  })
+  @ApiQuery({
+    name: 'filters',
+    type: 'string',
+    description:
+      'Optional filters in a key=value format, separated by commas. Example: item_id=3,player_id=2',
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Table data retrieved successfully',
+  })
+  async getTableValues(
+    @Param('tableName') tableName: string,
+    @Query('filters') filters?: string,
+  ): Promise<TableApiResponse<any>> {
+    const queryConditions: string[] = [];
+    const queryParams: any[] = [];
+
+    if (filters) {
+      const filterPairs = filters.split(',');
+
+      filterPairs.forEach((pair) => {
+        const [key, value] = pair.split('=');
+        if (key && value) {
+          queryConditions.push(`"${key}" = $${queryConditions.length + 1}`);
+          queryParams.push(value);
+        }
+      });
+    }
+
+    const whereClause =
+      queryConditions.length > 0
+        ? `WHERE ${queryConditions.join(' AND ')}`
+        : '';
+    const query = `SELECT * FROM "${tableName}" ${whereClause};`;
+
+    const result = await this.tableService.executeQuery(query, queryParams);
     if (result.status === 200) {
       return result.data;
     } else {
