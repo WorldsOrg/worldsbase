@@ -4,7 +4,7 @@ import { useToast } from "@chakra-ui/react";
 import { DataSheetGrid } from "react-datasheet-grid";
 import "react-datasheet-grid/dist/style.css";
 import AppLayout from "@/components/dashboard/app_layout/AppLayout";
-import { AiFillAlipayCircle, AiOutlineDelete, AiOutlineEdit, AiOutlineReload, AiOutlineSave, AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
+import { AiOutlineDelete, AiOutlineEdit, AiOutlineReload, AiOutlineSave, AiOutlineSortAscending, AiOutlineSortDescending } from "react-icons/ai";
 import { RxReset } from "react-icons/rx";
 import { TbEditOff } from "react-icons/tb";
 import OverlayForm from "@/components/dashboard/overlay_form/OverlayForm";
@@ -34,7 +34,7 @@ export default function Apps() {
 
   useEffect(() => {
     if (selectedTable) {
-      fetchData(selectedTable,"tableEditor");
+      fetchData(selectedTable, "tableEditor");
     }
   }, [selectedTable]);
 
@@ -87,7 +87,7 @@ export default function Apps() {
       ...result.deleted.map((item) => handleDelete(item)),
     ]);
 
-    fetchData(selectedTable,"tableEditor");
+    fetchData(selectedTable, "tableEditor");
   };
 
   const handleCreate = async (data: any) => {
@@ -184,7 +184,7 @@ export default function Apps() {
   const handleAddNewTableClicked = () => {
     setEditing(false);
     setOpen(true);
-  }
+  };
 
   return (
     <AppLayout addNewTableClicked={handleAddNewTableClicked}>

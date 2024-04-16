@@ -1,33 +1,66 @@
 "use client";
-import React, { useCallback } from "react";
-import ReactFlow, { MiniMap, Controls, Background, useNodesState, useEdgesState, addEdge, BackgroundVariant } from "reactflow";
-import TextUpdaterNode from "./TextUpdaterNode";
 
-import "reactflow/dist/style.css";
+import { useEffect } from "react";
+import { useTable } from "@/context/tableContext";
+import Link from "next/link";
 
-const nodeTypes = { textUpdater: TextUpdaterNode };
+function WorkflowsPage() {
+  const { fetchData, loadingData, data } = useTable();
+  useEffect(() => {
+    fetchData("workflow");
+    console.log("WorkflowsPage");
+  }, []);
 
-const initialNodes = [
-  { id: "node-1", type: "textUpdater", position: { x: 0, y: 0 }, data: { value: 123, title: "Insert" } },
-  { id: "node-2", type: "textUpdater", position: { x: 225, y: 225 }, data: { value: 123, title: "Update" } },
-  { id: "node-3", type: "textUpdater", position: { x: 525, y: 525 }, data: { value: 123, title: "Delete" } },
-];
+  useEffect(() => {
+    console.log("Data", data);
+  }, [data]);
 
-const initialEdges = [{ id: "e1-2", source: "1", target: "2" }];
-
-export default function Flow() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+  const loadingSkaleton = [1, 2, 3, 4];
 
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
-      <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect}>
-        <Controls />
-        <MiniMap />
-        <Background variant={"dots" as BackgroundVariant} gap={12} size={1} />
-      </ReactFlow>
-    </div>
+    <>
+      <div>Workflow</div>
+      {loadingData
+        ? loadingSkaleton.map((item: any) => {
+            return (
+              <div className="border border-black rounded-md p-4 m-2 animate-pulse" key={item}>
+                <div className="flex justify-between">
+                  <div>
+                    <h1 className="w-44 rounded-md bg-black">{item}</h1>
+                    <h1 className="w-20 rounded-md mt-1 bg-black">{item}</h1>
+                  </div>
+                  <div>
+                    <button className="bg-primary p-2 rounded-md m-1 text-white w-16 h-10"></button>{" "}
+                    <button className="bg-primary p-2 rounded-md m-1 text-white w-16 h-10"></button>{" "}
+                    <button className="bg-primary p-2 rounded-md m-1 text-white w-16 h-10"></button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-white w-16 h-10"></button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        : data.map((item: any) => {
+            return (
+              <div className="border border-black rounded-md p-4 m-2" key={item.id}>
+                <div className="flex justify-between">
+                  <div>
+                    <h1>{item.name}</h1>
+                    <h1 className="w-20  mt-1 "> {item.deployed ? "Running" : "Idle"}</h1>
+                  </div>
+                  <div>
+                    <button className="bg-primary p-2 rounded-md m-1 text-white">delete</button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-white">play</button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-white">stop</button>
+                    <Link href={`/dashboard/flow/${item.id}`}>
+                      <button className="bg-primary p-2 rounded-md m-1 text-white">edit</button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+    </>
   );
 }
+
+export default WorkflowsPage;
