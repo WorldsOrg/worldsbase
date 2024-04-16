@@ -230,6 +230,29 @@ export class UpdateDataDTO {
   data: any;
 }
 
+export class UpdateFilterDataDTO {
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
+  @IsString()
+  tableName: string;
+  @ApiProperty({
+    example: {
+      email: 'test@user.com',
+      username: 'testuser',
+    },
+  })
+  @IsObject()
+  data: any;
+  @ApiProperty({
+    example: 'username=testuser',
+    description: 'Condition',
+  })
+  @IsObject()
+  filters: Record<string, any>;
+}
+
 export class TableApiResponse<T> {
   status: number;
   data?: T;

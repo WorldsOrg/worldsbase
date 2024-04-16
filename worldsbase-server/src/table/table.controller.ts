@@ -26,6 +26,7 @@ import {
   TableApiResponse,
   TableNameDTO,
   UpdateDataDTO,
+  UpdateFilterDataDTO,
   UpdateTableNameDTO,
 } from './dto/table.dto';
 import {
@@ -430,6 +431,41 @@ export class TableController {
 
     // Construct the full SQL query
     const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition};`;
+
+    const result = await this.tableService.executeQuery(query, values);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
+  }
+
+  @Put('/updateFilteredData')
+  @ApiOperation({ summary: 'Update data in a table with filters' })
+  @ApiBody({ type: UpdateFilterDataDTO })
+  async updateFilteredData(
+    @Body() updateDataDTO: UpdateFilterDataDTO,
+  ): Promise<TableApiResponse<any>> {
+    const values: any[] = [];
+    const queryConditions: string[] = [];
+
+    Object.entries(updateDataDTO.filters).forEach(([key, value]) => {
+      queryConditions.push(`"${key}" = $${values.length + 1}`);
+      values.push(value);
+    });
+
+    const setClauses = Object.entries(updateDataDTO.data)
+      .map(([key, value]) => {
+        values.push(value);
+        return `"${key}" = $${values.length}`;
+      })
+      .join(', ');
+
+    const whereClause =
+      queryConditions.length > 0
+        ? `WHERE ${queryConditions.join(' AND ')}`
+        : '';
+    const query = `UPDATE "${updateDataDTO.tableName}" SET ${setClauses} ${whereClause};`;
 
     const result = await this.tableService.executeQuery(query, values);
     if (result.status === 200) {
