@@ -440,7 +440,7 @@ export class TableController {
     }
   }
 
-  @Put('/updateFilteredData')
+  @Put('/updatefiltereddata')
   @ApiOperation({ summary: 'Update data in a table with filters' })
   @ApiBody({ type: UpdateFilterDataDTO })
   async updateFilteredData(
