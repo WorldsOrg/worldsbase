@@ -1,3 +1,4 @@
+// store/actions.js
 // action - customization reducer
 export const SET_MENU = "@customization/SET_MENU";
 export const MENU_TOGGLE = "@customization/MENU_TOGGLE";

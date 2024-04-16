@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { Handle, Position } from "reactflow";
 import FieldInput from "./FieldInput";
+import { PlusIcon } from "@heroicons/react/24/outline";
 
 type FieldType = {
   id: number;
@@ -11,7 +12,7 @@ type FieldType = {
 
 function TextUpdaterNode({ data, isConnectable }: { data: any; isConnectable: any }) {
   const [fields, setFields] = useState<FieldType[]>([{ id: Math.random(), name: "", type: "text", editing: false }]);
-
+  const [tableName, setTableName] = useState("");
   const addField = () => {
     setFields([...fields, { id: Math.random(), name: "", type: "text", editing: false }]);
   };
@@ -35,11 +36,26 @@ function TextUpdaterNode({ data, isConnectable }: { data: any; isConnectable: an
     );
   };
 
+  const handleData = () => {
+    console.log("Table Name", tableName);
+    console.log("Data", fields);
+  };
+
   return (
     <div className="border border-gray-200 p-4 rounded bg-white w-80 flex flex-col">
-      <label htmlFor="text" className="block text-gray-500 text-md mb-2">
-        {data.title} Data
-      </label>
+      <div className="flex justify-between">
+        <label htmlFor="text" className="block text-gray-500 text-md mb-2">
+          {data.title} Data
+        </label>
+        {data.title !== "Delete" && (
+          <button
+            onClick={addField}
+            className="px-1 mb-2 py-1 text-sm w-1/2 text-gray-900 rounded-md shadow-sm bg-background ring-1 ring-inset ring-secondary hover:bg-gray-50 dark:text-primary dark:hover:text-secondary"
+          >
+            Add field
+          </button>
+        )}
+      </div>
       <Handle type="target" position={Position.Left} isConnectable={isConnectable} />
 
       <div className="flex-grow mr-2">
@@ -49,22 +65,9 @@ function TextUpdaterNode({ data, isConnectable }: { data: any; isConnectable: an
           id="key"
           className="nodrag mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           placeholder="Table name"
-          onChange={onChange}
+          onChange={(e) => setTableName(e.target.value)}
         />
       </div>
-      {data.title !== "Insert" && (
-        <>
-          {" "}
-          <label htmlFor="text" className="block text-gray-500 text-sm mt-2">
-            Where
-          </label>
-          <div className="flex flex-row mt-2">
-            <input placeholder="key" id="text" name="text" onChange={onChange} className="nodrag mr-2 rounded w-28" />
-            <input placeholder="equals" id="text" name="text" value={"="} onChange={onChange} className="nodrag mr-2 rounded w-12" />
-            <input placeholder="value" id="text" name="text" onChange={onChange} className="nodrag rounded w-28" />
-          </div>{" "}
-        </>
-      )}
 
       {data.title !== "Delete" && (
         <>
@@ -79,19 +82,45 @@ function TextUpdaterNode({ data, isConnectable }: { data: any; isConnectable: an
               editing={field.editing}
             />
           ))}
-          <button
-            onClick={addField}
-            className="px-3 mt-2 py-2 text-sm w-1/2 text-gray-900 rounded-md shadow-sm bg-background ring-1 ring-inset ring-secondary hover:bg-gray-50 dark:text-primary dark:hover:text-secondary"
-          >
-            Add field
-          </button>
         </>
       )}
 
-      <button type="button" className="mt-2 rounded-md bg-indigo-50 px-3.5 py-2.5 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">
+      {data.title !== "Insert" && (
+        <>
+          <div className="border-t border-gray-200 my-2 mt-4"></div>
+          <label htmlFor="text" className="block text-gray-500 text-sm mt-2">
+            Where
+          </label>
+          <div className="flex flex-row mt-2">
+            <input
+              placeholder="key"
+              id="text"
+              name="key"
+              onChange={onChange}
+              className="nodrag mr-2 rounded w-28 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            />
+            <input
+              placeholder="equals"
+              id="text"
+              name="equals"
+              value={"="}
+              onChange={onChange}
+              className="nodrag mr-2 rounded w-12 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            />
+            <input
+              placeholder="value"
+              id="text"
+              name="value"
+              onChange={onChange}
+              className="nodrag rounded w-28 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            />
+          </div>{" "}
+        </>
+      )}
+
+      <button type="button" onClick={handleData} className="mt-2 rounded-md bg-indigo-50 px-3.5 py-2.5 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">
         {data.title}
       </button>
-
       <Handle type="source" position={Position.Right} id="b" isConnectable={isConnectable} />
     </div>
   );

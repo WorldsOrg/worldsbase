@@ -93,7 +93,7 @@ export default function Apps() {
   const handleCreate = async (data: any) => {
     try {
       const { status } = await createData(selectedTable, data);
-      if (status === 200) {
+      if (status === 201) {
         handleToast("Data inserted");
       } else {
         handleToast("Error inserting data");

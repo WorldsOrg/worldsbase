@@ -1,3 +1,4 @@
+// store/reducer.js
 import { combineReducers } from "redux";
 
 // reducer import

@@ -390,7 +390,9 @@ export class TableController {
       .map((_, index) => `$${index + 1}`)
       .join(', ');
     const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) VALUES (${valuePlaceholders});`;
+    console.log(query);
     const result = await this.tableService.executeQuery(query, values);
+    console.log(result);
     if (result.status === 200) {
       return result.data;
     } else {
