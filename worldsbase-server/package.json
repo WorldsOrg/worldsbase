@@ -49,6 +49,7 @@
     "dotenv": "^16.4.4",
     "ethers": "^5.7.2",
     "ethersV6": "npm:ethers@^6.11.1",
+    "hashi-vault-js": "^0.4.14",
     "jsonwebtoken": "^9.0.2",
     "moesif-nodejs": "^3.6.1",
     "moralis": "^2.25.0",
