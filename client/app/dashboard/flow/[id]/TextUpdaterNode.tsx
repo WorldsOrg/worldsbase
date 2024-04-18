@@ -9,7 +9,7 @@ type FieldType = {
   editing: boolean;
 };
 
-function TextUpdaterNode({ data, isConnectable, id }: { data: any; isConnectable: any }) {
+function TextUpdaterNode({ data, isConnectable, id }: { data: any; isConnectable: any; id: any }) {
   const [fields, setFields] = useState<FieldType[]>([{ id: Math.random(), label: "", type: "text", editing: false }]);
   const [tableName, setTableName] = useState("");
   const addField = () => {

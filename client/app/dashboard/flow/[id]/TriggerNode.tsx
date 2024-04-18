@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Handle, Position, useReactFlow, useStoreApi } from "reactflow";
 
-function TriggerNode({ data, id }: { data: any }) {
+function TriggerNode({ data, id }: { data: any; id: any }) {
   const methods = ["insert", "update", "delete"];
 
   const { setNodes } = useReactFlow();
