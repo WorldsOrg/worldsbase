@@ -1,20 +1,19 @@
 import { useCallback, useState } from "react";
 import { Handle, Position } from "reactflow";
 import FieldInput from "./FieldInput";
-import { PlusIcon } from "@heroicons/react/24/outline";
 
 type FieldType = {
   id: number;
-  name: string;
+  label: string;
   type: string;
   editing: boolean;
 };
 
-function TextUpdaterNode({ data, isConnectable }: { data: any; isConnectable: any }) {
-  const [fields, setFields] = useState<FieldType[]>([{ id: Math.random(), name: "", type: "text", editing: false }]);
+function TextUpdaterNode({ data, isConnectable, id }: { data: any; isConnectable: any }) {
+  const [fields, setFields] = useState<FieldType[]>([{ id: Math.random(), label: "", type: "text", editing: false }]);
   const [tableName, setTableName] = useState("");
   const addField = () => {
-    setFields([...fields, { id: Math.random(), name: "", type: "text", editing: false }]);
+    setFields([...fields, { id: Math.random(), label: "", type: "text", editing: false }]);
   };
 
   const handleRemoveField = (id: number) => {
@@ -45,9 +44,9 @@ function TextUpdaterNode({ data, isConnectable }: { data: any; isConnectable: an
     <div className="border border-gray-200 p-4 rounded bg-white w-80 flex flex-col">
       <div className="flex justify-between">
         <label htmlFor="text" className="block text-gray-500 text-md mb-2">
-          {data.title} Data
+          {data.label} Data - id:{id}
         </label>
-        {data.title !== "Delete" && (
+        {data.label !== "Delete" && (
           <button
             onClick={addField}
             className="px-1 mb-2 py-1 text-sm w-1/2 text-gray-900 rounded-md shadow-sm bg-background ring-1 ring-inset ring-secondary hover:bg-gray-50 dark:text-primary dark:hover:text-secondary"
@@ -69,7 +68,7 @@ function TextUpdaterNode({ data, isConnectable }: { data: any; isConnectable: an
         />
       </div>
 
-      {data.title !== "Delete" && (
+      {data.label !== "Delete" && (
         <>
           {fields.map((field) => (
             <FieldInput
@@ -78,14 +77,14 @@ function TextUpdaterNode({ data, isConnectable }: { data: any; isConnectable: an
               handleFieldChange={handleFieldChange}
               handleRemoveField={handleRemoveField}
               editable={true}
-              value={field.name}
+              value={field.label}
               editing={field.editing}
             />
           ))}
         </>
       )}
 
-      {data.title !== "Insert" && (
+      {data.label !== "Insert" && (
         <>
           <div className="border-t border-gray-200 my-2 mt-4"></div>
           <label htmlFor="text" className="block text-gray-500 text-sm mt-2">
@@ -119,7 +118,7 @@ function TextUpdaterNode({ data, isConnectable }: { data: any; isConnectable: an
       )}
 
       <button type="button" onClick={handleData} className="mt-2 rounded-md bg-indigo-50 px-3.5 py-2.5 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-100">
-        {data.title}
+        {data.label}
       </button>
       <Handle type="source" position={Position.Right} id="b" isConnectable={isConnectable} />
     </div>
