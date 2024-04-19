@@ -1,4 +1,31 @@
+import { useEffect, useState } from "react";
+import StickyNoteDialog from "./Dialog";
+import { useReactFlow, useStoreApi } from "reactflow";
 function StickyNoteNode({ data }: { data: any }) {
+  const { setNodes } = useReactFlow();
+  const store = useStoreApi();
+  const { nodeInternals } = store.getState();
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
+
+  const handleText = (text: string) => {
+    setNodes(
+      Array.from(nodeInternals.values()).map((node) => {
+        node.data = {
+          ...node.data,
+          text: text,
+        };
+        return node;
+      })
+    );
+    setText(text);
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    if (data && data.text) setText(data.text);
+  }, [data]);
+
   const handleClick = (e: any) => {
     console.log(e.detail);
     switch (e.detail) {
@@ -6,13 +33,14 @@ function StickyNoteNode({ data }: { data: any }) {
         console.log("click");
         break;
       case 2:
-        console.log("double click");
+        setOpen(true);
         break;
     }
   };
   return (
     <div className="p-4" onClick={handleClick}>
-      {data.label}
+      <StickyNoteDialog open={open} setOpen={setOpen} save={handleText} text={text} />
+      {text}
     </div>
   );
 }

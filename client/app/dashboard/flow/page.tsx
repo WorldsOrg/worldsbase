@@ -11,7 +11,7 @@ function WorkflowsPage() {
 
   const router = useRouter();
   useEffect(() => {
-    fetchData("workflow");
+    fetchData("workflows");
   }, []);
 
   const loadingSkaleton = [1, 2, 3, 4];

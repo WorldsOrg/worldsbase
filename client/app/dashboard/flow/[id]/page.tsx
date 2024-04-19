@@ -7,18 +7,16 @@ import StickyNoteNode from "./StickyNoteNode";
 import Dropdown from "./Dropdown";
 import { useTable } from "@/context/tableContext";
 import TriggerNode from "./TriggerNode";
+import axiosInstance from "@/utils/axiosInstance";
+
 const nodeTypes = {
   textUpdater: TextUpdaterNode,
   stickyNote: StickyNoteNode,
   triggerNode: TriggerNode,
 };
 
-// const initialNodes = [
-//   { id: "node-2", type: "textUpdater", position: { x: 400, y: 325 }, data: { label: "Insert" } },
-//   { id: "node-3", type: "note", className: "annotation", position: { x: 400, y: 200 }, data: { label: "Hello from very cool note node" } },
-// ];
-
-export default function Flow() {
+export default function Flow({ params }: { params: { id: string } }) {
+  const flowId = params.id;
   const { navigation } = useTable();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -27,12 +25,20 @@ export default function Flow() {
   const onInit = (reactFlowInstance: any) => console.log("flow loaded:", reactFlowInstance.zoomTo(-10));
 
   useEffect(() => {
-    console.log(nodes, edges);
-  }, [nodes, edges]);
+    getWorkflows();
+  }, [navigation, flowId]);
 
-  useEffect(() => {
-    if (navigation && navigation.length > 0 && nodes.length === 0) addTriggerNode();
-  }, [navigation]);
+  const getWorkflows = async () => {
+    const result = await axiosInstance.get(`/table/gettablevalue/workflows/id/${flowId}`);
+    if (result.data[0]) {
+      console.log(result.data[0].nodes);
+      setNodes(result.data[0].nodes);
+      setEdges(result.data[0].edges);
+    } else {
+      console.log("else");
+      if (navigation && navigation.length > 0 && nodes.length === 0) addTriggerNode();
+    }
+  };
 
   const addTriggerNode = () => {
     setNodes((n) => [
@@ -41,8 +47,9 @@ export default function Flow() {
         id: (n.length + 1).toString(),
         type: "triggerNode",
         position: { x: window.innerWidth - 100, y: window.innerHeight },
-
         data: {
+          table: "",
+          method: "insert",
           tables: navigation,
         },
       },
@@ -114,13 +121,30 @@ export default function Flow() {
     }
   };
 
+  const handleSave = async () => {
+    console.log(nodes, edges, flowId);
+    const payload = {
+      data: {
+        id: flowId,
+        name: `flow_${Math.floor(Math.random() * 1000)}`,
+        nodes: nodes,
+        edges: edges,
+      },
+      tableName: "workflows",
+    };
+    const result = await axiosInstance.post(`/table/insertdata/`, payload);
+    console.log(result);
+  };
+
   return (
     <div style={{ width: "100%", height: "100vh" }}>
       <div className="bg-black h-12 text-white flex flex-row justify-between px-2">
-        <input className="bg-black" value="flow name" />
+        <input className="bg-black" defaultValue="flow name" readOnly />
         <div>
           <Dropdown handleAdd={handleAdd} />
-          <button className="bg-primary p-2 rounded-md m-1 text-white">save</button>
+          <button className="bg-primary p-2 rounded-md m-1 text-white" onClick={handleSave}>
+            save
+          </button>
           <button className="bg-primary p-2 rounded-md m-1 text-white">delete</button>
           <button className="bg-primary p-2 rounded-md m-1 text-white">play</button>
           <button className="bg-primary p-2 rounded-md m-1 text-white">stop</button>
