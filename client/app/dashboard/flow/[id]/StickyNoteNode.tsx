@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import StickyNoteDialog from "./Dialog";
 import { useReactFlow, useStoreApi } from "reactflow";
-function StickyNoteNode({ data }: { data: any }) {
+function StickyNoteNode({ data, id }: { data: any; id: any }) {
   const { setNodes } = useReactFlow();
   const store = useStoreApi();
   const { nodeInternals } = store.getState();
@@ -11,6 +11,7 @@ function StickyNoteNode({ data }: { data: any }) {
   const handleText = (text: string) => {
     setNodes(
       Array.from(nodeInternals.values()).map((node) => {
+        if (node.id !== id) return node;
         node.data = {
           ...node.data,
           text: text,
@@ -30,7 +31,7 @@ function StickyNoteNode({ data }: { data: any }) {
     console.log(e.detail);
     switch (e.detail) {
       case 1:
-        console.log("click");
+        console.log("waiting for double click");
         break;
       case 2:
         setOpen(true);

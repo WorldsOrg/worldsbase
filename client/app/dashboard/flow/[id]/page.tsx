@@ -100,7 +100,7 @@ export default function Flow({ params }: { params: { id: string } }) {
             className: "annotation",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: {
-              label: "First node listens wtf_users table, inserting a new value triggers it and it calls the next node which assigns a weapon to newly created user. 🥳",
+              text: "Double click to add/edit text on the stick note. You can use this note to add comments or notes.",
             },
           },
         ]);

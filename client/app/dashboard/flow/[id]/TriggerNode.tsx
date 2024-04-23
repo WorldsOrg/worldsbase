@@ -39,6 +39,7 @@ function TriggerNode({ data, id }: { data: any; id: any }) {
     const { nodeInternals } = store.getState();
     setNodes(
       Array.from(nodeInternals.values()).map((node) => {
+        if (node.id !== id) return node;
         node.data = {
           ...node.data,
           method: evt.target.value,

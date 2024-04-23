@@ -49,6 +49,7 @@ function TextUpdaterNode({ data, isConnectable, id }: { data: any; isConnectable
     if (editing) {
       setNodes(
         Array.from(nodeInternals.values()).map((node) => {
+          if (node.id !== id) return node;
           node.data = {
             ...node.data,
             fields: fields,

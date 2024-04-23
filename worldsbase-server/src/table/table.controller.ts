@@ -38,6 +38,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { create } from 'domain';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Table')
@@ -542,8 +543,10 @@ export class TableController {
       BEGIN
         IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${triggerName}') THEN
           EXECUTE format('CREATE TRIGGER %I
-                          AFTER INSERT OR UPDATE OR DELETE ON %I
-                          FOR EACH ROW EXECUTE FUNCTION notify_event()', '${triggerName}', '${tableName}');
+                          AFTER INSERT OR UPDATE ON %I
+                          FOR EACH ROW 
+                          WHEN (NEW.provisioned = ''true'')
+                          EXECUTE FUNCTION notify_event()', '${triggerName}', '${tableName}');
         END IF;
       END
       $$;
