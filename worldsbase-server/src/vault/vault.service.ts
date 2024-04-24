@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Client } from '@litehex/node-vault';
+import axios from 'axios';
 
 export type VaultSecret = {
   name: string;
@@ -30,16 +31,41 @@ export class VaultService {
   private vaultClient: Client;
   public vaultToken: string;
   public mountPath: string;
+  private roleId: string;
+  private secretId: string;
+  private vaultAddress: string;
 
   constructor() {
-    this.vaultClient = new Client({
-      apiVersion: 'v1', // default
-      endpoint: 'http://127.0.0.1:8200', // default
-      token: process.env.VAULT_TOKEN || '', // Optional in case you want to initialize the vault
-    });
-
     this.vaultToken = process.env.VAULT_TOKEN || '';
     this.mountPath = 'secret';
+    this.roleId = process.env.VAULT_ROLE_ID || '';
+    this.secretId = process.env.VAULT_SECRET_ID || '';
+    this.vaultAddress = process.env.VAULT_ADDRESS || '';
+    this.loginWithAppRole();
+  }
+
+  async loginWithAppRole(): Promise<void> {
+    try {
+      const VAULT_POST_DATA = `{"role_id": "${this.roleId}", "secret_id": "${this.secretId}"}`;
+      const tokenResponse = await axios.post(
+        `${this.vaultAddress}/v1/auth/approle/login`,
+        VAULT_POST_DATA,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      const token = tokenResponse.data.auth.client_token;
+      this.vaultClient = new Client({
+        apiVersion: 'v1',
+        endpoint: this.vaultAddress,
+        token,
+      });
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async createVaultSececret(secret: VaultSecret): Promise<any> {
