@@ -8,6 +8,23 @@ export type VaultSecret = {
   };
 };
 
+export type VaultReadError = {
+  errors: string[];
+};
+
+export type VaultReadData = {
+  data: {
+    data: Record<string, string>;
+    metadata: {
+      version: number;
+      created_time: string;
+      custom_metadata: Record<string, string> | null;
+      deletion_time: string;
+      destroyed: boolean;
+    };
+  };
+};
+
 @Injectable()
 export class VaultService {
   private vaultClient: Client;
@@ -35,6 +52,32 @@ export class VaultService {
         data: { key: secret.data.key },
       });
       return response;
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  isVaultReadError(
+    read: VaultReadError | VaultReadData,
+  ): read is VaultReadError {
+    return (read as VaultReadError).errors !== undefined;
+  }
+
+  async readVaultSecret(name: string): Promise<string> {
+    const mountPath = this.mountPath;
+    const path = name;
+    try {
+      const response = await this.vaultClient.kv2.read({
+        mountPath,
+        path,
+      });
+      if (this.isVaultReadError(response)) {
+        throw new HttpException(
+          response.errors,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      return response.data.data.key;
     } catch (err) {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
