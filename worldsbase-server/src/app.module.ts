@@ -10,7 +10,6 @@ import { AuthModule } from './auth/auth.module';
 import { DbModule } from './db/db.module';
 import { TasksModule } from './tasks/tasks.module';
 import { EthersModule } from './ethers/ethers.module';
-import { Web3SignerModule } from './web3singer/web3signer.module';
 
 @Module({
   imports: [
@@ -26,7 +25,6 @@ import { Web3SignerModule } from './web3singer/web3signer.module';
     TableModule,
     AuthModule,
     EthersModule,
-    Web3SignerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
