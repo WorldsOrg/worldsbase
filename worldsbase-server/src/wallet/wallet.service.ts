@@ -15,10 +15,8 @@ import {
   TokenResultDto,
   NFTResultDto,
   AwsKmsWalletDto,
-  VaultWalletDto,
 } from './dto/wallet.dto';
 import { AwsKmsService } from 'src/awskms/awskms.service';
-import { VaultSecret, VaultService } from 'src/vault/vault.service';
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 const createCipheriv = crypto.createCipheriv;
@@ -58,7 +56,6 @@ export class WalletService {
   constructor(
     private readonly moralisService: MoralisService,
     private awsKmsService: AwsKmsService,
-    private vaultService: VaultService,
   ) {}
   async encryptWallet(key: string, pass: string): Promise<any> {
     const salt = Buffer.from(process.env.KEY_SALT as string, 'hex');
@@ -151,31 +148,6 @@ export class WalletService {
       );
     }
   }
-
-  async createVaultWallet(user_id: string): Promise<VaultWalletDto> {
-    try {
-      const web3 = new Web3();
-      const result = web3.eth.accounts.create();
-      const secret: VaultSecret = {
-        name: result.address,
-        data: {
-          key: result.privateKey,
-        },
-      };
-      await this.vaultService.createVaultSececret(secret);
-      return {
-        address: result.address,
-        user_id: user_id,
-      };
-    } catch (error) {
-      console.error('Error creating wallet:', error);
-      throw new HttpException(
-        'Error creating wallet',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
   async createWallet(user_id: string): Promise<TurnkeyWalletDto> {
     try {
       const turnkeyClient = await initTurnkeyClient();
