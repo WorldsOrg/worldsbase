@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { EthersService } from './ethers.service';
+import { EthersService, SignRequest } from './ethers.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { StandardTxData } from './ethers.service';
 import {
@@ -52,6 +52,23 @@ export class EthersController {
       signAndSendAwsKmsDto.senderAddress,
       signAndSendAwsKmsDto.key_id,
       signAndSendAwsKmsDto.txData,
+    );
+  }
+
+  @Post('/sign_tx_vault')
+  @ApiOperation({
+    summary:
+      'signs a tx using private key stored in vault and returns the signed tx',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'success',
+    type: String,
+  })
+  async vaultSign(@Body() vaultSignData: SignRequest): Promise<string> {
+    return this.ethersService.signTxVault(
+      vaultSignData.signerPubKey,
+      vaultSignData.transaction,
     );
   }
 }
