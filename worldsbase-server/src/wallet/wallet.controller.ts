@@ -14,7 +14,6 @@ import {
   TokenResultDto,
   TurnkeyWalletDto,
   ValueDto,
-  VaultWalletDto,
 } from './dto/wallet.dto';
 
 @ApiHeader({ name: 'x-api-key', required: true })
@@ -60,21 +59,6 @@ export class WalletController {
     @Body() createWalletDto: CreateWalletDto,
   ): Promise<EthWalletDto> {
     return this.walletService.createWalletAddress(createWalletDto.user_id);
-  }
-
-  @Post('/create_vault_wallet')
-  @ApiOperation({
-    summary: 'Creates public and private key and stores in vault',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Created wallet stored in vault',
-    type: EthWalletDto,
-  })
-  createVaultWallet(
-    @Body() createWalletDto: CreateWalletDto,
-  ): Promise<VaultWalletDto> {
-    return this.walletService.createVaultWallet(createWalletDto.user_id);
   }
 
   @Post('/encrypt_wallet')
