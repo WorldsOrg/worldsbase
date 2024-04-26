@@ -1,0 +1,10 @@
+DO $$
+DECLARE
+    table_record RECORD;
+BEGIN
+    FOR table_record IN SELECT tablename FROM pg_tables WHERE schemaname = 'public'
+    LOOP
+        EXECUTE format('CREATE TRIGGER trigger_%I AFTER INSERT OR UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION notify_event();', table_record.tablename, table_record.tablename);
+    END LOOP;
+END;
+$$;
