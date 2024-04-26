@@ -23,6 +23,7 @@
     "@aws-sdk/client-kms": "^3.536.0",
     "@ethereumjs/util": "^9.0.3",
     "@fastify/static": "^7.0.1",
+    "@litehex/node-vault": "^0.2.2",
     "@moralisweb3/common-evm-utils": "^2.25.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.0",

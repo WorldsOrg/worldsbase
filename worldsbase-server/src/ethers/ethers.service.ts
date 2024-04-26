@@ -2,9 +2,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ethers } from 'ethersV6';
 import { AwsKmsService } from 'src/awskms/awskms.service';
 import { marketplaceAbi } from './abi/marketplaceAbi';
+import { VaultService } from 'src/vault/vault.service';
 
 export class StandardTxData {
-  type: number;
   chainId: number;
   nonce: number;
   maxPriorityFeePerGas: string;
@@ -15,11 +15,19 @@ export class StandardTxData {
   data: string;
 }
 
+export type SignRequest = {
+  signerPubKey: string;
+  transaction: any;
+};
+
 @Injectable()
 export class EthersService {
   private providers: { [chainId: number]: ethers.JsonRpcProvider } = {};
 
-  constructor(private awsKmsService: AwsKmsService) {
+  constructor(
+    private awsKmsService: AwsKmsService,
+    private vaultService: VaultService,
+  ) {
     this.providers[11155111] = new ethers.JsonRpcProvider(
       'https://rpc.sepolia.org/',
     );
@@ -54,7 +62,6 @@ export class EthersService {
     chainId: number,
   ): Promise<StandardTxData> {
     const standardTx: StandardTxData = {
-      type: 2,
       chainId: chainId,
       nonce: (await this.getNonce(senderAddress, chainId)) || 0,
       maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei').toString(),
@@ -65,6 +72,18 @@ export class EthersService {
       data: '0x',
     };
     return standardTx;
+  }
+
+  public async signTxVault(signerPubKey: string, transaction: any) {
+    try {
+      const privateKey = await this.vaultService.readVaultSecret(signerPubKey);
+      const wallet = new ethers.Wallet(privateKey);
+      const signedTx = await wallet.signTransaction(transaction);
+      return { signedTx: signedTx };
+    } catch (error) {
+      console.error('Error signing tx:', error);
+      return error;
+    }
   }
 
   public async signAndSendTxAwsKms(
