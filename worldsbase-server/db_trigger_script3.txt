@@ -1,0 +1,16 @@
+DECLARE
+  data_text TEXT;
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    data_text := row_to_json(OLD)::text;
+  ELSE
+    data_text := row_to_json(NEW)::text;
+  END IF;
+
+  -- Include the operation type and table name in the JSON payload
+  data_text := json_build_object('data', data_text, 'operation', TG_OP, 'table_name', TG_TABLE_NAME)::text;
+
+  -- Use pg_notify to send the notification
+  PERFORM pg_notify('my_event_channel', data_text);
+  RETURN NEW;
+END;
