@@ -22,8 +22,6 @@ export default function Flow({ params }: { params: { id: string } }) {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
-  const onInit = (reactFlowInstance: any) => console.log("flow loaded:", reactFlowInstance.zoomTo(-10));
-
   useEffect(() => {
     getWorkflows();
   }, [navigation, flowId]);
@@ -31,12 +29,13 @@ export default function Flow({ params }: { params: { id: string } }) {
   const getWorkflows = async () => {
     const result = await axiosInstance.get(`/table/gettablevalue/workflows/id/${flowId}`);
     if (result.data[0]) {
-      console.log(result.data[0].nodes);
       setNodes(result.data[0].nodes);
       setEdges(result.data[0].edges);
     } else {
-      console.log("else");
-      if (navigation && navigation.length > 0 && nodes.length === 0) addTriggerNode();
+      if (navigation && navigation.length > 0 && nodes.length === 0) {
+        addTriggerNode();
+        handleAdd("Note");
+      }
     }
   };
 
@@ -44,11 +43,11 @@ export default function Flow({ params }: { params: { id: string } }) {
     setNodes((n) => [
       ...n,
       {
-        id: (n.length + 1).toString(),
+        id: "1",
         type: "triggerNode",
         position: { x: window.innerWidth - 100, y: window.innerHeight },
         data: {
-          table: "",
+          table: "wtf_users",
           method: "insert",
           tables: navigation,
         },
@@ -57,6 +56,11 @@ export default function Flow({ params }: { params: { id: string } }) {
   };
 
   const handleAdd = (type: string) => {
+    if (nodes.some((node) => node.type === "triggerNode" && type === "Trigger")) {
+      alert("You can only have one trigger node in a flow.");
+      return;
+    }
+
     switch (type) {
       case "Insert":
         setNodes((n) => [
@@ -95,7 +99,7 @@ export default function Flow({ params }: { params: { id: string } }) {
         setNodes((n) => [
           ...n,
           {
-            id: (n.length + 1).toString(),
+            id: (n.length + 100).toString(),
             type: "stickyNote",
             className: "annotation",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
@@ -109,7 +113,7 @@ export default function Flow({ params }: { params: { id: string } }) {
         setNodes((n) => [
           ...n,
           {
-            id: (n.length + 1).toString(),
+            id: "1",
             type: "triggerNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: {
@@ -122,7 +126,6 @@ export default function Flow({ params }: { params: { id: string } }) {
   };
 
   const handleSave = async () => {
-    console.log(nodes, edges, flowId);
     const payload = {
       data: {
         id: flowId,
@@ -132,8 +135,8 @@ export default function Flow({ params }: { params: { id: string } }) {
       },
       tableName: "workflows",
     };
+
     const result = await axiosInstance.post(`/table/insertdata/`, payload);
-    console.log(result);
   };
 
   return (
@@ -152,7 +155,7 @@ export default function Flow({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} onInit={onInit} fitView nodeTypes={nodeTypes}>
+      <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} fitView nodeTypes={nodeTypes}>
         <Background variant={"dots" as BackgroundVariant} gap={12} size={1} />
       </ReactFlow>
     </div>

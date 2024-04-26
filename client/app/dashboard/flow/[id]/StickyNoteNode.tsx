@@ -28,11 +28,7 @@ function StickyNoteNode({ data, id }: { data: any; id: any }) {
   }, [data]);
 
   const handleClick = (e: any) => {
-    console.log(e.detail);
     switch (e.detail) {
-      case 1:
-        console.log("waiting for double click");
-        break;
       case 2:
         setOpen(true);
         break;

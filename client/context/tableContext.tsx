@@ -1,13 +1,5 @@
 "use client";
-import {
-  createContext,
-  useContext,
-  ReactNode,
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-} from "react";
+import { createContext, useContext, ReactNode, useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { textColumn, keyColumn } from "react-datasheet-grid";
 import _sortBy from "lodash/sortBy";
@@ -21,7 +13,7 @@ interface TableContextProps {
   columns: any[];
   loadingData: boolean;
   schemasLoading: boolean;
-  tableLoading:boolean;
+  tableLoading: boolean;
   primaryColumn?: any;
   resetData: any[];
   setData: (data: any[]) => void;
@@ -32,19 +24,11 @@ interface TableContextProps {
   navigation: Array<any>;
   schemas: Array<any>;
   deleteTableData: (tableName: string) => void;
-  createTableData: (
-    tableName: string,
-    columns: { name: string; type: string; constraints: any }[],
-    selectedSchema:string
-  ) => Promise<any>;
+  createTableData: (tableName: string, columns: { name: string; type: string; constraints: any }[], selectedSchema: string) => Promise<any>;
   deleteColumnData: (tableName: string, columnName: string) => void;
-  addColumnData: (
-    tableName: string,
-    columnName: string,
-    columnType: string
-  ) => void;
+  addColumnData: (tableName: string, columnName: string, columnType: string) => void;
   createSchema: (schemaName: string) => Promise<any>;
-  getTables: (schema?:string) => void;
+  getTables: (schema?: string) => void;
   getSchemas: () => void;
   renameTable: (oldTableName: string, newTableName: string) => Promise<any>;
   handleSelectTable: (tableName: string) => void;
@@ -56,23 +40,19 @@ export const TableContext = createContext<TableContextProps>({
   data: [],
   columns: [],
   loadingData: false,
-  tableLoading:false,
+  tableLoading: false,
   schemasLoading: false,
   primaryColumn: null,
   resetData: [],
   setData: (data: any[]) => {},
   setSelectTable: (table: string) => {},
   selectedTable: "",
-  handleSelectSchema: async(schema: string) => {},
+  handleSelectSchema: async (schema: string) => {},
   selectedSchema: "",
   navigation: [],
   schemas: [],
   deleteTableData: (tableName: string) => {},
-  createTableData: async (
-    tableName: string,
-    columns: { name: string; type: string; constraints: any }[],
-    selectedSchema:string
-  ) => {
+  createTableData: async (tableName: string, columns: { name: string; type: string; constraints: any }[], selectedSchema: string) => {
     return {
       showModal: false,
       title: "",
@@ -80,12 +60,8 @@ export const TableContext = createContext<TableContextProps>({
     };
   },
   deleteColumnData: (tableName: string, columnName: string) => {},
-  addColumnData: (
-    tableName: string,
-    columnName: string,
-    columnType: string
-  ) => {},
-  getTables: (schema?:string) => {},
+  addColumnData: (tableName: string, columnName: string, columnType: string) => {},
+  getTables: (schema?: string) => {},
   getSchemas: () => {},
   renameTable: async (oldTableName: string, newTableName: string) => {
     return {
@@ -135,17 +111,13 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       setPrimaryColumn(null);
       setColumns([]);
       setData([]);
-      const { data, status } = await axiosInstance.get(
-        `/table/gettable/${tableName}`
-      );
+      const { data, status } = await axiosInstance.get(`/table/gettable/${tableName}`);
       if (status !== 200) {
         console.error("Fething data error");
         toastAlert(false, "Fething data error");
         return;
       }
-      const columnData = await axiosInstance.get(
-        `/table/getcolumns/${tableName}`
-      );
+      const columnData = await axiosInstance.get(`/table/getcolumns/${tableName}`);
 
       if (columnData.status !== 200) {
         console.error("Fetching column names error");
@@ -153,9 +125,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
         return;
       }
       if (columnData.data && columnData.data.length > 0) {
-        const primary = columnData.data.filter(
-          (item: any) => item.is_primary_key === true
-        );
+        const primary = columnData.data.filter((item: any) => item.is_primary_key === true);
         if (primary.length > 0) {
           setPrimaryColumn(primary[0].column_name);
         }
@@ -172,7 +142,6 @@ export const TableProvider = ({ children }: TableProviderProps) => {
             title: item.column_name,
           };
         });
-
         setColumns(col);
         if (page === "tableEditor") {
           router.push(`${path}/?tableName=${tableName}`);
@@ -184,14 +153,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       }
       setLoadingData(false);
     },
-    [
-      setLoadingData,
-      setPrimaryColumn,
-      setColumns,
-      toastAlert,
-      setData,
-      setResetData,
-    ]
+    [setLoadingData, setPrimaryColumn, setColumns, toastAlert, setData, setResetData]
   );
 
   useEffect(() => {
@@ -202,21 +164,21 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     fetchData();
   }, []);
 
-  const getTables = useCallback(async (schema?:string) => {
+  const getTables = useCallback(async (schema?: string) => {
     setTableLoading(true);
     try {
-    const { data, status } = await axiosInstance.get(`/table/gettables/${schema || "public"}`);
-    if (status === 200 && data) {
-      const sortedData = _sortBy(data, ["table_name"]);
+      const { data, status } = await axiosInstance.get(`/table/gettables/${schema || "public"}`);
+      if (status === 200 && data) {
+        const sortedData = _sortBy(data, ["table_name"]);
 
-      const params = searchParams.get("tableName");
-      const tableName = params ?? sortedData[0]?.table_name;
+        const params = searchParams.get("tableName");
+        const tableName = params ?? sortedData[0]?.table_name;
 
-      setSelectTable(tableName);
-      setNavigation(sortedData as Array<Navigation>);
-    }
-  } finally {
-    setTableLoading(false);
+        setSelectTable(tableName);
+        setNavigation(sortedData as Array<Navigation>);
+      }
+    } finally {
+      setTableLoading(false);
     }
   }, []);
 
@@ -234,17 +196,15 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     }
   }, []);
 
-  const handleSelectSchema=async(schema:string)=>{
-      setSelectedSchema(schema);
-      await getTables(schema);
-  }
+  const handleSelectSchema = async (schema: string) => {
+    setSelectedSchema(schema);
+    await getTables(schema);
+  };
 
   const deleteTableData = useCallback(async (tableName: string) => {
     setLoading(true);
     try {
-      const { status } = await axiosInstance.delete(
-        `/table/deleteTable/${tableName}`
-      );
+      const { status } = await axiosInstance.delete(`/table/deleteTable/${tableName}`);
       if (status !== 200) {
         console.error("Deleting table error");
         toastAlert(false, "Deleting table error");
@@ -258,40 +218,31 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     }
   }, []);
 
-  const deleteColumnData = useCallback(
-    async (tableName: string, columnName: string) => {
-      setLoading(true);
-      const { status } = await axiosInstance.delete(`/table/deletecolumn`, {
-        data: { tableName, columnName },
-      });
+  const deleteColumnData = useCallback(async (tableName: string, columnName: string) => {
+    setLoading(true);
+    const { status } = await axiosInstance.delete(`/table/deletecolumn`, {
+      data: { tableName, columnName },
+    });
 
-      setLoading(false);
-      if (status !== 200) {
-        console.error("Deleting column error");
-        toastAlert(false, "Deleting column error");
-        return;
-      }
-      toastAlert(true, "Column deleted");
-      await fetchData(tableName);
-    },
-    []
-  );
+    setLoading(false);
+    if (status !== 200) {
+      console.error("Deleting column error");
+      toastAlert(false, "Deleting column error");
+      return;
+    }
+    toastAlert(true, "Column deleted");
+    await fetchData(tableName);
+  }, []);
 
   const checkIsTableNameValid = useCallback(async (tableName: string) => {
     const { data } = await axiosInstance.get("/table/defaulttables");
 
-    const isTableNameValid = data.find(
-      (item: string) => item === tableName.toLowerCase().trim()
-    );
+    const isTableNameValid = data.find((item: string) => item === tableName.toLowerCase().trim());
     return Boolean(isTableNameValid);
   }, []);
 
   const createTableData = useCallback(
-    async (
-      tableName: string,
-      columns: { name: string; type: string; constraints: any }[],
-      selectedSchema:string
-    ) => {
+    async (tableName: string, columns: { name: string; type: string; constraints: any }[], selectedSchema: string) => {
       const isTableNameExists = await checkIsTableNameValid(tableName);
       if (isTableNameExists) {
         return {
@@ -304,7 +255,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       const { status } = await axiosInstance.post(`/table/createtable`, {
         tableName,
         columns,
-        schemaName:selectedSchema
+        schemaName: selectedSchema,
       });
 
       if (status !== 201) {
@@ -328,60 +279,54 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     [selectedSchema]
   );
 
-  const addColumnData = useCallback(
-    async (tableName: string, columnName: string, columnType: string) => {
-      const { status } = await axiosInstance.post(`/table/addcolumn`, {
-        tableName,
-        columnName,
-        columnType,
-      });
+  const addColumnData = useCallback(async (tableName: string, columnName: string, columnType: string) => {
+    const { status } = await axiosInstance.post(`/table/addcolumn`, {
+      tableName,
+      columnName,
+      columnType,
+    });
 
-      if (status !== 200) {
-        toastAlert(false, "Error adding column");
-      } else {
-        toastAlert(true, "Column added successfully");
-        await fetchData(tableName);
-      }
-    },
-    []
-  );
+    if (status !== 200) {
+      toastAlert(false, "Error adding column");
+    } else {
+      toastAlert(true, "Column added successfully");
+      await fetchData(tableName);
+    }
+  }, []);
 
-  const renameTable = useCallback(
-    async (oldTableName: string, newTableName: string) => {
-      const isTableNameExists = await checkIsTableNameValid(newTableName);
-      if (isTableNameExists) {
-        return {
-          showModal: true,
-          title: "Error",
-          message: `"${newTableName}" table name can not be used.`,
-        };
-      }
+  const renameTable = useCallback(async (oldTableName: string, newTableName: string) => {
+    const isTableNameExists = await checkIsTableNameValid(newTableName);
+    if (isTableNameExists) {
+      return {
+        showModal: true,
+        title: "Error",
+        message: `"${newTableName}" table name can not be used.`,
+      };
+    }
 
-      const { status } = await axiosInstance.put(`/table/updatetablename`, {
-        oldTableName,
-        newTableName,
-      });
+    const { status } = await axiosInstance.put(`/table/updatetablename`, {
+      oldTableName,
+      newTableName,
+    });
 
-      if (status !== 200) {
-        toastAlert(false, "Error updating table name");
-        return {
-          showModal: false,
-          title: "",
-          message: "",
-        };
-      } else {
-        toastAlert(true, "Table name updated successfully");
-        setSelectTable(newTableName);
-        await fetchData(newTableName);
-        return {
-          showModal: false,
-          title: "",
-          message: "",
-        };
-      }
-    },
-    []
-  );
+    if (status !== 200) {
+      toastAlert(false, "Error updating table name");
+      return {
+        showModal: false,
+        title: "",
+        message: "",
+      };
+    } else {
+      toastAlert(true, "Table name updated successfully");
+      setSelectTable(newTableName);
+      await fetchData(newTableName);
+      return {
+        showModal: false,
+        title: "",
+        message: "",
+      };
+    }
+  }, []);
 
   const handleSelectTable = useCallback((tableName: string) => {
     setSelectTable(tableName);
@@ -400,7 +345,6 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       await getSchemas();
     }
   }, []);
-
 
   const value = useMemo(
     () => ({
@@ -457,9 +401,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     ]
   );
 
-  return (
-    <TableContext.Provider value={value}>{children}</TableContext.Provider>
-  );
+  return <TableContext.Provider value={value}>{children}</TableContext.Provider>;
 };
 
 export const useTable = () => {
