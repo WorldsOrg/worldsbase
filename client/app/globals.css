@@ -31,6 +31,10 @@
   font-style: normal;
 }
 
+*{
+  font-family: "circular", sans-serif !important;
+}
+
 :root {
   --background: #f8f9fa;
   --primary: #11181c;
