@@ -3,23 +3,46 @@
 import { useEffect } from "react";
 import { useTable } from "@/context/tableContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from "uuid";
 
 function WorkflowsPage() {
   const { fetchData, loadingData, data } = useTable();
-  useEffect(() => {
-    fetchData("workflow");
-    console.log("WorkflowsPage");
-  }, []);
 
+  const router = useRouter();
   useEffect(() => {
-    console.log("Data", data);
-  }, [data]);
+    fetchData("workflows");
+  }, []);
 
   const loadingSkaleton = [1, 2, 3, 4];
 
+  const handleDelete = (id: string) => {
+    console.log("Delete", id);
+  };
+
+  const handlePlay = (id: string) => {
+    console.log("Play", id);
+  };
+
+  const handleStop = (id: string) => {
+    console.log("Stop", id);
+  };
+
+  const handleAdd = () => {
+    const randomUUID = uuidv4();
+    router.push(`/dashboard/flow/${randomUUID}`);
+  };
+
   return (
     <>
-      <div>Workflow</div>
+      <div className="flex justify-between">
+        {" "}
+        <h1 className="text-xl">Workflows</h1>{" "}
+        <button className="bg-primary p-2 rounded-md text-white" onClick={handleAdd}>
+          Create
+        </button>
+      </div>
+
       {loadingData
         ? loadingSkaleton.map((item: any) => {
             return (
@@ -30,10 +53,10 @@ function WorkflowsPage() {
                     <h1 className="w-20 rounded-md mt-1 bg-black">{item}</h1>
                   </div>
                   <div>
-                    <button className="bg-primary p-2 rounded-md m-1 text-white w-16 h-10"></button>{" "}
-                    <button className="bg-primary p-2 rounded-md m-1 text-white w-16 h-10"></button>{" "}
-                    <button className="bg-primary p-2 rounded-md m-1 text-white w-16 h-10"></button>
-                    <button className="bg-primary p-2 rounded-md m-1 text-white w-16 h-10"></button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-primary">delete</button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-primary">play</button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-primary">stop</button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-primary">edit</button>
                   </div>
                 </div>
               </div>
@@ -48,9 +71,15 @@ function WorkflowsPage() {
                     <h1 className="w-20  mt-1 "> {item.deployed ? "Running" : "Idle"}</h1>
                   </div>
                   <div>
-                    <button className="bg-primary p-2 rounded-md m-1 text-white">delete</button>
-                    <button className="bg-primary p-2 rounded-md m-1 text-white">play</button>
-                    <button className="bg-primary p-2 rounded-md m-1 text-white">stop</button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-white" onClick={() => handleDelete(item.id)}>
+                      delete
+                    </button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-white" onClick={() => handlePlay(item.id)}>
+                      play
+                    </button>
+                    <button className="bg-primary p-2 rounded-md m-1 text-white" onClick={() => handleStop(item.id)}>
+                      stop
+                    </button>
                     <Link href={`/dashboard/flow/${item.id}`}>
                       <button className="bg-primary p-2 rounded-md m-1 text-white">edit</button>
                     </Link>

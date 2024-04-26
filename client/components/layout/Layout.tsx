@@ -1,27 +1,14 @@
 "use client";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import {
-  Bars3Icon,
-  HomeIcon,
-  XMarkIcon,
-  TableCellsIcon,
-  BookOpenIcon,
-} from "@heroicons/react/24/outline";
-import {
-  MdExitToApp,
-  MdGamepad,
-  MdGames,
-  MdQueryStats,
-  MdSettings,
-  MdSupervisedUserCircle,
-  MdVerifiedUser,
-} from "react-icons/md";
+import { Bars3Icon, HomeIcon, XMarkIcon, TableCellsIcon, BookOpenIcon } from "@heroicons/react/24/outline";
+import { MdExitToApp, MdGamepad, MdGames, MdQueryStats, MdSettings, MdSupervisedUserCircle, MdVerifiedUser } from "react-icons/md";
 import { GoWorkflow } from "react-icons/go";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/authContext";
 import ToggleButton from "../ui/ToggleButton";
 import Tooltip from "../ui/tooltip";
+import { TbSettingsAutomation } from "react-icons/tb";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -30,7 +17,7 @@ function classNames(...classes: string[]) {
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
-  const searchParams=useSearchParams();
+  const searchParams = useSearchParams();
   const { logout } = useAuth();
   const pathname = usePathname();
 
@@ -46,6 +33,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       name: "Composer",
       href: "/dashboard/composer",
       icon: GoWorkflow,
+      current: false,
+    },
+    {
+      name: "Composer V2 Alpha",
+      href: "/dashboard/flow",
+      icon: TbSettingsAutomation,
       current: false,
     },
     {
@@ -90,23 +83,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     );
   }, [pathname]); // Depend on pathname
 
-  useEffect(()=>{
-    const token=localStorage.getItem("token");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-    if(!token){
-      router.push("/auth")
+    if (!token) {
+      router.push("/auth");
     }
-    
-  },[searchParams])
+  }, [searchParams]);
 
   return (
     <div className="tableFont">
       <Transition.Root show={sidebarOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50 lg:hidden"
-          onClose={setSidebarOpen}
-        >
+        <Dialog as="div" className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
           <Transition.Child
             as={Fragment}
             enter="transition-opacity ease-linear duration-300"
@@ -140,30 +128,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   leaveTo="opacity-0"
                 >
                   <div className="absolute top-0 z-40 flex justify-center w-16 pt-5 left-full">
-                    <button
-                      type="button"
-                      className="-m-2.5 p-2.5"
-                      onClick={() => setSidebarOpen(false)}
-                    >
+                    <button type="button" className="-m-2.5 p-2.5" onClick={() => setSidebarOpen(false)}>
                       <span className="sr-only">Close sidebar</span>
-                      <XMarkIcon
-                        className="w-6 h-6 text-primary"
-                        aria-hidden="true"
-                      />
+                      <XMarkIcon className="w-6 h-6 text-primary" aria-hidden="true" />
                     </button>
                   </div>
                 </Transition.Child>
 
                 <div className="flex flex-col px-6 pb-2 overflow-y-auto bg-sidebar grow gap-y-5 ring-1 ring-white/10">
                   <div className="flex items-center h-16 shrink-0">
-                    <img
-                      className="w-auto h-8"
-                      src="/worlds.png"
-                      alt="p2 logo"
-                    />
-                    <div className="flex-1 pl-2 text-sm font-semibold leading-6 text-white">
-                      Worlds
-                    </div>
+                    <img className="w-auto h-8" src="/worlds.png" alt="p2 logo" />
+                    <div className="flex-1 pl-2 text-sm font-semibold leading-6 text-white">Worlds</div>
                   </div>
                   <nav className="flex flex-col flex-1">
                     <ul role="list" className="flex-1 -mx-2 space-y-1">
@@ -173,16 +148,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             <a
                               href={item.href}
                               className={classNames(
-                                item.current
-                                  ? "bg-hoverBg text-primary"
-                                  : "text-gray-400 hover:text-primary hover:bg-hoverBg",
+                                item.current ? "bg-hoverBg text-primary" : "text-gray-400 hover:text-primary hover:bg-hoverBg",
                                 "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold "
                               )}
                             >
-                              <item.icon
-                                className="w-6 h-6 shrink-0"
-                                aria-hidden="true"
-                              />
+                              <item.icon className="w-6 h-6 shrink-0" aria-hidden="true" />
                               {item.name}
                             </a>
                           </li>
@@ -221,16 +191,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           router.push(item.href);
                       }}
                       className={classNames(
-                        item.current
-                          ? "bg-hoverBg text-primary"
-                          : "text-gray-400 hover:text-primary hover:bg-hoverBg",
+                        item.current ? "bg-hoverBg text-primary" : "text-gray-400 hover:text-primary hover:bg-hoverBg",
                         "group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold"
                       )}
                     >
-                      <item.icon
-                        className="w-6 h-6 shrink-0"
-                        aria-hidden="true"
-                      />
+                      <item.icon className="w-6 h-6 shrink-0" aria-hidden="true" />
                       <span className="sr-only">{item.name}</span>
                     </button>
                   </li>
@@ -243,10 +208,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Tooltip>
               <Tooltip label="Logout" placement="right">
                 <li>
-                  <button
-                    onClick={logout}
-                    className="flex p-3 text-sm font-semibold leading-6 text-gray-400 rounded-md hover:text-primary hover:bg-hoverBg group gap-x-3"
-                  >
+                  <button onClick={logout} className="flex p-3 text-sm font-semibold leading-6 text-gray-400 rounded-md hover:text-primary hover:bg-hoverBg group gap-x-3">
                     <MdExitToApp className="w-6 h-6" />
                   </button>
                 </li>
@@ -257,17 +219,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="sticky top-0 z-40 flex items-center px-4 py-4 border-b border-gray-500 shadow-sm bg-sidebar gap-x-6 sm:px-6 lg:hidden">
-        <button
-          type="button"
-          className="-m-2.5 p-2.5 text-gray-400 lg:hidden"
-          onClick={() => setSidebarOpen(true)}
-        >
+        <button type="button" className="-m-2.5 p-2.5 text-gray-400 lg:hidden" onClick={() => setSidebarOpen(true)}>
           <span className="sr-only">Open sidebar</span>
           <Bars3Icon className="w-6 h-6" aria-hidden="true" />
         </button>
-        <div className="flex-1 text-sm font-semibold leading-6 text-white">
-          Dashboard
-        </div>
+        <div className="flex-1 text-sm font-semibold leading-6 text-white">Dashboard</div>
       </div>
 
       <main className="lg:pl-20">

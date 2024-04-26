@@ -38,6 +38,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { create } from 'domain';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Table')
@@ -390,9 +391,7 @@ export class TableController {
       .map((_, index) => `$${index + 1}`)
       .join(', ');
     const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) VALUES (${valuePlaceholders});`;
-    console.log(query);
     const result = await this.tableService.executeQuery(query, values);
-    console.log(result);
     if (result.status === 200) {
       return result.data;
     } else {
@@ -542,12 +541,26 @@ export class TableController {
       BEGIN
         IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${triggerName}') THEN
           EXECUTE format('CREATE TRIGGER %I
-                          AFTER INSERT OR UPDATE OR DELETE ON %I
-                          FOR EACH ROW EXECUTE FUNCTION notify_event()', '${triggerName}', '${tableName}');
+                          AFTER INSERT OR UPDATE ON %I
+                          FOR EACH ROW 
+                          WHEN (NEW.provisioned = ''true'')
+                          EXECUTE FUNCTION notify_event()', '${triggerName}', '${tableName}');
         END IF;
       END
       $$;
       `;
+
+    //       DO $$
+    // BEGIN
+    //   IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${triggerName}') THEN
+    //     EXECUTE format('CREATE TRIGGER %I
+    //                     AFTER INSERT OR UPDATE ON %I
+    //                     FOR EACH ROW
+    //                     WHEN (CAST(NEW.provisioned AS INTEGER) > 10)
+    //                     EXECUTE FUNCTION notify_event()', '${triggerName}', '${tableName}');
+    //   END IF;
+    // END
+    // $$;
 
     const result = await this.tableService.executeQuery(createTriggerQuery);
     if (result.status === 200) {

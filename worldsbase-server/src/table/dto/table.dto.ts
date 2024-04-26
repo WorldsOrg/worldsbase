@@ -285,3 +285,18 @@ export class IncrementDataDTO {
   @IsNumber()
   value: number;
 }
+
+export class TriggerDTO {
+  @ApiProperty({
+    example: 'users',
+    description: 'Table Name',
+  })
+  @IsString()
+  tableName: string;
+  @ApiProperty({
+    example: 'notify_event',
+    description: 'Trigger Name',
+  })
+  @IsString()
+  triggerName: string;
+}

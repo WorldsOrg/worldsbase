@@ -28,6 +28,7 @@ export class DBService {
 
     this.subscriber.notifications.on('my_event_channel', (payload) => {
       console.log("Received notification in 'my_event_channel':", payload);
+      this.executeFlow(payload);
     });
 
     this.subscriber.events.on('error', (error) => {
@@ -50,6 +51,23 @@ export class DBService {
         status: 500,
         error: 'Error executing query',
       };
+    }
+  }
+
+  async executeFlow(payload: {
+    data: any;
+    operation: string;
+    table_name: string;
+  }) {
+    console.log('Received payload:', payload);
+    const { data, operation, table_name } = payload;
+    const query = `SELECT * FROM "workflows" WHERE "table_name" = $1 AND "operation" = $2`;
+    const result = await this.executeQuery(query, [table_name, operation]);
+    if (result && result.data && result.data.length > 0) {
+      const node = result.data[0].nodes[1];
+      console.log(node.data.label, node.data.fields, node.data.tableName);
+      const parsedData = JSON.parse(data);
+      console.log(parsedData);
     }
   }
 
