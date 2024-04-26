@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ReactFlow, { Background, useNodesState, useEdgesState, addEdge, BackgroundVariant } from "reactflow";
 import TextUpdaterNode from "./TextUpdaterNode";
 import "reactflow/dist/style.css";
@@ -20,6 +20,7 @@ export default function Flow({ params }: { params: { id: string } }) {
   const { navigation } = useTable();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [flowName, setFlowName] = useState("Enter Flow Name");
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function Flow({ params }: { params: { id: string } }) {
     if (result.data[0]) {
       setNodes(result.data[0].nodes);
       setEdges(result.data[0].edges);
+      setFlowName(result.data[0].name);
     } else {
       if (navigation && navigation.length > 0 && nodes.length === 0) {
         addTriggerNode();
@@ -129,29 +131,39 @@ export default function Flow({ params }: { params: { id: string } }) {
     const payload = {
       data: {
         id: flowId,
-        name: `flow_${Math.floor(Math.random() * 1000)}`,
+        name: flowName ? flowName : `flow_${Math.floor(Math.random() * 1000)}`,
         nodes: nodes,
         edges: edges,
       },
       tableName: "workflows",
     };
 
-    const result = await axiosInstance.post(`/table/insertdata/`, payload);
+    console.log(nodes);
+
+    const trigger = nodes.filter((node) => node.type === "triggerNode");
+
+    console.log(trigger[0].data);
+
+    const tableName = trigger[0].data.table;
+    const method = trigger[0].data.method;
+    const filter = trigger[0].data.filter ? trigger[0].data.filter : {};
+
+    console.log(tableName, method, filter);
+    // add trigger
+    //   const trigger = await axiosInstance.post(`/table/trigger/`, {
+
+    // const result = await axiosInstance.post(`/table/insertdata/`, payload);
   };
 
   return (
     <div style={{ width: "100%", height: "100vh" }}>
       <div className="bg-black h-12 text-white flex flex-row justify-between px-2">
-        <input className="bg-black" defaultValue="flow name" readOnly />
+        <input className="bg-black" value={flowName} onChange={(e) => setFlowName(e.target.value)} />
         <div>
           <Dropdown handleAdd={handleAdd} />
           <button className="bg-primary p-2 rounded-md m-1 text-white" onClick={handleSave}>
-            save
+            Save Flow
           </button>
-          <button className="bg-primary p-2 rounded-md m-1 text-white">delete</button>
-          <button className="bg-primary p-2 rounded-md m-1 text-white">play</button>
-          <button className="bg-primary p-2 rounded-md m-1 text-white">stop</button>
-          <button className="bg-primary p-2 rounded-md m-1 text-white">errors</button>
         </div>
       </div>
 

@@ -64,6 +64,7 @@ function TextUpdaterNode({ data, isConnectable, id }: { data: any; isConnectable
     setTableName(evt.target.value);
     setNodes(
       Array.from(nodeInternals.values()).map((node) => {
+        if (node.id !== id) return node;
         node.data = {
           ...node.data,
           tableName: evt.target.value,
