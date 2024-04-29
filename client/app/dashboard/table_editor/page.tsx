@@ -198,7 +198,7 @@ export default function Apps() {
       )}
       {columns && !loadingData && (
         <>
-          <div className="flex flex-col justify-between gap-2 p-2 mb-2 border md:flex-row border-borderColor text-primary ">
+          <div className="flex flex-col justify-between gap-2 p-2 mb-2 border rounded-md md:flex-row border-borderColor text-primary">
             <h1 className="mt-2 text-lg font-semibold whitespace-nowrap ">Table: {selectedTable}</h1>
 
             <div className="flex gap-2">
@@ -208,6 +208,7 @@ export default function Apps() {
                 }}
                 icon={<AiOutlineReload />}
                 text="Refresh"
+                className="rounded-md"
               />
               <Button
                 onClick={() => {
@@ -215,39 +216,42 @@ export default function Apps() {
                 }}
                 icon={<AiOutlineEdit />}
                 text="Edit table"
+                className="rounded-md"
               />
               <Button
                 onClick={handleDeleteTable}
                 icon={loading ? <CgSpinner className="text-xl animate-spin" /> : <AiOutlineDelete className="mt-0.5" />}
                 text={loading ? "Deleting..." : "Delete table"}
+                className="rounded-md"
               />
             </div>
           </div>
-          <div className="flex gap-2 p-2 mb-2 border border-borderColor ">
+          <div className="flex gap-2 p-2 mb-2 border rounded-md border-borderColor">
             {primaryColumn !== null ? (
               <div className="flex justify-between w-full">
                 <div className="flex gap-2">
-                  <Button onClick={handleReset} icon={<RxReset />} text={"Reset"} />
-                  <Button onClick={handleSave} icon={<AiOutlineSave />} text={"Save"} />
+                  <Button onClick={handleReset} icon={<RxReset />} text={"Reset"} className="rounded-md"/>
+                  <Button onClick={handleSave} icon={<AiOutlineSave />} text={"Save"} className="rounded-md"/>
                 </div>
                 <div className="flex gap-2">
                   <input
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="block w-full text-sm border border-borderColor text-primary bg-background hover:bg-hoverBg"
+                    className="block w-full text-sm border rounded-md border-borderColor text-primary bg-background hover:bg-hoverBg"
                     type="text"
                     placeholder="Search"
                   />
                   <Button
                     onClick={() => (sortOrder === "asc" ? setSortOrder("desc") : setSortOrder("asc"))}
                     icon={sortOrder === "asc" ? <AiOutlineSortDescending /> : <AiOutlineSortAscending />}
-                    text={"Sort"}
+                    text="Sort"
+                    className="rounded-md"
                   />
 
                   <select
                     id="key_value"
                     name="key_value"
-                    className="block w-full text-sm border border-borderColor text-primary bg-background hover:bg-hoverBg"
+                    className="block w-full text-sm border rounded-md border-borderColor text-primary bg-background hover:bg-hoverBg"
                     defaultValue="id"
                     onChange={(e) => setOrderKey(e.target.value)}
                   >
@@ -258,7 +262,7 @@ export default function Apps() {
                 </div>
               </div>
             ) : (
-              <Button onClick={handleSave} icon={<TbEditOff />} text={" Read only table"} />
+              <Button onClick={handleSave} icon={<TbEditOff />} text="Read only table" className="rounded-md"/>
             )}
           </div>
           <div id="dataSheetGridContainer">
