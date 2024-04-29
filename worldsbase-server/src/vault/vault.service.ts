@@ -41,11 +41,7 @@ export class VaultService {
     this.roleId = process.env.VAULT_ROLE_ID || '';
     this.secretId = process.env.VAULT_SECRET_ID || '';
     this.vaultAddress = process.env.VAULT_ADDRESS || '';
-    this.vaultClient = new Client({
-      apiVersion: 'v1',
-      endpoint: this.vaultAddress,
-      token: this.vaultToken,
-    });
+    this.loginWithAppRole();
   }
 
   async loginWithAppRole(): Promise<void> {
