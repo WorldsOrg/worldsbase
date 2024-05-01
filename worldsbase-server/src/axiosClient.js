@@ -9,7 +9,7 @@ const X_API_KEY = process.env.X_API_KEY;
 // Example function to perform a GET request
 const createTable = async (data) => {
   try {
-    await axios.post(`${serverURL}/table/createTable`, data, {
+    await axios.post(`${serverURL}/table/createtable`, data, {
       headers: {
         'x-api-key': X_API_KEY,
       },
@@ -21,7 +21,7 @@ const createTable = async (data) => {
 
 const insertTable = async (data) => {
   try {
-    await axios.post(`${serverURL}/table/insertData`, data, {
+    await axios.post(`${serverURL}/table/insertdata`, data, {
       headers: {
         'x-api-key': X_API_KEY,
       },
