@@ -2,6 +2,14 @@
 import { Injectable } from '@nestjs/common';
 import { Sepolia } from '@thirdweb-dev/chains';
 import { ThirdwebSDK } from '@thirdweb-dev/sdk';
+import { VaultService } from 'src/vault/vault.service';
+
+export type MintERC20Dto = {
+  minter: string;
+  contractAddress: string;
+  to: string;
+  amount: string;
+};
 
 @Injectable()
 export class ThirdwebService {
@@ -31,7 +39,7 @@ export class ThirdwebService {
   //   name: 'worlds-hwbmpbzcnh', // Name of the network
   // };
 
-  constructor() {
+  constructor(private vaultService: VaultService) {
     this.sdk = ThirdwebSDK.fromPrivateKey(
       process.env.MAIN_WALLET_PRIVATE_KEY as string,
       Sepolia,
@@ -43,5 +51,28 @@ export class ThirdwebService {
 
   getSDK(): ThirdwebSDK {
     return this.sdk;
+  }
+
+  async getSdkFromVaultSecret(pubKey: string) {
+    const pk = await this.vaultService.readVaultSecret(pubKey);
+    return ThirdwebSDK.fromPrivateKey(pk, Sepolia, {
+      secretKey: process.env.THIRDWEB_SDK_SECRET_KEY as string,
+    });
+  }
+
+  async mintERC20Vault(
+    minter: string,
+    contractAddress: string,
+    to: string,
+    amount: string,
+  ) {
+    try {
+      const mintSDK = await this.getSdkFromVaultSecret(minter);
+      const contract = await mintSDK.getContract(contractAddress);
+      const tx = await contract.call('mintTo', [to, amount]);
+      return tx;
+    } catch (error) {
+      return error;
+    }
   }
 }
