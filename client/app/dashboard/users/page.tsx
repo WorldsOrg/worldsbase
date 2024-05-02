@@ -61,13 +61,13 @@ export default function Apps() {
     <>
       {columns && (
         <>
-          <div className="flex justify-between gap-2 p-2 mb-2 border text-primary ">
+          <div className="flex justify-between gap-2 p-2 mb-2 border rounded-md text-primary">
             <div className="mt-2 text-xl font-semibold ">Users</div>
             <div className="flex gap-2"></div>
           </div>
-          <div className="flex gap-2 p-2 mb-2 border ">
+          <div className="flex gap-2 p-2 mb-2 border rounded-md">
             {
-              <button className="flex gap-2 px-6 py-2 border bg-background border-grey-100 dark:text-primary hover:border-gray-300">
+              <button className="flex gap-2 px-6 py-2 border rounded-md bg-background border-grey-100 dark:text-primary hover:border-gray-300">
                 <span className="pt-0.5">
                   <TbEditOff />
                 </span>

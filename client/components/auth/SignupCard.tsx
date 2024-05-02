@@ -36,7 +36,7 @@ export default function SignupCard({ handleSignup, changeSignupCard, loading }: 
             <FormControl isRequired>
               <Input className="rounded-md" placeholder="Password" id="password" type="password" onChange={handleInputChange("password")} />
             </FormControl>
-            <button className="p-2 text-white border border-gray-400 rounded-md bg-secondary hover:bg-secondaryHover" onClick={() => handleSignup(credentials)}>
+            <button className="w-full p-2 text-white rounded-md bg-secondary hover:bg-secondaryHover" onClick={() => handleSignup(credentials)}>
               <span className={loading ? "animate-ping" : ""}>Sign Up</span>
             </button>
           </Stack>

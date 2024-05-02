@@ -2,7 +2,6 @@ import { Tooltip } from "@chakra-ui/react";
 
 interface TableNameButtonProps {
     tableName: string;
-    textLength: number;
     maxWidth: number;
     onClick: () => void;
     selectedTable: any;
@@ -10,7 +9,6 @@ interface TableNameButtonProps {
 
 const TableNameButton = ({
     tableName,
-    textLength,
     maxWidth,
     onClick,
     selectedTable,
@@ -23,7 +21,6 @@ const TableNameButton = ({
         <Tooltip
             label={tableName}
             className="bg-background text-primary"
-            isDisabled={tableName.length < textLength}
         >
             <button
                 onClick={onClick}

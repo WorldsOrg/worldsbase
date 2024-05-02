@@ -31,6 +31,10 @@
   font-style: normal;
 }
 
+*{
+  font-family: "circular", sans-serif !important;
+}
+
 :root {
   --background: #f8f9fa;
   --primary: #11181c;
@@ -98,6 +102,11 @@
 .dsg-container {
   background-color: var(--background) !important;
   font-size: 13px !important;
+  border-top-left-radius:6px !important;
+}
+
+.dsg-cell-header:first-child{
+  border-top-left-radius:6px !important;
 }
 
 .dsg-input {
@@ -108,13 +117,15 @@
 .dsg-add-row {
   background-color: var(--background) !important;
   color: var(--primary) !important;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
 }
 
 .dsg-add-row-input,
 .dsg-add-row-btn {
   font-size: 13px;
   height: 30px;
-  border-radius: 8px !important;
+  border-radius: 6px !important;
   background-color: var(--background) !important;
   border-color: var(--borderColor) !important;
 }

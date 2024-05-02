@@ -75,7 +75,7 @@ const SchemaButton = ({
     <>
       <PopoverUI isOpen={!schemasLoading && isOpen} onOpen={onOpen} onClose={onClose}>
         <PopoverTrigger>
-          <button className="flex items-center w-full gap-2 px-3 py-2 border rounded-md border-primary text-primary bg-background hover:bg-hoverBg">
+          <button className="flex items-center w-full h-10 gap-2 px-3 py-2 border rounded-md border-primary text-primary bg-background hover:bg-hoverBg">
             <div className="flex items-center gap-1 text-xs">
               {schemasLoading ? (
                 <div className="flex items-center gap-2">

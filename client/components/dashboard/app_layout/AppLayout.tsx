@@ -137,7 +137,6 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                               <li key={item.table_name}>
                                 <TableNameButton
                                   tableName={item.table_name}
-                                  textLength={32}
                                   maxWidth={270}
                                   onClick={() => handleSelectTable(item.table_name)}
                                   selectedTable={selectedTable}
@@ -214,7 +213,6 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                     <div key={item.table_name}>
                       <TableNameButton
                         tableName={item.table_name}
-                        textLength={27}
                         maxWidth={190}
                         onClick={() => handleSelectTable(item.table_name)}
                         selectedTable={selectedTable}
