@@ -25,6 +25,7 @@ import {
   SchemaDTO,
   TableApiResponse,
   TableNameDTO,
+  TriggerDTO,
   UpdateDataDTO,
   UpdateFilterDataDTO,
   UpdateTableNameDTO,
@@ -38,7 +39,6 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
-import { create } from 'domain';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Table')
@@ -406,6 +406,7 @@ export class TableController {
     @Body() deleteDataDTO: DeleteDataDTO,
   ): Promise<TableApiResponse<any>> {
     const query = `DELETE FROM "${deleteDataDTO.tableName}" WHERE ${deleteDataDTO.condition};`;
+    console.log(query);
     const result = await this.tableService.executeQuery(query);
     if (result.status === 200) {
       return result.data;
@@ -530,37 +531,29 @@ export class TableController {
   @Post('/addtrigger')
   @ApiOperation({ summary: 'Add a trigger to a table' })
   async addTrigger(
-    @Body('tableName') tableName: string,
+    @Body() triggerDTO: TriggerDTO,
   ): Promise<TableApiResponse<any>> {
-    if (!/^[A-Za-z0-9_]+$/.test(tableName)) {
+    if (!/^[A-Za-z0-9_]+$/.test(triggerDTO.tableName)) {
       throw new BadRequestException('Invalid table name');
     }
-    const triggerName = `notify_trigger_${tableName}`;
-    const createTriggerQuery = `
-      DO $$
-      BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${triggerName}') THEN
-          EXECUTE format('CREATE TRIGGER %I
-                          AFTER INSERT OR UPDATE ON %I
-                          FOR EACH ROW 
-                          WHEN (NEW.provisioned = ''true'')
-                          EXECUTE FUNCTION notify_event()', '${triggerName}', '${tableName}');
-        END IF;
-      END
-      $$;
-      `;
 
-    //       DO $$
-    // BEGIN
-    //   IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${triggerName}') THEN
-    //     EXECUTE format('CREATE TRIGGER %I
-    //                     AFTER INSERT OR UPDATE ON %I
-    //                     FOR EACH ROW
-    //                     WHEN (CAST(NEW.provisioned AS INTEGER) > 10)
-    //                     EXECUTE FUNCTION notify_event()', '${triggerName}', '${tableName}');
-    //   END IF;
-    // END
-    // $$;
+    if (!/^[A-Za-z0-9_]+$/.test(triggerDTO.triggerName)) {
+      throw new BadRequestException('Invalid trigger name');
+    }
+
+    if (
+      !['INSERT', 'UPDATE', 'DELETE'].includes(triggerDTO.method.toUpperCase())
+    ) {
+      throw new BadRequestException('Invalid method');
+    }
+
+    const createTriggerQuery = `
+    CREATE TRIGGER "${triggerDTO.triggerName}"
+        AFTER ${triggerDTO.method} ON "${triggerDTO.tableName}"
+        FOR EACH ROW
+        WHEN (${triggerDTO.condition})
+        EXECUTE FUNCTION notify_event();
+  `;
 
     const result = await this.tableService.executeQuery(createTriggerQuery);
     if (result.status === 200) {

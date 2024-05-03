@@ -29,6 +29,7 @@ export default function Flow({ params }: { params: { id: string } }) {
 
   const getWorkflows = async () => {
     const result = await axiosInstance.get(`/table/gettablevalue/workflows/id/${flowId}`);
+    console.log(result);
     if (result.data[0]) {
       setNodes(result.data[0].nodes);
       setEdges(result.data[0].edges);
@@ -128,31 +129,79 @@ export default function Flow({ params }: { params: { id: string } }) {
   };
 
   const handleSave = async () => {
+    const short_id = generateShortId();
     const payload = {
       data: {
         id: flowId,
-        name: flowName ? flowName : `flow_${Math.floor(Math.random() * 1000)}`,
+        short_id: short_id,
+        name: flowName ? flowName : `flow_${short_id}`,
         nodes: nodes,
         edges: edges,
       },
       tableName: "workflows",
     };
 
-    console.log(nodes);
-
     const trigger = nodes.filter((node) => node.type === "triggerNode");
-
-    console.log(trigger[0].data);
-
     const tableName = trigger[0].data.table;
     const method = trigger[0].data.method;
     const filter = trigger[0].data.filter ? trigger[0].data.filter : {};
+    const condition = createConditionString(filter);
 
-    console.log(tableName, method, filter);
+    const triggerPayload = {
+      tableName: tableName,
+      triggerName: short_id,
+      method: method,
+      condition: condition,
+    };
+
+    console.log(triggerPayload);
     // add trigger
-    //   const trigger = await axiosInstance.post(`/table/trigger/`, {
-
+    const triggerResult = await axiosInstance.post(`/table/addtrigger`, triggerPayload);
+    console.log(triggerResult);
     // const result = await axiosInstance.post(`/table/insertdata/`, payload);
+  };
+
+  const generateShortId = () => {
+    // Start with a random letter (a-z)
+    let id = String.fromCharCode(97 + Math.floor(Math.random() * 26));
+
+    // Add random alphanumeric characters (a-z, 0-9)
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    const length = 8; // total length of ID, adjust as necessary
+
+    for (let i = 1; i < length; i++) {
+      id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return id;
+  };
+
+  const createConditionString = (conditions: any) => {
+    const operators: { [key: string]: string } = {
+      Equals: "=",
+      Bigger: ">",
+      Smaller: "<",
+      NotEquals: "!=",
+    };
+
+    if (operators[conditions.filter] && conditions.column && conditions.value !== undefined) {
+      // Assume that the column needs to be prefixed with 'NEW.'
+      let column = `NEW.${conditions.column}`;
+
+      let value = conditions.value;
+      if (typeof value === "string") {
+        if (/^\d+$/.test(value)) {
+          column = `CAST(${column} AS INTEGER)`;
+          value = parseInt(value, 10); // Convert string to integer
+        } else {
+          value = `'${value.replace(/'/g, "''")}'`;
+        }
+      } else if (typeof value === "number" && Number.isInteger(value)) {
+        value = `CAST(${value} AS INTEGER)`;
+      }
+      return `${column} ${operators[conditions.filter]} ${value}`;
+    }
+    throw new Error(`Invalid conditions: ${conditions}`);
   };
 
   return (

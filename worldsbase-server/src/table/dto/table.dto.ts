@@ -299,4 +299,20 @@ export class TriggerDTO {
   })
   @IsString()
   triggerName: string;
+  @ApiProperty({
+    example: 'INSERT',
+    description: 'Trigger Time',
+  })
+  @IsString()
+  method: string;
+  @ApiProperty({
+    examples: [
+      "NEW.twitter_added = ''true''",
+      '(CAST(NEW.score AS INTEGER) > 10)',
+      'OLD.score < NEW.score',
+    ],
+    description: 'Trigger Condition',
+  })
+  @IsString()
+  condition: string;
 }
