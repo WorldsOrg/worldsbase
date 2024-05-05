@@ -45,7 +45,6 @@ apiPublicKey= # The public key for the Turnkey API
 apiPrivateKey= # The private key for the Turnkey API
 organizationId= # The organization ID for the Turnkey API
 MORALIS_API_KEY= # The API key for Moralis
-MOESIF_APPLICATION_ID= # The application ID for Moesif
 POSTGRES_HOST= # The host for the Postgres database
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
