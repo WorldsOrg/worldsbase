@@ -95,7 +95,8 @@ Follow these instructions to deploy a Vault on Railway for use with Worldsbase. 
 Here is an example template for deploying a Vault on Railway:
 https://railway.app/template/vOXRB-
 
-(If you are testing locally and can use the Vault's cli, you can find the corresponding commands in Hashicorp Vault's documentation)
+(If you are testing locally with a Vault deployment other than Railway and want to use the Vault's cli, you can find the corresponding commands in Hashicorp Vault's documentation)
+
 Once your Vault is deployed on Railway, you need to unseal the vault:
 ```bash
 export VAULT_ADDR=<your public networking endpoint from Railway>
