@@ -82,7 +82,7 @@ yarn run init:tables
 ## Step 5: Hashicorp Vault Setup
 
 Worldsbase comes with an option for Hashicorp Vault integration. If you do not want to use a Vault, set USING_VAULT=false.
-If you would like to use Worldsbase's Hashicorp Vault endpoints, you need to have the following env variables set:
+If you would like to use Worldsbase's Hashicorp Vault endpoints, you need to have the following **server** env variables set:
 
 ```env
 USING_VAULT=true
@@ -115,7 +115,7 @@ curl \
     ${VAULT_ADDR}/v1/sys/unseal
 ```
 
-This command will return a payload containing the root_token, which will be used in the next steps. Now we will mount a kv secrets engine at path `secret`:
+This command will return a payload containing the root_token, which will be used in the next steps. Next you will mount a kv secrets engine at path `secret`:
 ```bash
 export VAULT_TOKEN=<your root_token>
 
@@ -133,7 +133,7 @@ curl \
     --data '{"policy": "path \"secret/*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"] }"}' \
      ${VAULT_ADDR}/v1/sys/policies/acl/secrets-policy
 ```
-We also need to enable approle auth:
+Enable approle auth:
 ```bash
 curl \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
@@ -141,7 +141,7 @@ curl \
     --data '{"type": "approle"}' \
     ${VAULT_ADDR}/v1/sys/auth/approle
 ```
-Now we create an approle and fetch the associated role-id and secret-id that we then will put into the env of our Worldsbase instance:
+Fetch the associated role-id and secret-id that are needed for the env:
 ```bash
 # create approle auth called secrets-role
 curl \
@@ -162,7 +162,7 @@ curl \
     --request POST \
     ${VAULT_ADDR}/v1/auth/approle/role/secrets-role/secret-id
 ```
-This concludes the setup of a fresh Vault that will work with Worldsbase. Ideally, you will have your vault deployed in the same environment as Worldsbase so that they can communicate over private networking (the VAULT_ADDRESS used in the curl commands is the public address exposed by Railway. If Worldsbase and Vault are deployed in the same Railway project, you can use the private networking for VAULT_ADDRESS in the env and remove the public networking).
+This concludes the setup of a fresh Vault that will work with Worldsbase. Ideally, you will have your vault deployed in the same environment as Worldsbase so that they can communicate over private networking (the VAULT_ADDRESS used in the curl commands is the public address exposed by Railway. If Worldsbase and Vault are deployed in the same Railway project, you can use the private networking for VAULT_ADDRESS in the env and remove the public networking for increased security).
 
 ## Step 6: Start the Development Server
 
