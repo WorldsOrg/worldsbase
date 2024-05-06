@@ -65,11 +65,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       icon: MdSettings,
       current: false,
     },
-    {
-      name: "Analytics",
-      href: "/dashboard/analytics",
-      icon: MdQueryStats,
-    },
   ]);
 
   // Update the navigation state based on the current pathname
