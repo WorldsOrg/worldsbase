@@ -79,7 +79,91 @@ Run the following command to create the required database tables:
 yarn run init:tables
 ```
 
-## Step 5: Start the Development Server
+## Step 5: Hashicorp Vault Setup
+
+Worldsbase comes with an option for Hashicorp Vault integration. If you do not want to use a Vault, set USING_VAULT=false.
+If you would like to use Worldsbase's Hashicorp Vault endpoints, you need to have the following env variables set:
+
+```env
+USING_VAULT=true
+VAULT_ADDRESS=<your vault address>
+VAULT_ROLE_ID=<your approle authentication role id>
+VAULT_SECRET_ID=<your approle authentication secret id>
+```
+
+Follow these instructions to deploy a Vault on Railway for use with Worldsbase. The instructions that follow use a Railway deployment:
+Here is an example template for deploying a Vault on Railway:
+https://railway.app/template/vOXRB-
+
+(If you are testing locally and can use the Vault's cli, you can find the corresponding commands in Hashicorp Vault's documentation)
+Once your Vault is deployed on Railway, you need to unseal the vault:
+```bash
+export VAULT_ADDR=<your public networking endpoint from Railway>
+
+curl \
+    --request PUT \
+    --data '{"secret_shares": 1, "secret_threshold": 1}' \
+    ${VAULT_ADDR}/v1/sys/init
+```
+
+After running that command in the terminal you will have been returned a single unseal key which will be used in the next command:
+```bash
+curl \
+    --request POST \
+    --data '{"key":"your_unseal_key"}' \
+    ${VAULT_ADDR}/v1/sys/unseal
+```
+
+This command will return a payload containing the root_token, which will be used in the next steps. Now we will mount a kv secrets engine at path `secret`:
+```bash
+export VAULT_TOKEN=<your root_token>
+
+curl \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --request POST \
+    --data '{"type":"kv-v2"}' \
+    ${VAULT_ADDR}/v1/sys/mounts/secret
+```
+The next command creates a policy for an approle authentication role that can interact with the secrets engine:
+```bash
+curl \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --request PUT \
+    --data '{"policy": "path \"secret/*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\"] }"}' \
+     ${VAULT_ADDR}/v1/sys/policies/acl/secrets-policy
+```
+We also need to enable approle auth:
+```bash
+curl \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --request POST \
+    --data '{"type": "approle"}' \
+    ${VAULT_ADDR}/v1/sys/auth/approle
+```
+Now we create an approle and fetch the associated role-id and secret-id that we then will put into the env of our Worldsbase instance:
+```bash
+# create approle auth called secrets-role
+curl \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --request POST \
+    --data '{"policies": "secrets-policy", "token_type": "batch"}' \
+    ${VAULT_ADDR}/v1/auth/approle/role/secrets-role
+
+# copy the role-id returned
+curl \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --request GET \
+    ${VAULT_ADDR}/v1/auth/approle/role/secrets-role/role-id
+
+# copy the secret-id returned
+curl \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --request POST \
+    ${VAULT_ADDR}/v1/auth/approle/role/secrets-role/secret-id
+```
+This concludes the setup of a fresh Vault that will work with Worldsbase. Ideally, you will have your vault deployed in the same environment as Worldsbase so that they can communicate over private networking (the VAULT_ADDRESS used in the curl commands is the public address exposed by Railway. If Worldsbase and Vault are deployed in the same Railway project, you can use the private networking for VAULT_ADDRESS in the env and remove the public networking).
+
+## Step 6: Start the Development Server
 
 Finally, to start the development server along with the client and documentation, run:
 
