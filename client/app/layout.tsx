@@ -35,7 +35,7 @@ export default function RootLayout({
         lexend.variable
       )}
     >
-      <body className="flex flex-col h-full bg-background" id="portal">
+      <body className="flex flex-col h-full bg-background" id="portal" suppressHydrationWarning={true}>
         <Providers>{children}</Providers>
       </body>
     </html>
