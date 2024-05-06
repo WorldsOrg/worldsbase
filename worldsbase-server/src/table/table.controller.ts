@@ -547,13 +547,22 @@ export class TableController {
       throw new BadRequestException('Invalid method');
     }
 
-    const createTriggerQuery = `
+    let createTriggerQuery = `
     CREATE TRIGGER "${triggerDTO.triggerName}"
-        AFTER ${triggerDTO.method} ON "${triggerDTO.tableName}"
-        FOR EACH ROW
-        WHEN (${triggerDTO.condition})
-        EXECUTE FUNCTION notify_event();
+    AFTER ${triggerDTO.method} ON "${triggerDTO.tableName}"
+    FOR EACH ROW
+    EXECUTE FUNCTION notify_event();
+`;
+
+    if (triggerDTO.condition) {
+      createTriggerQuery = `
+      CREATE TRIGGER "${triggerDTO.triggerName}"
+          AFTER ${triggerDTO.method} ON "${triggerDTO.tableName}"
+          FOR EACH ROW
+          WHEN (${triggerDTO.condition})
+          EXECUTE FUNCTION notify_event();
   `;
+    }
 
     const result = await this.tableService.executeQuery(createTriggerQuery);
     if (result.status === 200) {

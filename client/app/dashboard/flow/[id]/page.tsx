@@ -130,6 +130,14 @@ export default function Flow({ params }: { params: { id: string } }) {
 
   const handleSave = async () => {
     const short_id = generateShortId();
+    const trigger = nodes.filter((node) => node.type === "triggerNode");
+    const tableName = trigger[0].data.table;
+    const method = trigger[0].data.method;
+    const filter = trigger[0].data.filter ? trigger[0].data.filter : null;
+    let condition = null;
+    if (filter !== null) {
+      condition = createConditionString(filter);
+    }
     const payload = {
       data: {
         id: flowId,
@@ -137,15 +145,11 @@ export default function Flow({ params }: { params: { id: string } }) {
         name: flowName ? flowName : `flow_${short_id}`,
         nodes: nodes,
         edges: edges,
+        table_name: flowName ? flowName : `flow_${short_id}`,
+        operation: method,
       },
       tableName: "workflows",
     };
-
-    const trigger = nodes.filter((node) => node.type === "triggerNode");
-    const tableName = trigger[0].data.table;
-    const method = trigger[0].data.method;
-    const filter = trigger[0].data.filter ? trigger[0].data.filter : {};
-    const condition = createConditionString(filter);
 
     const triggerPayload = {
       tableName: tableName,
@@ -154,11 +158,10 @@ export default function Flow({ params }: { params: { id: string } }) {
       condition: condition,
     };
 
-    console.log(triggerPayload);
-    // add trigger
     const triggerResult = await axiosInstance.post(`/table/addtrigger`, triggerPayload);
     console.log(triggerResult);
-    // const result = await axiosInstance.post(`/table/insertdata/`, payload);
+    const result = await axiosInstance.post(`/table/insertdata/`, payload);
+    console.log(result);
   };
 
   const generateShortId = () => {
