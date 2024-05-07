@@ -142,6 +142,25 @@ export class WalletController {
     return this.walletService.getTokens(wallet);
   }
 
+  @Get('/token_gate_erc20')
+  @ApiOperation({
+    summary:
+      'Returns true if certain amount of erc20 token are held in a wallet',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Token gate result',
+    type: Boolean,
+  })
+  tokenGateErc20(
+    @Query('wallet') wallet: string,
+    @Query('contract') contract: string,
+    @Query('chainId') chainId: string,
+    @Query('amount') amount: number,
+  ): Promise<boolean> {
+    return this.walletService.tokenGateErc20(wallet, contract, chainId, amount);
+  }
+
   @Get('/nft')
   @ApiOperation({ summary: 'Returns NFTs' })
   @ApiResponse({
