@@ -1,4 +1,10 @@
-import { IsString, IsArray, IsObject, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsObject,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 export class CreateTableDTO {
   @ApiProperty({
@@ -299,4 +305,22 @@ export class TriggerDTO {
   })
   @IsString()
   triggerName: string;
+  @ApiProperty({
+    example: 'INSERT',
+    description: 'Trigger Method',
+  })
+  @IsString()
+  method: string;
+  @ApiProperty({
+    examples: [
+      "NEW.twitter_added = ''true''",
+      '(CAST(NEW.score AS INTEGER) > 10)',
+      'OLD.score < NEW.score',
+      null,
+    ],
+    description: 'Trigger Condition',
+  })
+  @IsOptional()
+  @IsString({ each: true })
+  condition: string | null;
 }

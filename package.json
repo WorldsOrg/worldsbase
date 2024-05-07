@@ -10,7 +10,7 @@
     "start": "npm run dev:client & npm run dev:server & npm run dev:docs & npm run dev:composer",
     "dev": "npm run dev:client & npm run dev:server & npm run dev:docs & npm run dev:composer",
     "dev:client": "cd client && npm run dev",
-    "dev:server": "cd worldsbase-server && npm run start",
+    "dev:server": "cd worldsbase-server && npm run start:dev",
     "dev:docs": "cd docs && npm run dev",
     "dev:composer": "cd composer-server && turbo dev"
   },

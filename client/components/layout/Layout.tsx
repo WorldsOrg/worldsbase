@@ -122,10 +122,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   leaveFrom="opacity-100"
                   leaveTo="opacity-0"
                 >
-                  <div className="absolute top-0 z-40 flex justify-center w-16 pt-5 left-full">
+                  <div className="absolute top-0 z-40 flex justify-center w-16 pt-5 left-full ">
                     <button type="button" className="-m-2.5 p-2.5" onClick={() => setSidebarOpen(false)}>
                       <span className="sr-only">Close sidebar</span>
-                      <XMarkIcon className="w-6 h-6 text-primary" aria-hidden="true" />
+                      <XMarkIcon className="w-6 h-6 text-[#ededed]" aria-hidden="true" />
                     </button>
                   </div>
                 </Transition.Child>

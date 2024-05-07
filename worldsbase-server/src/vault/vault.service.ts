@@ -43,7 +43,7 @@ export class VaultService {
     this.vaultAddress = process.env.VAULT_ADDRESS || '';
     this.loginWithAppRole();
   }
-
+  // TODO: FIX BUILDING ISSUE
   async loginWithAppRole(): Promise<void> {
     try {
       const VAULT_POST_DATA = `{"role_id": "${this.roleId}", "secret_id": "${this.secretId}"}`;

@@ -12,7 +12,7 @@ export class TasksService {
   ) {}
   private readonly logger = new Logger(TasksService.name);
 
-  @Cron('0 */10 * * * *')
+  @Cron('0 0 * * *')
   handleCron() {
     this.updateDirectListings();
     this.updateAuctionListings();
