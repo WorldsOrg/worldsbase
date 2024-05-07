@@ -43,7 +43,7 @@ export class VaultService {
     this.secretId = process.env.VAULT_SECRET_ID || '';
     this.vaultAddress = process.env.VAULT_ADDRESS || '';
     this.usingVault = process.env.USING_VAULT || '';
-    if (this.usingVault === 'true') {
+    if (this.usingVault !== 'false') {
       this.loginWithAppRole();
     }
   }
