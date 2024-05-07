@@ -18,6 +18,7 @@ export class ThirdwebController {
   createWallet(@Body() mintERC20: MintERC20Dto): Promise<string> {
     return this.thirdwebService.mintERC20Vault(
       mintERC20.minter,
+      mintERC20.chainId,
       mintERC20.contractAddress,
       mintERC20.to,
       mintERC20.amount,
