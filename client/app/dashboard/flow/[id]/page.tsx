@@ -145,7 +145,7 @@ export default function Flow({ params }: { params: { id: string } }) {
         name: flowName ? flowName : `flow_${short_id}`,
         nodes: nodes,
         edges: edges,
-        table_name: flowName ? flowName : `flow_${short_id}`,
+        table_name: tableName,
         operation: method,
       },
       tableName: "workflows",
@@ -158,10 +158,9 @@ export default function Flow({ params }: { params: { id: string } }) {
       condition: condition,
     };
 
-    const triggerResult = await axiosInstance.post(`/table/addtrigger`, triggerPayload);
-    console.log(triggerResult);
-    const result = await axiosInstance.post(`/table/insertdata/`, payload);
-    console.log(result);
+    await axiosInstance.post(`/table/addtrigger`, triggerPayload);
+
+    await axiosInstance.post(`/table/insertdata/`, payload);
   };
 
   const generateShortId = () => {

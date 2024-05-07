@@ -114,7 +114,7 @@ export class DBService {
   }
 
   async testTrigger() {
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 1000; i < 100000; i++) {
       const email = `email_${i}@test.com`;
       const insertQuery = `INSERT INTO "wtf_users_test" ("email") VALUES ($1)`;
       this.executeQuery(insertQuery, [email]);
