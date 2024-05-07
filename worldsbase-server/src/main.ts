@@ -8,7 +8,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { XApiKeyGuard } from './x-api-key/x-api-key.guard';
-import * as moesif from 'moesif-nodejs';
 
 declare const module: any;
 
@@ -17,18 +16,10 @@ const port = process.env.PORT || 3005;
 async function bootstrap() {
   dotenv.config();
 
-  const options = {
-    applicationId: process.env.MOESIF_APPLICATION_ID as string,
-    logBody: true,
-  };
-
-  const moesifMiddleware = moesif(options);
-
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
-  app.use(moesifMiddleware);
   app.enableCors();
 
   const config = new DocumentBuilder()

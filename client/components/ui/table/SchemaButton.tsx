@@ -17,6 +17,7 @@ import {
   CheckIcon,
 } from "@heroicons/react/24/outline";
 import { PiSpinnerBold } from "react-icons/pi";
+import { v4 as uuidv4 } from "uuid";
 import IconInput from "../IconInput";
 import SchemaOverlay from "./SchemaOverlay";
 
@@ -115,7 +116,7 @@ const SchemaButton = ({
               ) : (
                 filteredSchemas.map((item) => (
                   <li
-                    key={item}
+                    key={uuidv4()}
                     className="flex items-center justify-between w-full px-4 cursor-pointer h-7 hover:bg-hoverBg"
                     onClick={() => handleItemClicked(item?.schema_name)}
                   >

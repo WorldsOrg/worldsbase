@@ -353,7 +353,7 @@ export class TableController {
     }
   }
 
-  @Post('/executeselectQuery')
+  @Post('/executeselectquery')
   @ApiOperation({ summary: 'Execute a select query' })
   @ApiBody({ type: QueryDTO })
   async executeSelectQuery(
