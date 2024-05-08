@@ -95,4 +95,4 @@ Once the development server is up and running, you can access the dashboard by n
 
 [http://localhost:3000](http://localhost:3000)
 
-Here, you can sign up or log in to start exploring and using the WorldsBase.
+Here, you can sign up or log in to start exploring and using the Worldsbase.
