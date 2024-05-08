@@ -18,6 +18,10 @@ export class DBService {
 
   async onModuleInit() {
     await this.initSubscriber();
+    if (this.configService.get<string>('DATA_TEST') === 'true') {
+      console.log('Data test is enabled');
+      await this.testTrigger();
+    }
     //await this.testTrigger();
     //await this.sendSampleMessage();
   }
@@ -114,7 +118,7 @@ export class DBService {
   }
 
   async testTrigger() {
-    for (let i = 1000; i < 100000; i++) {
+    for (let i = 0; i < 10000; i++) {
       const email = `email_${i}@test.com`;
       const insertQuery = `INSERT INTO "wtf_users_test" ("email") VALUES ($1)`;
       this.executeQuery(insertQuery, [email]);
