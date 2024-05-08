@@ -1,12 +1,13 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { EthersService, SignRequest } from './ethers.service';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StandardTxData } from './ethers.service';
 import {
   BuyFromListingMarketplaceDto,
   SignAndSendAwsKmsDto,
 } from './dto/ethers.dto';
 
+@ApiTags('Chain')
 @Controller('ethers')
 export class EthersController {
   constructor(private readonly ethersService: EthersService) {}
