@@ -29,6 +29,7 @@ async function bootstrap() {
     .addTag('worlds-base')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('api', app, document);
   app.useGlobalGuards(new XApiKeyGuard());
   app.useGlobalPipes(new ValidationPipe());

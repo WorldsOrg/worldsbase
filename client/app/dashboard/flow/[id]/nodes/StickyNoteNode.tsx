@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import StickyNoteDialog from "./Dialog";
+import StickyNoteDialog from "../Dialog";
 import { useReactFlow, useStoreApi } from "reactflow";
 function StickyNoteNode({ data, id }: { data: any; id: any }) {
   const { setNodes } = useReactFlow();

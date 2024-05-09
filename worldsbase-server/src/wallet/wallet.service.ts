@@ -279,16 +279,45 @@ export class WalletService {
     }
   }
 
-  async getTokens(wallet: string): Promise<TokenResultDto[]> {
+  async getTokens(wallet: string, chainId?: string): Promise<TokenResultDto[]> {
     try {
+      const chain = chainId ? chainId : EvmChain.ETHEREUM;
       const response = await this.moralisService
         .getMoralis()
         .EvmApi.token.getWalletTokenBalances({
-          chain: EvmChain.ETHEREUM,
+          chain: chain,
           address: wallet,
         });
 
       return response.raw as TokenResultDto[];
+    } catch (error) {
+      console.error('Error getting tokens:', error);
+      throw new HttpException(
+        'Error getting tokens',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async tokenGateErc20(
+    wallet: string,
+    contract: string,
+    chainId: string,
+    amount: number,
+  ): Promise<boolean> {
+    try {
+      const response = await this.getTokens(wallet, chainId);
+      for (let i = 0; i < response.length; i++) {
+        if (response[i].token_address === contract.toLowerCase()) {
+          const balance = BigInt(response[i].balance);
+          const decimals = response[i].decimals;
+          const adjustedBalance = Number(balance) / Math.pow(10, decimals);
+          if (adjustedBalance >= amount) {
+            return true;
+          }
+        }
+      }
+      return false;
     } catch (error) {
       console.error('Error getting tokens:', error);
       throw new HttpException(

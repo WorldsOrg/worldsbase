@@ -34,6 +34,7 @@ export class VaultService {
   private roleId: string;
   private secretId: string;
   private vaultAddress: string;
+  private usingVault: string;
 
   constructor() {
     this.vaultToken = process.env.VAULT_TOKEN || '';
@@ -41,9 +42,12 @@ export class VaultService {
     this.roleId = process.env.VAULT_ROLE_ID || '';
     this.secretId = process.env.VAULT_SECRET_ID || '';
     this.vaultAddress = process.env.VAULT_ADDRESS || '';
-    this.loginWithAppRole();
+    this.usingVault = process.env.USING_VAULT || '';
+    if (this.usingVault !== 'false') {
+      this.loginWithAppRole();
+    }
   }
-  // TODO: FIX BUILDING ISSUE
+
   async loginWithAppRole(): Promise<void> {
     try {
       const VAULT_POST_DATA = `{"role_id": "${this.roleId}", "secret_id": "${this.secretId}"}`;

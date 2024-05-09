@@ -6,6 +6,7 @@ import { VaultService } from 'src/vault/vault.service';
 
 export type MintERC20Dto = {
   minter: string;
+  chainId: string;
   contractAddress: string;
   to: string;
   amount: string;
@@ -53,21 +54,22 @@ export class ThirdwebService {
     return this.sdk;
   }
 
-  async getSdkFromVaultSecret(pubKey: string) {
+  async getSdkFromVaultSecret(pubKey: string, chainId: string) {
     const pk = await this.vaultService.readVaultSecret(pubKey);
-    return ThirdwebSDK.fromPrivateKey(pk, Sepolia, {
+    return ThirdwebSDK.fromPrivateKey(pk, chainId, {
       secretKey: process.env.THIRDWEB_SDK_SECRET_KEY as string,
     });
   }
 
   async mintERC20Vault(
     minter: string,
+    chainId: string,
     contractAddress: string,
     to: string,
     amount: string,
   ) {
     try {
-      const mintSDK = await this.getSdkFromVaultSecret(minter);
+      const mintSDK = await this.getSdkFromVaultSecret(minter, chainId);
       const contract = await mintSDK.getContract(contractAddress);
       const tx = await contract.call('mintTo', [to, amount]);
       return tx;
