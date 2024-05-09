@@ -4,6 +4,6 @@ import { CheckStatus } from './app.entity';
 @Injectable()
 export class AppService {
   getCheck(): CheckStatus {
-    return { status: 'WorldsBase API is running!' };
+    return { status: 'Worldsbase API is running!' };
   }
 }

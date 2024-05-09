@@ -312,12 +312,7 @@ export class TriggerDTO {
   @IsString()
   method: string;
   @ApiProperty({
-    examples: [
-      "NEW.twitter_added = ''true''",
-      '(CAST(NEW.score AS INTEGER) > 10)',
-      'OLD.score < NEW.score',
-      null,
-    ],
+    example: "NEW.twitter_added = ''true''"
     description: 'Trigger Condition',
   })
   @IsOptional()
