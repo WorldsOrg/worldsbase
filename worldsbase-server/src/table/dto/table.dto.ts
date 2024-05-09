@@ -312,7 +312,7 @@ export class TriggerDTO {
   @IsString()
   method: string;
   @ApiProperty({
-    example: "NEW.twitter_added = ''true''"
+    example: "NEW.twitter_added = ''true''",
     description: 'Trigger Condition',
   })
   @IsOptional()

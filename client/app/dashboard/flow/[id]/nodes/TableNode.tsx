@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Handle, Position, useReactFlow, useStoreApi } from "reactflow";
-import FieldInput from "./FieldInput";
+import FieldInput from "../FieldInput";
 
 type FieldType = {
   id: number;
@@ -8,14 +8,18 @@ type FieldType = {
   value: string;
 };
 
-function TextUpdaterNode({ data, isConnectable, id }: { data: any; isConnectable: any; id: any }) {
+function TableNode({ data, isConnectable, id }: { data: any; isConnectable: any; id: any }) {
   const { setNodes } = useReactFlow();
   const store = useStoreApi();
   const { nodeInternals } = store.getState();
   const [fields, setFields] = useState<FieldType[]>([{ id: Math.random(), label: "", value: "" }]);
   const [tableName, setTableName] = useState("");
   const [editing, setEditing] = useState(false);
-  const [filters, setFilters] = useState("");
+  const [filters, setFilters] = useState({
+    key: "",
+    condition: "=",
+    value: "",
+  });
   const addField = () => {
     setFields([...fields, { id: Math.random(), label: "", value: "" }]);
   };
@@ -30,8 +34,10 @@ function TextUpdaterNode({ data, isConnectable, id }: { data: any; isConnectable
     setFields(fields.filter((f) => f.id !== id));
   };
 
-  const onChange = useCallback((evt: { target: { value: any } }) => {
-    console.log(evt.target.value);
+  const onChange = useCallback((evt: { target: { value: string; id: string } }) => {
+    setFilters((prev) => {
+      return { ...prev, [evt.target.id]: evt.target.value };
+    });
   }, []);
 
   const handleFieldChange = (id: number, field: string, value: string) => {
@@ -130,15 +136,15 @@ function TextUpdaterNode({ data, isConnectable, id }: { data: any; isConnectable
           <div className="flex flex-row mt-2">
             <input
               placeholder="key"
-              id="text"
+              id="key"
               name="key"
               onChange={onChange}
-              value={filters}
+              value={filters.key}
               className="nodrag mr-2 rounded w-28 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             />
             <input
               placeholder="equals"
-              id="text"
+              id="condition"
               name="equals"
               value={"="}
               onChange={onChange}
@@ -146,9 +152,9 @@ function TextUpdaterNode({ data, isConnectable, id }: { data: any; isConnectable
             />
             <input
               placeholder="value"
-              id="text"
+              id="value"
               name="value"
-              value={filters}
+              value={filters.value}
               onChange={onChange}
               className="nodrag rounded w-28 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
             />
@@ -181,4 +187,4 @@ type FieldInputProps = {
   editing?: boolean;
 };
 
-export default TextUpdaterNode;
+export default TableNode;

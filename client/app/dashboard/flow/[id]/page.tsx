@@ -1,18 +1,20 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import ReactFlow, { Background, useNodesState, useEdgesState, addEdge, BackgroundVariant } from "reactflow";
-import TextUpdaterNode from "./TextUpdaterNode";
+import TableNode from "./nodes/TableNode";
 import "reactflow/dist/style.css";
-import StickyNoteNode from "./StickyNoteNode";
+import StickyNoteNode from "./nodes/StickyNoteNode";
 import Dropdown from "./Dropdown";
 import { useTable } from "@/context/tableContext";
-import TriggerNode from "./TriggerNode";
+import TriggerNode from "./nodes/TriggerNode";
 import axiosInstance from "@/utils/axiosInstance";
+import WalletNode from "./nodes/WalletNode";
 
 const nodeTypes = {
-  textUpdater: TextUpdaterNode,
+  tableNode: TableNode,
   stickyNote: StickyNoteNode,
   triggerNode: TriggerNode,
+  walletNode: WalletNode,
 };
 
 export default function Flow({ params }: { params: { id: string } }) {
@@ -70,7 +72,7 @@ export default function Flow({ params }: { params: { id: string } }) {
           ...n,
           {
             id: (n.length + 1).toString(),
-            type: "textUpdater",
+            type: "tableNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: { label: "Insert" },
           },
@@ -81,7 +83,7 @@ export default function Flow({ params }: { params: { id: string } }) {
           ...n,
           {
             id: (n.length + 1).toString(),
-            type: "textUpdater",
+            type: "tableNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: { label: "Update" },
           },
@@ -92,7 +94,7 @@ export default function Flow({ params }: { params: { id: string } }) {
           ...n,
           {
             id: (n.length + 1).toString(),
-            type: "textUpdater",
+            type: "tableNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: { label: "Delete" },
           },
@@ -118,6 +120,19 @@ export default function Flow({ params }: { params: { id: string } }) {
           {
             id: "1",
             type: "triggerNode",
+            position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+            data: {
+              tables: navigation,
+            },
+          },
+        ]);
+        break;
+      case "Wallet":
+        setNodes((n) => [
+          ...n,
+          {
+            id: (n.length + 100).toString(),
+            type: "walletNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: {
               tables: navigation,
