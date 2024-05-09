@@ -23,8 +23,8 @@ async function bootstrap() {
   app.enableCors();
 
   const config = new DocumentBuilder()
-    .setTitle('WorldsBase')
-    .setDescription('WorldsBase API description')
+    .setTitle('Worldsbase')
+    .setDescription('Worldsbase API description')
     .setVersion('0.0.1')
     .addTag('worlds-base')
     .build();
