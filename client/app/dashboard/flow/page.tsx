@@ -38,9 +38,9 @@ function WorkflowsPage() {
       </div>
 
       {loadingData
-        ? loadingSkaleton.map((item: any) => {
+        ? loadingSkaleton.map((item: any, index: number) => {
             return (
-              <div className="p-4 m-2 border border-black rounded-md animate-pulse" key={uuidv4()}>
+              <div className="p-4 m-2 border border-black rounded-md animate-pulse" key={index}>
                 <div className="flex justify-between">
                   <div>
                     <h1 className="bg-black rounded-md w-44">{item}</h1>
