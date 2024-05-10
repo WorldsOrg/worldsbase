@@ -9,12 +9,14 @@ import { useTable } from "@/context/tableContext";
 import TriggerNode from "./nodes/TriggerNode";
 import axiosInstance from "@/utils/axiosInstance";
 import WalletNode from "./nodes/WalletNode";
+import SendTokenNode from "./nodes/SendTokenNode";
 
 const nodeTypes = {
   tableNode: TableNode,
   stickyNote: StickyNoteNode,
   triggerNode: TriggerNode,
   walletNode: WalletNode,
+  tokenNode: SendTokenNode,
 };
 
 export default function Flow({ params }: { params: { id: string } }) {
@@ -23,6 +25,7 @@ export default function Flow({ params }: { params: { id: string } }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [flowName, setFlowName] = useState("Enter Flow Name");
+  const [walletId, setWalletId] = useState("");
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
   useEffect(() => {
@@ -135,7 +138,20 @@ export default function Flow({ params }: { params: { id: string } }) {
             type: "walletNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: {
-              tables: navigation,
+              userId: walletId,
+            },
+          },
+        ]);
+        break;
+      case "Token":
+        setNodes((n) => [
+          ...n,
+          {
+            id: (n.length + 100).toString(),
+            type: "tokenNode",
+            position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+            data: {
+              userId: walletId,
             },
           },
         ]);
@@ -200,12 +216,16 @@ export default function Flow({ params }: { params: { id: string } }) {
       Smaller: "<",
       NotEquals: "!=",
     };
-
     if (operators[conditions.filter] && conditions.column && conditions.value !== undefined) {
       // Assume that the column needs to be prefixed with 'NEW.'
       let column = `NEW.${conditions.column}`;
 
       let value = conditions.value;
+
+      if (conditions.filter === "NotEquals" && value === "NULL") {
+        return `${column} IS NOT NULL`;
+      }
+
       if (typeof value === "string") {
         if (/^\d+$/.test(value)) {
           column = `CAST(${column} AS INTEGER)`;

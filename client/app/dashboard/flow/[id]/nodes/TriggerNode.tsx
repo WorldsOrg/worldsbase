@@ -150,7 +150,7 @@ function TriggerNode({ data, id }: { data: any; id: any }) {
                   onChange={handleFilterChange}
                 >
                   <option>Equals</option>
-                  <option>Not Equals</option>
+                  <option>NotEquals</option>
                   <option>Bigger</option>
                   <option>Smaller</option>
                 </select>

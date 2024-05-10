@@ -1,7 +1,8 @@
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
-import { ChevronDownIcon, PencilSquareIcon, TrashIcon, PlusIcon, ArrowRightStartOnRectangleIcon, InformationCircleIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon, PencilSquareIcon, PlusIcon, ArrowRightStartOnRectangleIcon, InformationCircleIcon } from "@heroicons/react/20/solid";
 import { WalletIcon } from "@heroicons/react/24/outline";
+import { PiCoinThin } from "react-icons/pi";
 
 export default function Dropdown({ handleAdd }: { handleAdd: (type: string) => void }) {
   return (
@@ -40,6 +41,12 @@ export default function Dropdown({ handleAdd }: { handleAdd: (type: string) => v
               <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("Wallet")}>
                 <WalletIcon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
                 Create Wallet
+              </button>
+            </Menu.Item>
+            <Menu.Item>
+              <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("Token")}>
+                <PiCoinThin className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                Send Token
               </button>
             </Menu.Item>
             <Menu.Item>
