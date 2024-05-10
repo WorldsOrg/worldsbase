@@ -91,10 +91,9 @@ export class DBService {
 
   async executeQuery(query: string, queryParams: any[] = []) {
     try {
+      console.log(query, queryParams);
       const result = await this.pool.query(query, queryParams);
-      if (result.rows.length === 0) {
-        throw new NotFoundException('No worfklow found');
-      }
+      console.log(result);
       return { status: 200, data: result.rows };
     } catch (error) {
       console.error('Error executing query:', error);
@@ -225,10 +224,10 @@ export class DBService {
   }
 
   async testTrigger() {
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 101; i < 200; i++) {
       const email = `email_${i}@test.com`;
-      const insertQuery = `INSERT INTO "wtf_users_test" ("email") VALUES ($1)`;
-      this.executeQuery(insertQuery, [email]);
+      const insertQuery = `INSERT INTO "wtf_users" ("email") VALUES ($1)`;
+      await this.executeQuery(insertQuery, [email]);
     }
   }
 }
