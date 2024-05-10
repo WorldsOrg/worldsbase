@@ -23,6 +23,7 @@ export default function Flow({ params }: { params: { id: string } }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [flowName, setFlowName] = useState("Enter Flow Name");
+  const [walletId, setWalletId] = useState("");
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
   useEffect(() => {
@@ -135,7 +136,7 @@ export default function Flow({ params }: { params: { id: string } }) {
             type: "walletNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: {
-              tables: navigation,
+              userId: walletId,
             },
           },
         ]);

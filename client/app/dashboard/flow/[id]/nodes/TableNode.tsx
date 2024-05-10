@@ -28,6 +28,8 @@ function TableNode({ data, isConnectable, id }: { data: any; isConnectable: any;
     if (data && data.fields) setFields(data.fields);
 
     if (data && data.tableName) setTableName(data.tableName);
+
+    if (data && data.filters) setFilters(data.filters);
   }, [data]);
 
   const handleRemoveField = (id: number) => {
@@ -59,6 +61,7 @@ function TableNode({ data, isConnectable, id }: { data: any; isConnectable: any;
           node.data = {
             ...node.data,
             fields: fields,
+            filters: filters,
           };
           return node;
         })

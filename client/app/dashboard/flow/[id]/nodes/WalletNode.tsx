@@ -1,18 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Handle, Position, useReactFlow, useStoreApi } from "reactflow";
 
-type FieldType = {
-  id: number;
-  label: string;
-  value: string;
-};
-
-function WalletNode({ isConnectable, id }: { data: any; isConnectable: any; id: any }) {
+function WalletNode({ isConnectable, id, data }: { data: any; isConnectable: any; id: any }) {
   const { setNodes } = useReactFlow();
   const store = useStoreApi();
   const { nodeInternals } = store.getState();
-
   const [userId, setUserId] = useState("");
+
+  useEffect(() => {
+    setUserId(data.userId || "");
+  }, [data]);
 
   const handleUserId = (evt: any) => {
     setUserId(evt.target.value);
