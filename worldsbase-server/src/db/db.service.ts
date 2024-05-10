@@ -2,7 +2,6 @@ import {
   Injectable,
   Inject,
   Logger,
-  NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { PG_CONNECTION } from '../constants';
@@ -10,7 +9,6 @@ import { Pool } from 'pg';
 import createSubscriber from 'pg-listen';
 import { ConfigService } from '@nestjs/config';
 import { WalletService } from 'src/wallet/wallet.service';
-import { resourceLimits } from 'worker_threads';
 
 type Edge = {
   id: string;
