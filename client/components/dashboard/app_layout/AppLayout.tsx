@@ -202,7 +202,7 @@ export default function AppLayout({ children, addNewTableClicked }: AppLayoutPro
                 </Tooltip>
               </div>
               <li
-                className="flex flex-col gap-2 overflow-y-auto scrollbar-class"
+                className="flex flex-col gap-2 pr-1 overflow-y-auto scrollbar-class"
                 style={{
                   maxHeight: "calc(100vh - 240px)",
                 }}

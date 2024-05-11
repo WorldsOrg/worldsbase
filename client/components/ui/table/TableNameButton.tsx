@@ -28,7 +28,7 @@ const TableNameButton = ({
                     tableName === selectedTable
                         ? "bg-secondaryHover text-white"
                         : "dark:text-primary light:text-white hover:bg-secondaryHover hover:text-white",
-                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                    "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full"
                 )}
             >
                 <span
