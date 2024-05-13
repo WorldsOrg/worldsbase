@@ -12,6 +12,13 @@ export class MintERC20Dto {
   amount: string;
 }
 
+export class BurnERC20Dto {
+  tokenOwner: string;
+  chainIdOrRpc: string;
+  contractAddress: string;
+  amount: string;
+}
+
 @Injectable()
 export class ThirdwebService {
   private sdk: ThirdwebSDK;
@@ -72,6 +79,25 @@ export class ThirdwebService {
       const mintSDK = await this.getSdkFromVaultSecret(minter, chainIdOrRpc);
       const contract = await mintSDK.getContract(contractAddress);
       const tx = await contract.call('mintTo', [to, amount]);
+      return tx;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async burnERC20Vault(
+    tokenOwner: string,
+    chainIdOrRpc: string,
+    contractAddress: string,
+    amount: string,
+  ) {
+    try {
+      const mintSDK = await this.getSdkFromVaultSecret(
+        tokenOwner,
+        chainIdOrRpc,
+      );
+      const contract = await mintSDK.getContract(contractAddress);
+      const tx = await contract.call('burn', [amount]);
       return tx;
     } catch (error) {
       return error;

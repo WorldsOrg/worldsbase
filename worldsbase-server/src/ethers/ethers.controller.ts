@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { EthersService, SignRequest } from './ethers.service';
+import { EthersService, SendEthRequest, SignRequest } from './ethers.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StandardTxData } from './ethers.service';
 import {
@@ -70,6 +70,25 @@ export class EthersController {
     return this.ethersService.signTxVault(
       vaultSignData.signerPubKey,
       vaultSignData.transaction,
+    );
+  }
+
+  @Post('/send_eth_vault')
+  @ApiOperation({
+    summary:
+      'Signs and sends a tx that sends eth from one address to another using a private key stored in vault',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'success',
+    type: String,
+  })
+  async sendEthVault(@Body() sendEthData: SendEthRequest): Promise<string> {
+    return this.ethersService.sendEthVault(
+      sendEthData.senderAddress,
+      sendEthData.receiverAddress,
+      sendEthData.amount,
+      sendEthData.chainId,
     );
   }
 }

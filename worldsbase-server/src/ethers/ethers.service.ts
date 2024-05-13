@@ -15,10 +15,17 @@ export class StandardTxData {
   data: string;
 }
 
-export type SignRequest = {
+export class SignRequest {
   signerPubKey: string;
   transaction: any;
-};
+}
+
+export class SendEthRequest {
+  senderAddress: string;
+  receiverAddress: string;
+  amount: string;
+  chainId: number;
+}
 
 @Injectable()
 export class EthersService {
@@ -37,6 +44,9 @@ export class EthersService {
     this.providers[84532] = new ethers.JsonRpcProvider(
       'https://sepolia.base.org	',
     );
+    this.providers[31929] = new ethers.JsonRpcProvider(
+      'https://rpc-worlds-hwbmpbzcnh.t.conduit.xyz',
+    );
   }
 
   public async getNonce(address: string, chainId: number) {
@@ -52,6 +62,27 @@ export class EthersService {
     } catch (error) {
       console.error('Error getting nonce:', error);
       return null;
+    }
+  }
+
+  public async sendRawTransaction(
+    signedTx: string,
+    chainId: number,
+  ): Promise<string> {
+    try {
+      if (this.providers[chainId] !== undefined) {
+        const txHash = await this.providers[chainId].send(
+          'eth_sendRawTransaction',
+          [signedTx],
+        );
+        return txHash;
+      } else {
+        console.error('Chain Id not supported');
+        return 'Chain Id not supported';
+      }
+    } catch (error) {
+      console.error('Error sending tx:', error);
+      return error;
     }
   }
 
@@ -115,6 +146,27 @@ export class EthersService {
     } catch (error) {
       console.error('Error sending tx:', error);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  public async sendEthVault(
+    senderAddress: string,
+    receiverAddress: string,
+    amount: string,
+    chainId: number,
+  ): Promise<string> {
+    const tx = await this.createStandardTx(
+      receiverAddress,
+      amount,
+      senderAddress,
+      chainId,
+    );
+    try {
+      const signedTx = await this.signTxVault(senderAddress, tx);
+      return await this.sendRawTransaction(signedTx.signedTx, chainId);
+    } catch (error) {
+      console.error('Error sending eth:', error);
+      return error;
     }
   }
 
