@@ -8,5 +8,6 @@ import { VaultModule } from 'src/vault/vault.module';
   controllers: [WalletController],
   providers: [WalletService],
   imports: [MoralisModule, AwsKmsModule, VaultModule],
+  exports: [WalletService],
 })
 export class WalletModule {}

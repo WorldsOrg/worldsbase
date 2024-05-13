@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Pool } from 'pg';
 import { PG_CONNECTION } from 'src/constants';
 import { DBService } from './db.service';
-import { WalletService } from 'src/wallet/wallet.service';
+import { WorkflowModule } from 'src/workflow/workflow.module';
 
 const dbProvider = {
   provide: PG_CONNECTION,
@@ -19,8 +19,8 @@ const dbProvider = {
 };
 
 @Module({
-  imports: [ConfigModule],
-  providers: [dbProvider, DBService, WalletService],
+  imports: [ConfigModule, forwardRef(() => WorkflowModule)],
+  providers: [dbProvider, DBService],
   exports: [dbProvider, DBService],
 })
 export class DbModule {}
