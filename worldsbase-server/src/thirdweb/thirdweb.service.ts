@@ -4,13 +4,13 @@ import { Sepolia } from '@thirdweb-dev/chains';
 import { ThirdwebSDK } from '@thirdweb-dev/sdk';
 import { VaultService } from 'src/vault/vault.service';
 
-export type MintERC20Dto = {
+export class MintERC20Dto {
   minter: string;
-  chainId: string;
+  chainIdOrRpc: string;
   contractAddress: string;
   to: string;
   amount: string;
-};
+}
 
 @Injectable()
 export class ThirdwebService {
@@ -54,22 +54,22 @@ export class ThirdwebService {
     return this.sdk;
   }
 
-  async getSdkFromVaultSecret(pubKey: string, chainId: string) {
+  async getSdkFromVaultSecret(pubKey: string, chainIdOrRpc: string) {
     const pk = await this.vaultService.readVaultSecret(pubKey);
-    return ThirdwebSDK.fromPrivateKey(pk, chainId, {
+    return ThirdwebSDK.fromPrivateKey(pk, chainIdOrRpc, {
       secretKey: process.env.THIRDWEB_SDK_SECRET_KEY as string,
     });
   }
 
   async mintERC20Vault(
     minter: string,
-    chainId: string,
+    chainIdOrRpc: string,
     contractAddress: string,
     to: string,
     amount: string,
   ) {
     try {
-      const mintSDK = await this.getSdkFromVaultSecret(minter, chainId);
+      const mintSDK = await this.getSdkFromVaultSecret(minter, chainIdOrRpc);
       const contract = await mintSDK.getContract(contractAddress);
       const tx = await contract.call('mintTo', [to, amount]);
       return tx;
