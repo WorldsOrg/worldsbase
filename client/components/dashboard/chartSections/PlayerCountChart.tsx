@@ -1,4 +1,4 @@
-import ChartLoading from "@/components/ui/chartLoading";
+import Loading from "@/components/ui/Loading";
 
 interface PlayerCountChartProps {
   count: string;
@@ -10,7 +10,7 @@ const PlayerCountChart = ({
   isLoading = false,
 }: PlayerCountChartProps) => {
   if (isLoading) {
-    return <ChartLoading />;
+    return <Loading />;
   }
 
   return (

@@ -3,7 +3,7 @@ import { useState } from "react";
 import BarChart from "@/components/charts/BarChart";
 import Title from "@/components/charts/Title";
 import { GameStatistics } from "@/types";
-import ChartLoading from "@/components/ui/chartLoading";
+import Loading from "@/components/ui/Loading";
 
 interface GameStatisticsChartProps {
   data: GameStatistics[];
@@ -56,7 +56,7 @@ const GameStatisticsChart = ({
   };
 
   if (isLoading) {
-    return <ChartLoading />;
+    return <Loading />;
   }
 
   return (
