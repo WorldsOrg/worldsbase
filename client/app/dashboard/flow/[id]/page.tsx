@@ -10,6 +10,8 @@ import TriggerNode from "./nodes/TriggerNode";
 import axiosInstance from "@/utils/axiosInstance";
 import WalletNode from "./nodes/WalletNode";
 import SendTokenNode from "./nodes/SendTokenNode";
+import Loading from "@/components/ui/Loading";
+import { useToastContext } from "@/context/toastContext";
 
 const nodeTypes = {
   tableNode: TableNode,
@@ -26,7 +28,10 @@ export default function Flow({ params }: { params: { id: string } }) {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [flowName, setFlowName] = useState("Enter Flow Name");
   const [walletId, setWalletId] = useState("");
+  const [saveLoading, setSaveLoading] = useState(false);
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
+
+  const { toastAlert } = useToastContext();
 
   useEffect(() => {
     getWorkflows();
@@ -160,6 +165,9 @@ export default function Flow({ params }: { params: { id: string } }) {
   };
 
   const handleSave = async () => {
+    try {
+    setSaveLoading(true);
+    
     const short_id = generateShortId();
     const trigger = nodes.filter((node) => node.type === "triggerNode");
     const tableName = trigger[0].data.table;
@@ -189,10 +197,28 @@ export default function Flow({ params }: { params: { id: string } }) {
       condition: condition,
     };
 
-    await axiosInstance.post(`/table/addtrigger`, triggerPayload);
+    const requests = [
+      axiosInstance.post(`/table/addtrigger`, triggerPayload),
+      axiosInstance.post(`/table/insertdata/`, payload)
+    ];
 
-    await axiosInstance.post(`/table/insertdata/`, payload);
+    const responses=await Promise.all(requests);
+
+    const allSuccessful = responses.every(response => response?.status === 201);
+
+    if (!allSuccessful) {
+    return toastAlert(false, "Flow could not be saved!");
+    }
+
+    return toastAlert(true, `Flow is saved.`);
+    
+  } catch(e){
+    toastAlert(false, "Something went wrong!");
+  } finally {
+    setSaveLoading(false);
+  }
   };
+
 
   const generateShortId = () => {
     // Start with a random letter (a-z)
@@ -241,13 +267,17 @@ export default function Flow({ params }: { params: { id: string } }) {
     throw new Error(`Invalid conditions: ${conditions}`);
   };
 
+  if(saveLoading){
+   return <Loading />
+  }
+
   return (
     <div style={{ width: "100%", height: "100vh" }}>
-      <div className="bg-black h-12 text-white flex flex-row justify-between px-2">
+      <div className="flex flex-row justify-between h-12 px-2 text-white bg-black">
         <input className="bg-black" value={flowName} onChange={(e) => setFlowName(e.target.value)} />
-        <div>
+        <div className="flex items-center">
           <Dropdown handleAdd={handleAdd} />
-          <button className="bg-primary p-2 rounded-md m-1 text-white" onClick={handleSave}>
+          <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={handleSave}>
             Save Flow
           </button>
         </div>

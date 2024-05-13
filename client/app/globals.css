@@ -38,6 +38,7 @@
 :root {
   --background: #f8f9fa;
   --primary: #11181c;
+  --contrastPrimary: #ededed;
   --softBg: #fbfcfd;
   --hoverBg: #f1f3f5;
   --softText: #7e868c;
@@ -80,6 +81,7 @@
   --softBg: #2e2e2e;
   --hoverBg: #282828;
   --primary: #ededed;
+  --contrastPrimary: #11181c;
   --softText: #7e868c;
   --borderColor: #2e2e2e;
   --secondary: #2e2e2e;

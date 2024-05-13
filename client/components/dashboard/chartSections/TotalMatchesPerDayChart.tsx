@@ -1,7 +1,7 @@
 import BarChart from "@/components/charts/BarChart";
 import { TotalMatchesPerDay } from "@/types";
 import { generateRandomChartColor } from "@/utils/helpers";
-import ChartLoading from "@/components/ui/chartLoading";
+import Loading from "@/components/ui/Loading";
 
 interface TotalMatchesPerDayChartProps {
   data: TotalMatchesPerDay[];
@@ -30,7 +30,7 @@ const TotalMatchesPerDayChart = ({
   };
 
   if (isLoading) {
-    return <ChartLoading />;
+    return <Loading />;
   }
 
   return <BarChart data={formattedData} options={options} />;

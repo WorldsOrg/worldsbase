@@ -3,7 +3,7 @@ import BarChart from "@/components/charts/BarChart";
 import PieChart from "@/components/charts/PieChart";
 import { TopFiveHighestPlayers } from "@/types";
 import { generateRandomChartColor } from "@/utils/helpers";
-import ChartLoading from "@/components/ui/chartLoading";
+import Loading from "@/components/ui/Loading";
 
 interface TopFivePlayersChartProps {
   data: TopFiveHighestPlayers[];
@@ -36,7 +36,7 @@ const TopFivePlayersChart = ({
   };
 
   if (isLoading) {
-    return <ChartLoading />;
+    return <Loading />;
   }
 
   return (
