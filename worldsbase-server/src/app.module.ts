@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { DbModule } from './db/db.module';
 import { TasksModule } from './tasks/tasks.module';
 import { EthersModule } from './ethers/ethers.module';
+import { WorkflowModule } from './workflow/workflow.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { EthersModule } from './ethers/ethers.module';
     ScheduleModule.forRoot(),
     TasksModule,
     DbModule,
+    WorkflowModule,
     ChainModule,
     WalletModule,
     TableModule,
