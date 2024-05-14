@@ -61,7 +61,7 @@ function WorkflowsPage() {
                 <div className="flex justify-between">
                   <div className="text-primary">
                     <h1>{item.name}</h1>
-                    <h1 className="w-50 mt-1 "> executed : 123</h1>
+                    <h1 className="w-50 mt-1 "> executed : {item.execution_count}</h1>
                   </div>
                   <div className="text-white dark:text-black">
                     <button className="p-2 m-1 rounded-md bg-primary" onClick={() => handleDelete(item.id)}>
