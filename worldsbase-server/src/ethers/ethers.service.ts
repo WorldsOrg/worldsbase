@@ -15,10 +15,17 @@ export class StandardTxData {
   data: string;
 }
 
-export type SignRequest = {
+export class SignRequest {
   signerPubKey: string;
   transaction: any;
-};
+}
+
+export class SendEthRequest {
+  senderAddress: string;
+  receiverAddress: string;
+  amount: string;
+  chainId: number;
+}
 
 @Injectable()
 export class EthersService {
@@ -37,6 +44,30 @@ export class EthersService {
     this.providers[84532] = new ethers.JsonRpcProvider(
       'https://sepolia.base.org	',
     );
+    this.providers[31929] = new ethers.JsonRpcProvider(
+      'https://rpc-worlds-hwbmpbzcnh.t.conduit.xyz',
+    );
+  }
+
+  public async getBalance(address: string, chainId: number): Promise<any> {
+    try {
+      if (this.providers[chainId] !== undefined) {
+        const balance = await this.providers[chainId].getBalance(address);
+        return {
+          status: HttpStatus.OK,
+          data: {
+            balance: ethers.formatEther(balance),
+          },
+        };
+      } else {
+        return new HttpException(
+          'Chain Id not supported',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch (error) {
+      return new HttpException('Error getting balance', HttpStatus.BAD_REQUEST);
+    }
   }
 
   public async getNonce(address: string, chainId: number) {
@@ -46,12 +77,29 @@ export class EthersService {
           await this.providers[chainId].getTransactionCount(address);
         return nonce;
       } else {
-        console.error('Chain Id not supported');
-        return null;
+        throw new Error('Chain Id not supported');
       }
     } catch (error) {
-      console.error('Error getting nonce:', error);
-      return null;
+      throw error;
+    }
+  }
+
+  public async sendRawTransaction(
+    signedTx: string,
+    chainId: number,
+  ): Promise<string> {
+    try {
+      if (this.providers[chainId] !== undefined) {
+        const txHash = await this.providers[chainId].send(
+          'eth_sendRawTransaction',
+          [signedTx],
+        );
+        return txHash;
+      } else {
+        return 'Chain Id not supported';
+      }
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -61,28 +109,64 @@ export class EthersService {
     senderAddress: string,
     chainId: number,
   ): Promise<StandardTxData> {
-    const standardTx: StandardTxData = {
-      chainId: chainId,
-      nonce: (await this.getNonce(senderAddress, chainId)) || 0,
-      maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei').toString(),
-      maxFeePerGas: ethers.parseUnits('100', 'gwei').toString(),
-      gasLimit: ethers.toBigInt('250000').toString(),
-      to: to,
-      value: ethers.parseEther(value).toString(),
-      data: '0x',
-    };
-    return standardTx;
+    try {
+      const standardTx: StandardTxData = {
+        chainId: chainId,
+        nonce: (await this.getNonce(senderAddress, chainId)) || 0,
+        maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei').toString(),
+        maxFeePerGas: ethers.parseUnits('100', 'gwei').toString(),
+        gasLimit: ethers.toBigInt('250000').toString(),
+        to: to,
+        value: ethers.parseEther(value).toString(),
+        data: '0x',
+      };
+      return standardTx;
+    } catch (error) {
+      throw error;
+    }
   }
 
-  public async signTxVault(signerPubKey: string, transaction: any) {
+  public async signTxVault(
+    signerPubKey: string,
+    transaction: any,
+  ): Promise<any> {
     try {
       const privateKey = await this.vaultService.readVaultSecret(signerPubKey);
       const wallet = new ethers.Wallet(privateKey);
       const signedTx = await wallet.signTransaction(transaction);
       return { signedTx: signedTx };
     } catch (error) {
-      console.error('Error signing tx:', error);
-      return error;
+      throw error;
+    }
+  }
+
+  public async sendEthVault(
+    senderAddress: string,
+    receiverAddress: string,
+    amount: string,
+    chainId: number,
+  ): Promise<any> {
+    try {
+      const tx = await this.createStandardTx(
+        receiverAddress,
+        amount,
+        senderAddress,
+        chainId,
+      );
+      const signedTx = await this.signTxVault(senderAddress, tx);
+      const txSignature = await this.sendRawTransaction(
+        signedTx.signedTx,
+        chainId,
+      );
+      return {
+        status: HttpStatus.OK,
+        data: {
+          txSignature: txSignature,
+        },
+      };
+    } catch (error) {
+      console.error('Error in sendEthVault:', error);
+      return new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

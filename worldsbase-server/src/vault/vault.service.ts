@@ -103,7 +103,7 @@ export class VaultService {
       });
       if (this.isVaultReadError(response)) {
         throw new HttpException(
-          response.errors,
+          'secret not found in vault',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
