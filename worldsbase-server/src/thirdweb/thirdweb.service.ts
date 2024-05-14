@@ -1,5 +1,5 @@
 // src/thirdweb/thirdweb.service.ts
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Sepolia } from '@thirdweb-dev/chains';
 import { ThirdwebSDK } from '@thirdweb-dev/sdk';
 import { VaultService } from 'src/vault/vault.service';
@@ -61,11 +61,18 @@ export class ThirdwebService {
     return this.sdk;
   }
 
-  async getSdkFromVaultSecret(pubKey: string, chainIdOrRpc: string) {
-    const pk = await this.vaultService.readVaultSecret(pubKey);
-    return ThirdwebSDK.fromPrivateKey(pk, chainIdOrRpc, {
-      secretKey: process.env.THIRDWEB_SDK_SECRET_KEY as string,
-    });
+  async getSdkFromVaultSecret(
+    pubKey: string,
+    chainIdOrRpc: string,
+  ): Promise<any> {
+    try {
+      const pk = await this.vaultService.readVaultSecret(pubKey);
+      return ThirdwebSDK.fromPrivateKey(pk, chainIdOrRpc, {
+        secretKey: process.env.THIRDWEB_SDK_SECRET_KEY as string,
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   async mintERC20Vault(
@@ -74,14 +81,19 @@ export class ThirdwebService {
     contractAddress: string,
     to: string,
     amount: string,
-  ) {
+  ): Promise<any> {
     try {
       const mintSDK = await this.getSdkFromVaultSecret(minter, chainIdOrRpc);
       const contract = await mintSDK.getContract(contractAddress);
       const tx = await contract.call('mintTo', [to, amount]);
-      return tx.receipt.transactionHash;
+      return {
+        status: HttpStatus.OK,
+        data: {
+          txHash: tx.receipt.transactionHash,
+        },
+      };
     } catch (error) {
-      return error;
+      return new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -90,7 +102,7 @@ export class ThirdwebService {
     chainIdOrRpc: string,
     contractAddress: string,
     amount: string,
-  ) {
+  ): Promise<any> {
     try {
       const mintSDK = await this.getSdkFromVaultSecret(
         tokenOwner,
@@ -98,9 +110,14 @@ export class ThirdwebService {
       );
       const contract = await mintSDK.getContract(contractAddress);
       const tx = await contract.call('burn', [amount]);
-      return tx;
+      return {
+        status: HttpStatus.OK,
+        data: {
+          txHash: tx.receipt.transactionHash,
+        },
+      };
     } catch (error) {
-      return error;
+      return new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
 }

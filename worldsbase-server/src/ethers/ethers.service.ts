@@ -49,18 +49,24 @@ export class EthersService {
     );
   }
 
-  public async getBalance(address: string, chainId: number): Promise<string> {
+  public async getBalance(address: string, chainId: number): Promise<any> {
     try {
       if (this.providers[chainId] !== undefined) {
         const balance = await this.providers[chainId].getBalance(address);
-        return ethers.formatEther(balance);
+        return {
+          status: HttpStatus.OK,
+          data: {
+            balance: ethers.formatEther(balance),
+          },
+        };
       } else {
-        console.error('Chain Id not supported');
-        return '';
+        return new HttpException(
+          'Chain Id not supported',
+          HttpStatus.BAD_REQUEST,
+        );
       }
     } catch (error) {
-      console.error('Error getting balance:', error);
-      return '';
+      return new HttpException('Error getting balance', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -71,12 +77,10 @@ export class EthersService {
           await this.providers[chainId].getTransactionCount(address);
         return nonce;
       } else {
-        console.error('Chain Id not supported');
-        return null;
+        throw new Error('Chain Id not supported');
       }
     } catch (error) {
-      console.error('Error getting nonce:', error);
-      return null;
+      throw error;
     }
   }
 
@@ -92,12 +96,10 @@ export class EthersService {
         );
         return txHash;
       } else {
-        console.error('Chain Id not supported');
         return 'Chain Id not supported';
       }
     } catch (error) {
-      console.error('Error sending tx:', error);
-      return error;
+      throw error;
     }
   }
 
@@ -107,28 +109,64 @@ export class EthersService {
     senderAddress: string,
     chainId: number,
   ): Promise<StandardTxData> {
-    const standardTx: StandardTxData = {
-      chainId: chainId,
-      nonce: (await this.getNonce(senderAddress, chainId)) || 0,
-      maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei').toString(),
-      maxFeePerGas: ethers.parseUnits('100', 'gwei').toString(),
-      gasLimit: ethers.toBigInt('250000').toString(),
-      to: to,
-      value: ethers.parseEther(value).toString(),
-      data: '0x',
-    };
-    return standardTx;
+    try {
+      const standardTx: StandardTxData = {
+        chainId: chainId,
+        nonce: (await this.getNonce(senderAddress, chainId)) || 0,
+        maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei').toString(),
+        maxFeePerGas: ethers.parseUnits('100', 'gwei').toString(),
+        gasLimit: ethers.toBigInt('250000').toString(),
+        to: to,
+        value: ethers.parseEther(value).toString(),
+        data: '0x',
+      };
+      return standardTx;
+    } catch (error) {
+      throw error;
+    }
   }
 
-  public async signTxVault(signerPubKey: string, transaction: any) {
+  public async signTxVault(
+    signerPubKey: string,
+    transaction: any,
+  ): Promise<any> {
     try {
       const privateKey = await this.vaultService.readVaultSecret(signerPubKey);
       const wallet = new ethers.Wallet(privateKey);
       const signedTx = await wallet.signTransaction(transaction);
       return { signedTx: signedTx };
     } catch (error) {
-      console.error('Error signing tx:', error);
-      return error;
+      throw error;
+    }
+  }
+
+  public async sendEthVault(
+    senderAddress: string,
+    receiverAddress: string,
+    amount: string,
+    chainId: number,
+  ): Promise<any> {
+    try {
+      const tx = await this.createStandardTx(
+        receiverAddress,
+        amount,
+        senderAddress,
+        chainId,
+      );
+      const signedTx = await this.signTxVault(senderAddress, tx);
+      const txSignature = await this.sendRawTransaction(
+        signedTx.signedTx,
+        chainId,
+      );
+      return {
+        status: HttpStatus.OK,
+        data: {
+          txSignature: txSignature,
+        },
+      };
+    } catch (error) {
+      console.error('Error in sendEthVault:', error);
+      return new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -161,27 +199,6 @@ export class EthersService {
     } catch (error) {
       console.error('Error sending tx:', error);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  public async sendEthVault(
-    senderAddress: string,
-    receiverAddress: string,
-    amount: string,
-    chainId: number,
-  ): Promise<string> {
-    const tx = await this.createStandardTx(
-      receiverAddress,
-      amount,
-      senderAddress,
-      chainId,
-    );
-    try {
-      const signedTx = await this.signTxVault(senderAddress, tx);
-      return await this.sendRawTransaction(signedTx.signedTx, chainId);
-    } catch (error) {
-      console.error('Error sending eth:', error);
-      return error;
     }
   }
 
