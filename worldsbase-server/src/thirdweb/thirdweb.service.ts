@@ -79,7 +79,7 @@ export class ThirdwebService {
       const mintSDK = await this.getSdkFromVaultSecret(minter, chainIdOrRpc);
       const contract = await mintSDK.getContract(contractAddress);
       const tx = await contract.call('mintTo', [to, amount]);
-      return tx;
+      return tx.receipt.transactionHash;
     } catch (error) {
       return error;
     }

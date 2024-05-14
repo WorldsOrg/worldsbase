@@ -49,6 +49,21 @@ export class EthersService {
     );
   }
 
+  public async getBalance(address: string, chainId: number): Promise<string> {
+    try {
+      if (this.providers[chainId] !== undefined) {
+        const balance = await this.providers[chainId].getBalance(address);
+        return ethers.formatEther(balance);
+      } else {
+        console.error('Chain Id not supported');
+        return '';
+      }
+    } catch (error) {
+      console.error('Error getting balance:', error);
+      return '';
+    }
+  }
+
   public async getNonce(address: string, chainId: number) {
     try {
       if (this.providers[chainId] !== undefined) {

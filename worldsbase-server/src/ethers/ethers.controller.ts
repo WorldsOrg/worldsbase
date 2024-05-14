@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { EthersService, SendEthRequest, SignRequest } from './ethers.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StandardTxData } from './ethers.service';
@@ -90,5 +90,19 @@ export class EthersController {
       sendEthData.amount,
       sendEthData.chainId,
     );
+  }
+
+  @Get('/wallet_balance')
+  @ApiOperation({ summary: 'Returns a wallets eth balance in ether' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a wallets eth balance in ether',
+    type: String,
+  })
+  getNFTs(
+    @Query('address') address: string,
+    @Query('chainId') chainId: number,
+  ): Promise<string> {
+    return this.ethersService.getBalance(address, chainId);
   }
 }
