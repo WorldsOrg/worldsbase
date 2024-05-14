@@ -575,19 +575,20 @@ export class TableController {
   @Delete('/removetrigger')
   @ApiOperation({ summary: 'Remove a trigger from a table' })
   async removeTrigger(
+    @Body('shortId') shortId: string,
     @Body('tableName') tableName: string,
   ): Promise<TableApiResponse<any>> {
     // Validate the tableName to ensure it's a valid identifier
-    if (!/^[A-Za-z0-9_]+$/.test(tableName)) {
+    if (!/^[A-Za-z0-9_]+$/.test(shortId)) {
       throw new BadRequestException('Invalid table name');
     }
 
-    const triggerName = `notify_trigger_${tableName}`;
-    const dropTriggerQuery = `
+    // const triggerName = `notify_trigger_${tableName}`;
+        const dropTriggerQuery = `
     DO $$
     BEGIN
-      IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${triggerName}') THEN
-        EXECUTE format('DROP TRIGGER %I ON %I', '${triggerName}', '${tableName}');
+      IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${shortId}') THEN
+        EXECUTE format('DROP TRIGGER %I ON %I', '${shortId}', '${tableName}');
       END IF;
     END
     $$;
