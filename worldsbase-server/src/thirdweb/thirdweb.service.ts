@@ -4,21 +4,6 @@ import { Sepolia } from '@thirdweb-dev/chains';
 import { ThirdwebSDK } from '@thirdweb-dev/sdk';
 import { VaultService } from 'src/vault/vault.service';
 
-export class MintERC20Dto {
-  minter: string;
-  chainIdOrRpc: string;
-  contractAddress: string;
-  to: string;
-  amount: string;
-}
-
-export class BurnERC20Dto {
-  tokenOwner: string;
-  chainIdOrRpc: string;
-  contractAddress: string;
-  amount: string;
-}
-
 @Injectable()
 export class ThirdwebService {
   private sdk: ThirdwebSDK;
@@ -87,10 +72,7 @@ export class ThirdwebService {
       const contract = await mintSDK.getContract(contractAddress);
       const tx = await contract.call('mintTo', [to, amount]);
       return {
-        status: HttpStatus.OK,
-        data: {
-          txHash: tx.receipt.transactionHash,
-        },
+        txHash: tx.receipt.transactionHash,
       };
     } catch (error) {
       return new HttpException(error, HttpStatus.BAD_REQUEST);
@@ -111,10 +93,7 @@ export class ThirdwebService {
       const contract = await mintSDK.getContract(contractAddress);
       const tx = await contract.call('burn', [amount]);
       return {
-        status: HttpStatus.OK,
-        data: {
-          txHash: tx.receipt.transactionHash,
-        },
+        txHash: tx.receipt.transactionHash,
       };
     } catch (error) {
       return new HttpException(error, HttpStatus.BAD_REQUEST);

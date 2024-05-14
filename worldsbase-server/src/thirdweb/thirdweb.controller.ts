@@ -2,9 +2,10 @@ import { Body, Controller, Post } from '@nestjs/common';
 import {
   BurnERC20Dto,
   MintERC20Dto,
-  ThirdwebService,
-} from './thirdweb.service';
+  ThirdwebResponseDto,
+} from './dto/thirdweb.dto';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ThirdwebService } from './thirdweb.service';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Thirdweb')
@@ -17,7 +18,7 @@ export class ThirdwebController {
   @ApiResponse({
     status: 200,
     description: 'Token(s) minted',
-    type: String,
+    type: ThirdwebResponseDto,
   })
   mintErc20Vault(@Body() mintERC20: MintERC20Dto): Promise<string> {
     return this.thirdwebService.mintERC20Vault(
@@ -34,7 +35,7 @@ export class ThirdwebController {
   @ApiResponse({
     status: 200,
     description: 'Token(s) burned',
-    type: String,
+    type: ThirdwebResponseDto,
   })
   burnErc20Vault(@Body() burnErc20: BurnERC20Dto): Promise<string> {
     return this.thirdwebService.burnERC20Vault(

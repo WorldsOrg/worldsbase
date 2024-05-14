@@ -69,7 +69,7 @@ export class WalletController {
   @ApiResponse({
     status: 201,
     description: 'Created wallet stored in vault',
-    type: EthWalletDto,
+    type: VaultWalletDto,
   })
   createVaultWallet(
     @Body() createWalletDto: CreateWalletDto,

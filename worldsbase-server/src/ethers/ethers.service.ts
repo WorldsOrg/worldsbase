@@ -15,18 +15,6 @@ export class StandardTxData {
   data: string;
 }
 
-export class SignRequest {
-  signerPubKey: string;
-  transaction: any;
-}
-
-export class SendEthRequest {
-  senderAddress: string;
-  receiverAddress: string;
-  amount: string;
-  chainId: number;
-}
-
 @Injectable()
 export class EthersService {
   private providers: { [chainId: number]: ethers.JsonRpcProvider } = {};
@@ -54,10 +42,7 @@ export class EthersService {
       if (this.providers[chainId] !== undefined) {
         const balance = await this.providers[chainId].getBalance(address);
         return {
-          status: HttpStatus.OK,
-          data: {
-            balance: ethers.formatEther(balance),
-          },
+          balance: ethers.formatEther(balance),
         };
       } else {
         return new HttpException(
@@ -159,10 +144,7 @@ export class EthersService {
         chainId,
       );
       return {
-        status: HttpStatus.OK,
-        data: {
-          txSignature: txSignature,
-        },
+        txHash: txSignature,
       };
     } catch (error) {
       console.error('Error in sendEthVault:', error);
