@@ -150,6 +150,8 @@ export class WorkflowService {
       node.data.transaction.amount,
     );
     console.log(result, 'tx');
+    const tx_query = `INSERT INTO wtf_tx (transactionHash, from_address, to_address, amount, contract_address, chain_id) VALUES ('${result.transactionHash}', '${node.data.transaction.minter}', '${to}', ${node.data.transaction.amount}, '${node.data.transaction.contractAddress}', ${node.data.transaction.chainId})`;
+    await this.tableService.executeQuery(tx_query);
     const query = `UPDATE wtf_users SET social_score = social_score + ${node.data.transaction.amount} WHERE provisioned_wallet = '${to}'`;
     await this.tableService.executeQuery(query);
   }
