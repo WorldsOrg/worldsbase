@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { EthersService, SendEthRequest } from './ethers.service';
+import { EthersService } from './ethers.service';
+import {
+  EthersTxResponseDto,
+  SendEthRequestDto,
+  WalletBalanceResponseDto,
+} from './dto/ethers.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Chain')
@@ -15,9 +20,9 @@ export class EthersController {
   @ApiResponse({
     status: 200,
     description: 'success',
-    type: String,
+    type: EthersTxResponseDto,
   })
-  async sendEthVault(@Body() sendEthData: SendEthRequest): Promise<string> {
+  async sendEthVault(@Body() sendEthData: SendEthRequestDto): Promise<string> {
     return this.ethersService.sendEthVault(
       sendEthData.senderAddress,
       sendEthData.receiverAddress,
@@ -31,7 +36,7 @@ export class EthersController {
   @ApiResponse({
     status: 200,
     description: 'Returns a wallets eth balance in ether',
-    type: String,
+    type: WalletBalanceResponseDto,
   })
   getNFTs(
     @Query('address') address: string,
