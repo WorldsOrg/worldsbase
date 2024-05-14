@@ -144,10 +144,7 @@ export class EthersService {
         chainId,
       );
       return {
-        status: HttpStatus.OK,
-        data: {
-          txSignature: txSignature,
-        },
+        txHash: txSignature,
       };
     } catch (error) {
       console.error('Error in sendEthVault:', error);

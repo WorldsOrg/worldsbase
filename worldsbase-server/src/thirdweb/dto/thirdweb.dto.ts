@@ -53,7 +53,8 @@ export class BurnERC20Dto {
 
 export class ThirdwebResponseDto {
   @ApiProperty({
-    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    example:
+      '0x0365e3dba99587c1aee7d1cadba6b007727e0e54f0bace71d3bea6f88ead2afe',
     description: 'Transaction Hash',
   })
   txHash: string;
