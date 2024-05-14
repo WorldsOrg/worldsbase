@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { Edge } from './entities/worflow.entities';
 import { WalletService } from 'src/wallet/wallet.service';
 import { TableService } from 'src/table/table.service';
+import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
 
 @Injectable()
 export class WorkflowService {
   constructor(
     private readonly tableService: TableService,
     private readonly walletService: WalletService,
+    private readonly thirdwebService: ThirdwebService,
   ) {}
 
   getNodeExecutionOrder(edges: Edge[]): string[] {
@@ -47,6 +49,9 @@ export class WorkflowService {
         break;
       case 'walletNode':
         await this.processWalletNode(node, variables, index);
+        break;
+      case 'tokenNode':
+        await this.processMintNode(node, parsedData, variables, index);
         break;
       case 'triggerNode':
         // do nothing
@@ -115,6 +120,38 @@ export class WorkflowService {
     }
     const result = await this.walletService.createVaultWallet(userId);
     variables.push(result);
+  }
+
+  private async processMintNode(
+    node: {
+      data: {
+        transaction: {
+          to: any;
+          amount: any;
+          minter: any;
+          chainId: any;
+          contractAddress: any;
+        };
+      };
+    },
+    parsedData: any,
+    variables: any[],
+    index: any,
+  ) {
+    const to = node.data.transaction.to.startsWith('.')
+      ? variables[index][node.data.transaction.to.slice(1)]
+      : node.data.transaction.to;
+
+    const result = await this.thirdwebService.mintERC20Vault(
+      node.data.transaction.minter,
+      node.data.transaction.chainId,
+      node.data.transaction.contractAddress,
+      to,
+      node.data.transaction.amount,
+    );
+    console.log(result, 'tx');
+    const query = `UPDATE wtf_users SET social_score = social_score + ${node.data.transaction.amount} WHERE provisioned_wallet = '${to}'`;
+    await this.tableService.executeQuery(query);
   }
 
   async executeFlow(payload: {
