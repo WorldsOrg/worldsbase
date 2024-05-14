@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { Edge } from './entities/worflow.entities';
 import { WalletService } from 'src/wallet/wallet.service';
 import { TableService } from 'src/table/table.service';
+import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
 
 @Injectable()
 export class WorkflowService {
   constructor(
     private readonly tableService: TableService,
     private readonly walletService: WalletService,
+    private readonly thirdwebService: ThirdwebService,
   ) {}
 
   getNodeExecutionOrder(edges: Edge[]): string[] {
@@ -47,6 +49,19 @@ export class WorkflowService {
         break;
       case 'walletNode':
         await this.processWalletNode(node, variables, index);
+        break;
+      case 'tokenNode':
+        // call mint token endpoint
+        console.log('Mint token node', node, parsedData, variables, index);
+        console.log(node.data.transaction);
+        // {
+        //   to: '.email',
+        //   amount: '1000000000',
+        //   minter: '111',
+        //   chainId: '222',
+        //   contractAddress: '333'
+        // }
+        //this.thirdwebService.mintERC20Vault();
         break;
       case 'triggerNode':
         // do nothing
