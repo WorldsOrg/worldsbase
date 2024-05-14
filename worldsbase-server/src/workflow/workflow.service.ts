@@ -51,17 +51,7 @@ export class WorkflowService {
         await this.processWalletNode(node, variables, index);
         break;
       case 'tokenNode':
-        // call mint token endpoint
-        console.log('Mint token node', node, parsedData, variables, index);
-        console.log(node.data.transaction);
-        // {
-        //   to: '.email',
-        //   amount: '1000000000',
-        //   minter: '111',
-        //   chainId: '222',
-        //   contractAddress: '333'
-        // }
-        //this.thirdwebService.mintERC20Vault();
+        await this.processMintNode(node, parsedData, variables, index);
         break;
       case 'triggerNode':
         // do nothing
@@ -130,6 +120,38 @@ export class WorkflowService {
     }
     const result = await this.walletService.createVaultWallet(userId);
     variables.push(result);
+  }
+
+  private async processMintNode(
+    node: {
+      data: {
+        transaction: {
+          to: any;
+          amount: any;
+          minter: any;
+          chainId: any;
+          contractAddress: any;
+        };
+      };
+    },
+    parsedData: any,
+    variables: any[],
+    index: any,
+  ) {
+    const to = node.data.transaction.to.startsWith('.')
+      ? variables[index][node.data.transaction.to.slice(1)]
+      : node.data.transaction.to;
+
+    const result = await this.thirdwebService.mintERC20Vault(
+      node.data.transaction.minter,
+      node.data.transaction.chainId,
+      node.data.transaction.contractAddress,
+      to,
+      node.data.transaction.amount,
+    );
+    console.log(result, 'tx');
+    const query = `UPDATE wtf_users SET social_score = social_score + ${node.data.transaction.amount} WHERE provisioned_wallet = '${to}'`;
+    await this.tableService.executeQuery(query);
   }
 
   async executeFlow(payload: {
