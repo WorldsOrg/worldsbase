@@ -174,7 +174,7 @@ export class WorkflowService {
       result.transactionHash,
       node.data.transaction.minter,
       to,
-      node.data.transaction.amount,
+      amountInWei.toString(),
       node.data.transaction.contractAddress,
       node.data.transaction.chainId,
     ];
