@@ -48,6 +48,7 @@ export class WorkflowService {
         await this.processTableNode(node, parsedData, variables, index);
         break;
       case 'walletNode':
+        console.log('walletNode');
         await this.processWalletNode(node, variables, index);
         break;
       case 'tokenNode':
@@ -118,8 +119,14 @@ export class WorkflowService {
       console.warn(`Value for field ${userId} is undefined`);
       return;
     }
+
     const result = await this.walletService.createVaultWallet(userId);
+
     variables.push(result);
+    const query = `UPDATE wtf_users SET provisioned_wallet = $1 WHERE id = $2`;
+    const values = [result.address, userId];
+
+    await this.tableService.executeQuery(query, values);
   }
 
   private async processMintNode(
