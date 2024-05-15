@@ -154,9 +154,24 @@ export class WorkflowService {
       ? variables[index][node.data.transaction.to.slice(1)]
       : node.data.transaction.to;
 
+    if (to === undefined) {
+      console.warn(`Value for field ${to} is undefined`);
+      return;
+    }
+
     const amount = node.data.transaction.amount.startsWith('.')
       ? variables[index][node.data.transaction.amount.slice(1)]
       : node.data.transaction.amount;
+
+    if (
+      amount === undefined ||
+      amount === null ||
+      amount === '0' ||
+      amount === 0
+    ) {
+      console.warn(`Value for field ${amount} is undefined`);
+      return;
+    }
 
     const amountInWei = this.convertEtherToWei(amount);
 
