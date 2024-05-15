@@ -12,6 +12,11 @@ export class WorkflowService {
     private readonly thirdwebService: ThirdwebService,
   ) {}
 
+  convertEtherToWei(etherAmount: string | number | bigint | boolean) {
+    const weiPerEther = BigInt('1000000000000000000'); // 10^18 as BigInt
+    return BigInt(etherAmount) * weiPerEther;
+  }
+
   getNodeExecutionOrder(edges: Edge[]): string[] {
     if (!edges.length) return [];
     const order: string[] = [];
@@ -149,20 +154,27 @@ export class WorkflowService {
       ? variables[index][node.data.transaction.to.slice(1)]
       : node.data.transaction.to;
 
+    const amount = node.data.transaction.amount.startsWith('.')
+      ? variables[index][node.data.transaction.amount.slice(1)]
+      : node.data.transaction.amount;
+
+    const amountInWei = this.convertEtherToWei(amount);
+
     const result = await this.thirdwebService.mintERC20Vault(
       node.data.transaction.minter,
       node.data.transaction.chainId,
       node.data.transaction.contractAddress,
       to,
-      node.data.transaction.amount,
+      amountInWei.toString(),
     );
     console.log(result, 'tx');
+
     const tx_query = `INSERT INTO wtf_tx (transactionHash, from_address, to_address, amount, contract_address, chain_id) VALUES ($1, $2, $3, $4, $5, $6)`;
     const tx_values = [
       result.transactionHash,
       node.data.transaction.minter,
       to,
-      node.data.transaction.amount,
+      amountInWei.toString(),
       node.data.transaction.contractAddress,
       node.data.transaction.chainId,
     ];
