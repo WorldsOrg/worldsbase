@@ -1,6 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { MintERC20Dto, ThirdwebService } from './thirdweb.service';
+import {
+  BurnERC20Dto,
+  MintERC20Dto,
+  ThirdwebResponseDto,
+} from './dto/thirdweb.dto';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ThirdwebService } from './thirdweb.service';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Thirdweb')
@@ -13,15 +18,31 @@ export class ThirdwebController {
   @ApiResponse({
     status: 200,
     description: 'Token(s) minted',
-    type: String,
+    type: ThirdwebResponseDto,
   })
-  createWallet(@Body() mintERC20: MintERC20Dto): Promise<string> {
+  mintErc20Vault(@Body() mintERC20: MintERC20Dto): Promise<string> {
     return this.thirdwebService.mintERC20Vault(
       mintERC20.minter,
       mintERC20.chainIdOrRpc,
       mintERC20.contractAddress,
       mintERC20.to,
       mintERC20.amount,
+    );
+  }
+
+  @Post('/burn_erc20_vault')
+  @ApiOperation({ summary: 'Burns erc20 token(s) from a wallet' })
+  @ApiResponse({
+    status: 200,
+    description: 'Token(s) burned',
+    type: ThirdwebResponseDto,
+  })
+  burnErc20Vault(@Body() burnErc20: BurnERC20Dto): Promise<string> {
+    return this.thirdwebService.burnERC20Vault(
+      burnErc20.tokenOwner,
+      burnErc20.chainIdOrRpc,
+      burnErc20.contractAddress,
+      burnErc20.amount,
     );
   }
 }

@@ -1,6 +1,46 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { StandardTxData } from '../ethers.service';
 
+export class SendEthRequestDto {
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Wallet Address',
+  })
+  senderAddress: string;
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Wallet Address',
+  })
+  receiverAddress: string;
+  @ApiProperty({
+    example: '1',
+    description: 'Amount of ether to send',
+  })
+  amount: string;
+  @ApiProperty({
+    example: 1,
+    description: 'Chain ID',
+  })
+  chainId: number;
+}
+
+export class EthersTxResponseDto {
+  @ApiProperty({
+    example:
+      '0x0365e3dba99587c1aee7d1cadba6b007727e0e54f0bace71d3bea6f88ead2afe',
+    description: 'Transaction Hash',
+  })
+  txHash: string;
+}
+
+export class WalletBalanceResponseDto {
+  @ApiProperty({
+    example: '0.145',
+    description: 'wallet balance in ether',
+  })
+  balance: string;
+}
+
 export class BuyFromListingMarketplaceDto {
   @ApiProperty({
     example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
