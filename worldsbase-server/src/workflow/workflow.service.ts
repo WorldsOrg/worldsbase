@@ -193,9 +193,8 @@ export class WorkflowService {
       node.data.transaction.contractAddress,
       node.data.transaction.chainId,
     ];
-
     await this.tableService.executeQuery(tx_query, tx_values);
-    const query = `UPDATE wtf_users SET social_score = social_score + ${node.data.transaction.amount} WHERE provisioned_wallet = '${to}'`;
+    const query = `UPDATE wtf_users SET social_score = social_score + ${amount} WHERE provisioned_wallet = '${to}'`;
     await this.tableService.executeQuery(query);
   }
 
