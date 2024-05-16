@@ -1,6 +1,27 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
-import ReactFlow, { Background, useNodesState, useEdgesState, addEdge, BackgroundVariant } from "reactflow";
+import ReactFlow, {
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  BackgroundVariant,
+} from "reactflow";
+import { isEmpty } from "lodash";
+import { Field, Formik} from "formik";
+import * as Yup from "yup";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  Stack,
+  FormControl,
+  Input,
+  FormErrorMessage,
+} from "@chakra-ui/react";
 import TableNode from "./nodes/TableNode";
 import "reactflow/dist/style.css";
 import StickyNoteNode from "./nodes/StickyNoteNode";
@@ -26,10 +47,14 @@ export default function Flow({ params }: { params: { id: string } }) {
   const { navigation } = useTable();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [flowName, setFlowName] = useState("Enter Flow Name");
+  const [flowName, setFlowName] = useState("");
+  const [showNameModal, setShowNameModal] = useState(false);
   const [walletId, setWalletId] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
-  const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
+  const onConnect = useCallback(
+    (params: any) => setEdges((eds) => addEdge(params, eds)),
+    []
+  );
 
   const { toastAlert } = useToastContext();
 
@@ -38,8 +63,9 @@ export default function Flow({ params }: { params: { id: string } }) {
   }, [navigation, flowId]);
 
   const getWorkflows = async () => {
-    const result = await axiosInstance.get(`/table/gettablevalue/workflows/id/${flowId}`);
-    console.log(result);
+    const result = await axiosInstance.get(
+      `/table/gettablevalue/workflows/id/${flowId}`
+    );
     if (result.data[0]) {
       setNodes(result.data[0].nodes);
       setEdges(result.data[0].edges);
@@ -69,7 +95,9 @@ export default function Flow({ params }: { params: { id: string } }) {
   };
 
   const handleAdd = (type: string) => {
-    if (nodes.some((node) => node.type === "triggerNode" && type === "Trigger")) {
+    if (
+      nodes.some((node) => node.type === "triggerNode" && type === "Trigger")
+    ) {
       alert("You can only have one trigger node in a flow.");
       return;
     }
@@ -164,61 +192,69 @@ export default function Flow({ params }: { params: { id: string } }) {
     }
   };
 
-  const handleSave = async () => {
+
+  const handleSave = async (name: string) => {
+    if (isEmpty(name)) {
+      return setShowNameModal(true);
+    }
+
     try {
-    setSaveLoading(true);
-    
-    const short_id = generateShortId();
-    const trigger = nodes.filter((node) => node.type === "triggerNode");
-    const tableName = trigger[0].data.table;
-    const method = trigger[0].data.method;
-    const filter = trigger[0].data.filter ? trigger[0].data.filter : null;
-    let condition = null;
-    if (filter !== null) {
-      condition = createConditionString(filter);
+      setSaveLoading(true);
+
+      const short_id = generateShortId();
+      const trigger = nodes.filter((node) => node.type === "triggerNode");
+      const tableName = trigger[0].data.table;
+      const method = trigger[0].data.method;
+      const filter = trigger[0].data.filter ? trigger[0].data.filter : null;
+      let condition = null;
+      if (filter !== null) {
+        condition = createConditionString(filter);
+      }
+      const payload = {
+        data: {
+          id: flowId,
+          short_id: short_id,
+          name,
+          nodes: nodes,
+          edges: edges,
+          table_name: tableName,
+          operation: method,
+        },
+        tableName: "workflows",
+      };
+
+      const triggerPayload = {
+        tableName: tableName,
+        triggerName: short_id,
+        method: method,
+        condition: condition,
+      };
+
+      const requests = [
+        axiosInstance.post(`/table/addtrigger`, triggerPayload),
+        axiosInstance.post(`/table/insertdata/`, payload),
+      ];
+
+      const responses = await Promise.all(requests);
+
+      const allSuccessful = responses.every(
+        (response) => response?.status === 201
+      );
+
+      if (!allSuccessful) {
+        return toastAlert(false, "Flow could not be saved!");
+      }
+
+    setFlowName(name);
+
+      return toastAlert(true, `${name} Flow saved.`);
+    } catch (e) {
+      toastAlert(false, "Something went wrong!");
+    } finally {
+      setShowNameModal(false);
+      setSaveLoading(false);
     }
-    const payload = {
-      data: {
-        id: flowId,
-        short_id: short_id,
-        name: flowName ? flowName : `flow_${short_id}`,
-        nodes: nodes,
-        edges: edges,
-        table_name: tableName,
-        operation: method,
-      },
-      tableName: "workflows",
-    };
-
-    const triggerPayload = {
-      tableName: tableName,
-      triggerName: short_id,
-      method: method,
-      condition: condition,
-    };
-
-    const requests = [
-      axiosInstance.post(`/table/addtrigger`, triggerPayload),
-      axiosInstance.post(`/table/insertdata/`, payload)
-    ];
-
-    const responses=await Promise.all(requests);
-
-    const allSuccessful = responses.every(response => response?.status === 201);
-
-    if (!allSuccessful) {
-    return toastAlert(false, "Flow could not be saved!");
-    }
-
-    return toastAlert(true, `Flow is saved.`);
-    
-  } catch(e){
-    toastAlert(false, "Something went wrong!");
-  } finally {
-    setSaveLoading(false);
-  }
   };
-
 
   const generateShortId = () => {
     // Start with a random letter (a-z)
@@ -267,25 +303,90 @@ export default function Flow({ params }: { params: { id: string } }) {
     throw new Error(`Invalid conditions: ${conditions}`);
   };
 
-  if(saveLoading){
-   return <Loading />
+  if (saveLoading) {
+    return <Loading />;
   }
 
   return (
     <div style={{ width: "100%", height: "100vh" }}>
-      <div className="flex flex-row justify-between h-12 px-2 text-white bg-black">
-        <input className="bg-black" value={flowName} onChange={(e) => setFlowName(e.target.value)} />
+      <div className="flex items-center justify-between h-12 px-2 text-white bg-black">
+        <div className="text-lg font-semibold">{isEmpty(flowName) ? "New Flow" : flowName}</div>
         <div className="flex items-center">
           <Dropdown handleAdd={handleAdd} />
-          <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={handleSave}>
+          <button
+            className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9"
+            onClick={() => handleSave(flowName)}
+          >
             Save Flow
           </button>
         </div>
       </div>
 
-      <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} fitView nodeTypes={nodeTypes}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        fitView
+        nodeTypes={nodeTypes}
+      >
         <Background variant={"dots" as BackgroundVariant} gap={12} size={1} />
       </ReactFlow>
+
+      {showNameModal && (
+        <Modal isOpen={showNameModal} onClose={() => setShowNameModal(false)}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Enter Flow name</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Formik
+                initialValues={{ newFlowName: "" }}
+                validationSchema={Yup.object().shape({
+                  newFlowName: Yup.string().required(),
+                })}
+                onSubmit={(values) => handleSave(values?.newFlowName)}
+              >
+                {({ handleSubmit, errors, touched }) => (
+                  <form onSubmit={handleSubmit}>
+                    <Stack spacing="8">
+                      <Stack spacing="6">
+                        <FormControl
+                          isInvalid={
+                            !!errors.newFlowName && touched.newFlowName
+                          }
+                        >
+                          <Field
+                            as={Input}
+                            className="rounded-md"
+                            id="newFlowName"
+                            name="newFlowName"
+                            placeholder="Flow Name"
+                          />
+                          {!isEmpty(errors?.newFlowName) && (
+                            <FormErrorMessage>
+                              {errors?.newFlowName
+                                ? "Flow Name is required"
+                                : ""}
+                            </FormErrorMessage>
+                          )}
+                        </FormControl>
+                        <button
+                          className="w-full p-2 text-white rounded-md bg-secondary hover:bg-secondaryHover"
+                          type="submit"
+                        >
+                          Save
+                        </button>
+                      </Stack>
+                    </Stack>
+                  </form>
+                )}
+              </Formik>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
     </div>
   );
 }
