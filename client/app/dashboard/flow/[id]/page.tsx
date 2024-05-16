@@ -247,7 +247,7 @@ export default function Flow({ params }: { params: { id: string } }) {
 
     setFlowName(name);
 
-      return toastAlert(true, `${name} Flow saved.`);
+      return toastAlert(true, `"${name}" saved.`);
     } catch (e) {
       toastAlert(false, "Something went wrong!");
     } finally {
