@@ -9,15 +9,6 @@ services:
     build: ./client
     env_file: ./client/.env
 
-  composer:
-    image: composer
-    ports:
-      - "3008:3008"
-    networks:
-      - wb-network
-    build: ./composer_server
-    env_file: ./composer_server/packages/server/.env
-
   docs:
     image: docs
     ports:
