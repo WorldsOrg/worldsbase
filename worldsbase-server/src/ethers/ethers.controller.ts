@@ -5,6 +5,7 @@ import {
   SendEthRequestDto,
   WalletBalanceResponseDto,
   MintERC20Dto,
+  BurnERC20Dto,
 } from './dto/ethers.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -49,6 +50,25 @@ export class EthersController {
       mintErc20.amount,
       mintErc20.minter,
       mintErc20.chainId,
+    );
+  }
+
+  @Post('/burn_erc20_vault')
+  @ApiOperation({
+    summary:
+      'Creates, signs and sends a tx that burns erc20 tokens from a wallet with the private key stored in vault',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'success',
+    type: EthersTxResponseDto,
+  })
+  async burnErc20Vault(@Body() burnErc20: BurnERC20Dto): Promise<string> {
+    return this.ethersService.burnErc20Vault(
+      burnErc20.contractAddress,
+      burnErc20.tokenOwner,
+      burnErc20.amount,
+      burnErc20.chainId,
     );
   }
 
