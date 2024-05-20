@@ -18,15 +18,8 @@ function WorkflowsPage() {
 
   const loadingSkaleton = [1, 2, 3, 4];
 
-  const handleDelete = async (
-    id: string | number,
-    shortId: string | number,
-    tableName: string
-  ) => {
-    await Promise.all([
-      deleteData("workflows", { id }, "id"),
-      axiosInstance.delete(`/table/removetrigger`, { data: { shortId, tableName }})
-    ]);
+  const handleDelete = async (id: string | number, shortId: string | number, tableName: string) => {
+    await Promise.all([deleteData("workflows", { id }, "id"), axiosInstance.delete(`/table/removetrigger`, { data: { shortId, tableName } })]);
     fetchData("workflows");
   };
 
@@ -46,9 +39,9 @@ function WorkflowsPage() {
       </div>
 
       {loadingData
-        ? loadingSkaleton.map((item: any) => {
+        ? loadingSkaleton.map((item: any, index) => {
             return (
-              <div className="p-4 m-2 border border-black rounded-md animate-pulse" key={uuidv4()}>
+              <div className="p-4 m-2 border border-black rounded-md animate-pulse" key={index}>
                 <div className="flex justify-between">
                   <div>
                     <h1 className="bg-black rounded-md w-44">{item}</h1>

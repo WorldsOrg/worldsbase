@@ -7,19 +7,9 @@ export function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname.slice(4);
     return NextResponse.rewrite(new URL(`${process.env.API_PATH}${pathname}`, request.url));
   }
-
-  if (request.nextUrl.pathname.startsWith("/composerapi")) {
-    const pathname = request.nextUrl.pathname.slice(12);
-    return NextResponse.rewrite(new URL(`${process.env.COMPOSER_API_PATH}${pathname}`, request.url));
-  }
-
-  if (request.nextUrl.pathname.startsWith("/chainapi")) {
-    const pathname = request.nextUrl.pathname.slice(9);
-    return NextResponse.rewrite(new URL(`${process.env.CHAIN_API_PATH}${pathname}`, request.url));
-  }
 }
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/api/:path*", "/composerapi/:path*", "/chainapi/:path*"],
+  matcher: ["/api/:path*"],
 };

@@ -584,7 +584,7 @@ export class TableController {
     }
 
     // const triggerName = `notify_trigger_${tableName}`;
-        const dropTriggerQuery = `
+    const dropTriggerQuery = `
     DO $$
     BEGIN
       IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = '${shortId}') THEN

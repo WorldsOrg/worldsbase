@@ -202,13 +202,13 @@ export class WorkflowService {
     data: any;
     operation: string;
     table_name: string;
+    triggered_function: string;
   }) {
     try {
-      const { data, operation, table_name } = payload;
-      const query = `SELECT * FROM "workflows" WHERE "table_name" = $1 AND "operation" = $2`;
+      const { data, triggered_function } = payload;
+      const query = `SELECT * FROM "workflows" WHERE "short_id" = $1`;
       const result = await this.tableService.executeQuery(query, [
-        table_name,
-        operation.toLowerCase(),
+        triggered_function,
       ]);
 
       if (result && result.data.length > 0) {

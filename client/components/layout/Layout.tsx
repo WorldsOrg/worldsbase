@@ -30,12 +30,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       current: false,
     },
     {
-      name: "Composer",
-      href: "/dashboard/composer",
-      icon: GoWorkflow,
-      current: false,
-    },
-    {
       name: "Composer V2 Alpha",
       href: "/dashboard/flow",
       icon: TbSettingsAutomation,

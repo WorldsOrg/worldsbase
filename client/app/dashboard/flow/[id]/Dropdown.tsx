@@ -2,7 +2,9 @@ import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon, PencilSquareIcon, PlusIcon, ArrowRightStartOnRectangleIcon, InformationCircleIcon } from "@heroicons/react/20/solid";
 import { WalletIcon } from "@heroicons/react/24/outline";
-import { PiCoinThin } from "react-icons/pi";
+import { PiCoinThin, PiFunction } from "react-icons/pi";
+import { BiTimer } from "react-icons/bi";
+import { MdFunctions } from "react-icons/md";
 
 export default function Dropdown({ handleAdd }: { handleAdd: (type: string) => void }) {
   return (
@@ -29,6 +31,18 @@ export default function Dropdown({ handleAdd }: { handleAdd: (type: string) => v
               <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("Trigger")}>
                 <ArrowRightStartOnRectangleIcon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
                 Trigger
+              </button>
+            </Menu.Item>
+            <Menu.Item>
+              <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("Cron")}>
+                <BiTimer className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                Cron
+              </button>
+            </Menu.Item>
+            <Menu.Item>
+              <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("Function")}>
+                <PiFunction className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                DB Function
               </button>
             </Menu.Item>
             <Menu.Item>
