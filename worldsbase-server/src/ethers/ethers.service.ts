@@ -99,8 +99,8 @@ export class EthersService {
       const standardTx: StandardTxData = {
         chainId: chainId,
         nonce: (await this.getNonce(senderAddress, chainId)) || 0,
-        maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei').toString(),
-        maxFeePerGas: ethers.parseUnits('100', 'gwei').toString(),
+        maxPriorityFeePerGas: ethers.parseUnits('0.0011', 'gwei').toString(),
+        maxFeePerGas: ethers.parseUnits('0.001100504', 'gwei').toString(),
         gasLimit: ethers.toBigInt('250000').toString(),
         to: to,
         value: ethers.parseEther(value).toString(),
@@ -182,35 +182,30 @@ export class EthersService {
     }
   }
 
-  public async signAndSendTxAwsKms(
-    senderAddress: string,
-    KeyId: string,
-    txData: StandardTxData,
+  public async burnErc20Vault(
+    contractAddress: string,
+    tokenOwner: string,
+    amount: string,
+    chainId: number,
   ): Promise<any> {
     try {
-      const chainId = txData.chainId;
-      const signedTx = await this.awsKmsService.signTransaction(
-        senderAddress,
-        KeyId,
-        txData,
+      const tx = await this.createBurnErc20Tx(
+        contractAddress,
+        tokenOwner,
+        amount,
         chainId,
       );
-      if (this.providers[chainId] !== undefined) {
-        const txHash = await this.providers[chainId].send(
-          'eth_sendRawTransaction',
-          [signedTx],
-        );
-        return { txHash: txHash };
-      } else {
-        console.error('Chain Id not supported');
-        throw new HttpException(
-          'Chain Id not supported',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      const signedTx = await this.signTxVault(tokenOwner, tx);
+      const txSignature = await this.sendRawTransaction(
+        signedTx.signedTx,
+        chainId,
+      );
+      return {
+        txHash: txSignature,
+      };
     } catch (error) {
-      console.error('Error sending tx:', error);
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      console.error('Error in burnErc20Vault:', error);
+      return new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -267,5 +262,60 @@ export class EthersService {
 
     tx.data = populatedTx.data;
     return tx;
+  }
+
+  public async createBurnErc20Tx(
+    contractAddress: string,
+    tokenOwner: string,
+    amount: string,
+    chainId: number,
+  ) {
+    const contract = new ethers.BaseContract(contractAddress, erc20Abi);
+    const burn = contract.getFunction('burn');
+    const populatedTx = await burn.populateTransaction(
+      ethers.parseEther(amount).toString(),
+    );
+
+    const tx = await this.createStandardTx(
+      contractAddress,
+      '0',
+      tokenOwner,
+      chainId,
+    );
+
+    tx.data = populatedTx.data;
+    return tx;
+  }
+
+  public async signAndSendTxAwsKms(
+    senderAddress: string,
+    KeyId: string,
+    txData: StandardTxData,
+  ): Promise<any> {
+    try {
+      const chainId = txData.chainId;
+      const signedTx = await this.awsKmsService.signTransaction(
+        senderAddress,
+        KeyId,
+        txData,
+        chainId,
+      );
+      if (this.providers[chainId] !== undefined) {
+        const txHash = await this.providers[chainId].send(
+          'eth_sendRawTransaction',
+          [signedTx],
+        );
+        return { txHash: txHash };
+      } else {
+        console.error('Chain Id not supported');
+        throw new HttpException(
+          'Chain Id not supported',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch (error) {
+      console.error('Error sending tx:', error);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }
