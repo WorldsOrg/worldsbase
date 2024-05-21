@@ -24,6 +24,57 @@ export class SendEthRequestDto {
   chainId: number;
 }
 
+export class MintERC20Dto {
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Erc20 Contract Address',
+  })
+  contractAddress: string;
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Wallet Address of mint receipient',
+  })
+  to: string;
+  @ApiProperty({
+    example: '1',
+    description: 'Amount of tokens to mint in ether',
+  })
+  amount: string;
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Wallet Address of the minter',
+  })
+  minter: string;
+  @ApiProperty({
+    example: 1,
+    description: 'Chain ID',
+  })
+  chainId: number;
+}
+
+export class BurnERC20Dto {
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Erc20 Contract Address',
+  })
+  contractAddress: string;
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Wallet Address of token owner',
+  })
+  tokenOwner: string;
+  @ApiProperty({
+    example: '1',
+    description: 'Amount of tokens to mint in ether',
+  })
+  amount: string;
+  @ApiProperty({
+    example: 1,
+    description: 'Chain ID',
+  })
+  chainId: number;
+}
+
 export class EthersTxResponseDto {
   @ApiProperty({
     example:
