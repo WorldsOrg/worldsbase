@@ -1,6 +1,7 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { ApiHeader, ApiTags } from '@nestjs/swagger';
 import { CreateCronDTO, CronApiResponse } from './dto/db.dto';
+import { DBService } from './db.service';
 
 type ScheduleKey =
   | 'every minute'
@@ -19,44 +20,31 @@ type ScheduleKey =
 @ApiTags('DB')
 @Controller('db')
 export class DbController {
-  scheduleMapping: { [key in ScheduleKey]: string } = {
-    'every minute': '* * * * *',
-    'every 10 minutes': '*/10 * * * *',
-    'every 30 minutes': '*/30 * * * *',
-    'every hour': '0 * * * *',
-    'every 4 hours': '0 */4 * * *',
-    'every 6 hours': '0 */6 * * *',
-    'every 12 hours': '0 */12 * * *',
-    'every day': '0 0 * * *',
-    'every week': '0 0 * * 0',
-    'every month': '0 0 1 * *',
-    'every year': '0 0 1 1 *',
-  };
-
-  translateScheduleToCron(schedule: ScheduleKey): string {
-    return this.scheduleMapping[schedule];
-  }
+  constructor(private readonly dbService: DBService) {}
 
   @Post('cron')
   async cron(
     @Body() createCronDTO: CreateCronDTO,
   ): Promise<CronApiResponse<any>> {
-    // const cronExpression = this.translateScheduleToCron(
-    //   createCronDTO.cronExpression,
-    // );
-    const cronExpression = createCronDTO.cronExpression;
-    const functionName = createCronDTO.cronFunction;
-
-    // Here you would actually call `pg_cron` or equivalent functionality
-    // // For demonstration, we just simulate the call:
-    // console.log(
-    //   `Scheduling: CALL ${functionName}() with schedule ${cronExpression}`,
-    // );
-
-    // Simulate successful scheduling
+    const query = `SELECT cron.schedule('${createCronDTO.schedule}', $$CALL ${createCronDTO.function}()$$);`;
+    const result = await this.dbService.executeQuery(query);
+    console.log(result);
     return {
       status: 200,
-      data: `Successfully scheduled ${functionName} with schedule ${cronExpression}`,
+      data: `Successfully scheduled ${createCronDTO.schedule} with schedule ${createCronDTO.function}`,
+    };
+  }
+
+  @Delete('cron')
+  async deleteCron(
+    @Body() createCronDTO: CreateCronDTO,
+  ): Promise<CronApiResponse<any>> {
+    const query = `SELECT cron.unschedule('${createCronDTO.schedule}', $$CALL ${createCronDTO.function}()$$);`;
+    const result = await this.dbService.executeQuery(query);
+    console.log(result);
+    return {
+      status: 200,
+      data: `Successfully unscheduled ${createCronDTO.schedule} with schedule ${createCronDTO.function}`,
     };
   }
 }
