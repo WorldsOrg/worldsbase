@@ -205,48 +205,99 @@ export default function Flow({ params }: { params: { id: string } }) {
     try {
       setSaveLoading(true);
       const short_id = generateShortId();
-      console.log(nodes);
       const trigger = nodes.filter((node) => node.type === "triggerNode");
       const cron = nodes.filter((node) => node.type === "cronNode");
-      console.log(trigger);
-      const tableName = trigger[0].data.table;
-      const method = trigger[0].data.method;
-      const filter = trigger[0].data.filter ? trigger[0].data.filter : null;
-      let condition = null;
-      if (filter !== null) {
-        condition = createConditionString(filter);
-      }
-      const triggerPayload = {
-        tableName: tableName,
-        triggerName: short_id,
-        method: method,
-        condition: condition,
-      };
-
-      const payload = {
-        data: {
-          id: flowId,
-          short_id: short_id,
-          name,
-          nodes: nodes,
-          edges: edges,
-        },
-        tableName: "workflows",
-      };
-
-      const requests = [axiosInstance.post(`/table/addtrigger`, triggerPayload), axiosInstance.post(`/table/insertdata/`, payload)];
-
-      const responses = await Promise.all(requests);
-
-      const allSuccessful = responses.every((response) => response?.status === 201);
-
-      if (!allSuccessful) {
-        return toastAlert(false, "Flow could not be saved!");
+      if (trigger.length === 0 && cron.length === 0) {
+        return toastAlert(false, "A flow must have a trigger or cron node!");
       }
 
-      setFlowName(name);
+      if (trigger.length > 1) {
+        return toastAlert(false, "A flow can only have one trigger node!");
+      }
 
-      return toastAlert(true, `"${name}" saved.`);
+      if (cron.length > 1) {
+        return toastAlert(false, "A flow can only have one cron node!");
+      }
+
+      if (trigger.length > 0) {
+        const tableName = trigger[0].data.table;
+        const method = trigger[0].data.method;
+        const filter = trigger[0].data.filter ? trigger[0].data.filter : null;
+
+        let condition = null;
+        if (filter !== null) {
+          condition = createConditionString(filter);
+        }
+
+        const triggerPayload = {
+          tableName: tableName,
+          triggerName: short_id,
+          method: method,
+          condition: condition,
+        };
+
+        const payload = {
+          data: {
+            id: flowId,
+            short_id: short_id,
+            name,
+            nodes: nodes,
+            edges: edges,
+            type: "trigger",
+          },
+          tableName: "workflows",
+        };
+
+        const requests = [axiosInstance.post(`/table/addtrigger`, triggerPayload), axiosInstance.post(`/table/insertdata/`, payload)];
+
+        const responses = await Promise.all(requests);
+
+        const allSuccessful = responses.every((response) => response?.status === 201);
+
+        if (!allSuccessful) {
+          return toastAlert(false, "Flow could not be saved!");
+        }
+
+        setFlowName(name);
+
+        return toastAlert(true, `"${name}" saved.`);
+      } else if (cron && cron.length > 0) {
+        const cronNode = cron[0];
+        const cronPayload = {
+          tableName: "cron",
+          triggerName: short_id,
+          schedule: cronNode.data.schedule,
+        };
+
+        // SELECT cron.schedule('0 * * * *', $$CALL perform_hourly_task()$$);
+        const cronQuery = `SELECT cron.schedule('${cronNode.data.schedule}', $$CALL ${short_id}()$$);`;
+
+        const payload = {
+          data: {
+            id: flowId,
+            short_id: short_id,
+            name,
+            nodes: nodes,
+            edges: edges,
+            type: "cron",
+          },
+          tableName: "workflows",
+        };
+
+        const requests = [axiosInstance.post(`/table/addcron`, cronPayload), axiosInstance.post(`/table/insertdata/`, payload)];
+
+        const responses = await Promise.all(requests);
+
+        const allSuccessful = responses.every((response) => response?.status === 201);
+
+        if (!allSuccessful) {
+          return toastAlert(false, "Flow could not be saved!");
+        }
+
+        setFlowName(name);
+
+        return toastAlert(true, `"${name}" saved.`);
+      }
     } catch (e) {
       toastAlert(false, "Something went wrong!");
     } finally {
