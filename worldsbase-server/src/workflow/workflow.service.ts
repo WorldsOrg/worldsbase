@@ -3,6 +3,7 @@ import { Edge } from './entities/worflow.entities';
 import { WalletService } from 'src/wallet/wallet.service';
 import { TableService } from 'src/table/table.service';
 import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
+import { EthersService } from 'src/ethers/ethers.service';
 
 @Injectable()
 export class WorkflowService {
@@ -10,6 +11,7 @@ export class WorkflowService {
     private readonly tableService: TableService,
     private readonly walletService: WalletService,
     private readonly thirdwebService: ThirdwebService,
+    private readonly ethersService: EthersService,
   ) {}
 
   convertEtherToWei(etherAmount: string | number | bigint | boolean) {
@@ -175,12 +177,12 @@ export class WorkflowService {
 
     const amountInWei = this.convertEtherToWei(amount);
 
-    const result = await this.thirdwebService.mintERC20Vault(
-      node.data.transaction.minter,
-      node.data.transaction.chainId,
+    const result = await this.ethersService.mintErc20Vault(
       node.data.transaction.contractAddress,
       to,
       amountInWei.toString(),
+      node.data.transaction.minter,
+      node.data.transaction.chainId,
     );
     console.log(result, 'tx');
 
@@ -202,13 +204,13 @@ export class WorkflowService {
     data: any;
     operation: string;
     table_name: string;
+    triggered_function: string;
   }) {
     try {
-      const { data, operation, table_name } = payload;
-      const query = `SELECT * FROM "workflows" WHERE "table_name" = $1 AND "operation" = $2`;
+      const { data, triggered_function } = payload;
+      const query = `SELECT * FROM "workflows" WHERE "short_id" = $1`;
       const result = await this.tableService.executeQuery(query, [
-        table_name,
-        operation.toLowerCase(),
+        triggered_function,
       ]);
 
       if (result && result.data.length > 0) {

@@ -1,20 +1,15 @@
 {
   "license": "MIT",
   "scripts": {
-    "install": "npm run install:client && npm run install:server && npm run install:docs && npm run install:composer",
+    "install": "npm run install:client && npm run install:server && npm run install:docs",
     "install:client": "cd client && npm install --legacy-peer-deps",
     "install:docs": "cd docs && npm install",
     "install:server": "cd worldsbase-server && npm install",
-    "install:composer": "cd composer-server && npm install && turbo build",
     "init:tables": "cd server && npm run init_tables",
-    "start": "npm run dev:client & npm run dev:server & npm run dev:docs & npm run dev:composer",
+    "start": "npm run dev:client & npm run dev:server & npm run dev:docs",
     "dev": "npm run dev:client & npm run dev:server & npm run dev:docs",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd worldsbase-server && npm run start:dev",
-    "dev:docs": "cd docs && npm run dev",
-    "dev:composer": "cd composer-server && turbo dev"
-  },
-  "dependencies": {
-    "turbo": "^1.12.4"
+    "dev:docs": "cd docs && npm run dev"
   }
 }

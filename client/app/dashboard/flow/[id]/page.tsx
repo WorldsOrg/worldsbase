@@ -1,27 +1,10 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
-import ReactFlow, {
-  Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  BackgroundVariant,
-} from "reactflow";
+import ReactFlow, { Background, useNodesState, useEdgesState, addEdge, BackgroundVariant } from "reactflow";
 import { isEmpty } from "lodash";
-import { Field, Formik} from "formik";
+import { Field, Formik } from "formik";
 import * as Yup from "yup";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  Stack,
-  FormControl,
-  Input,
-  FormErrorMessage,
-} from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, Stack, FormControl, Input, FormErrorMessage } from "@chakra-ui/react";
 import TableNode from "./nodes/TableNode";
 import "reactflow/dist/style.css";
 import StickyNoteNode from "./nodes/StickyNoteNode";
@@ -33,6 +16,8 @@ import WalletNode from "./nodes/WalletNode";
 import SendTokenNode from "./nodes/SendTokenNode";
 import Loading from "@/components/ui/Loading";
 import { useToastContext } from "@/context/toastContext";
+import CronNode from "./nodes/CronNode";
+import FunctionNode from "./nodes/FunctionNode";
 
 const nodeTypes = {
   tableNode: TableNode,
@@ -40,6 +25,8 @@ const nodeTypes = {
   triggerNode: TriggerNode,
   walletNode: WalletNode,
   tokenNode: SendTokenNode,
+  cronNode: CronNode,
+  functionNode: FunctionNode,
 };
 
 export default function Flow({ params }: { params: { id: string } }) {
@@ -51,10 +38,7 @@ export default function Flow({ params }: { params: { id: string } }) {
   const [showNameModal, setShowNameModal] = useState(false);
   const [walletId, setWalletId] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
-  const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)),
-    []
-  );
+  const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
   const { toastAlert } = useToastContext();
 
@@ -63,9 +47,7 @@ export default function Flow({ params }: { params: { id: string } }) {
   }, [navigation, flowId]);
 
   const getWorkflows = async () => {
-    const result = await axiosInstance.get(
-      `/table/gettablevalue/workflows/id/${flowId}`
-    );
+    const result = await axiosInstance.get(`/table/gettablevalue/workflows/id/${flowId}`);
     if (result.data[0]) {
       setNodes(result.data[0].nodes);
       setEdges(result.data[0].edges);
@@ -95,9 +77,7 @@ export default function Flow({ params }: { params: { id: string } }) {
   };
 
   const handleAdd = (type: string) => {
-    if (
-      nodes.some((node) => node.type === "triggerNode" && type === "Trigger")
-    ) {
+    if (nodes.some((node) => node.type === "triggerNode" && type === "Trigger")) {
       alert("You can only have one trigger node in a flow.");
       return;
     }
@@ -189,71 +169,157 @@ export default function Flow({ params }: { params: { id: string } }) {
           },
         ]);
         break;
+      case "Cron":
+        setNodes((n) => [
+          ...n,
+          {
+            id: (n.length + 100).toString(),
+            type: "cronNode",
+            position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+            data: {
+              schedule: "0 * * * *",
+            },
+          },
+        ]);
+        break;
+      case "Function":
+        setNodes((n) => [
+          ...n,
+          {
+            id: (n.length + 100).toString(),
+            type: "functionNode",
+            position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+            data: {
+              tables: navigation,
+            },
+          },
+        ]);
+        break;
     }
   };
-
 
   const handleSave = async (name: string) => {
     if (isEmpty(name)) {
       return setShowNameModal(true);
     }
-
     try {
       setSaveLoading(true);
-
       const short_id = generateShortId();
       const trigger = nodes.filter((node) => node.type === "triggerNode");
-      const tableName = trigger[0].data.table;
-      const method = trigger[0].data.method;
-      const filter = trigger[0].data.filter ? trigger[0].data.filter : null;
-      let condition = null;
-      if (filter !== null) {
-        condition = createConditionString(filter);
-      }
-      const payload = {
-        data: {
-          id: flowId,
-          short_id: short_id,
-          name,
-          nodes: nodes,
-          edges: edges,
-          table_name: tableName,
-          operation: method,
-        },
-        tableName: "workflows",
-      };
-
-      const triggerPayload = {
-        tableName: tableName,
-        triggerName: short_id,
-        method: method,
-        condition: condition,
-      };
-
-      const requests = [
-        axiosInstance.post(`/table/addtrigger`, triggerPayload),
-        axiosInstance.post(`/table/insertdata/`, payload),
-      ];
-
-      const responses = await Promise.all(requests);
-
-      const allSuccessful = responses.every(
-        (response) => response?.status === 201
-      );
-
-      if (!allSuccessful) {
-        return toastAlert(false, "Flow could not be saved!");
+      const cron = nodes.filter((node) => node.type === "cronNode");
+      if (trigger.length === 0 && cron.length === 0) {
+        return toastAlert(false, "A flow must have a trigger or cron node!");
       }
 
-    setFlowName(name);
+      if (trigger.length > 1) {
+        return toastAlert(false, "A flow can only have one trigger node!");
+      }
 
-      return toastAlert(true, `"${name}" saved.`);
+      if (cron.length > 1) {
+        return toastAlert(false, "A flow can only have one cron node!");
+      }
+
+      if (trigger.length > 0) {
+        const tableName = trigger[0].data.table;
+        const method = trigger[0].data.method;
+        const filter = trigger[0].data.filter ? trigger[0].data.filter : null;
+
+        let condition = null;
+        if (filter !== null) {
+          condition = createConditionString(filter);
+        }
+
+        const triggerPayload = {
+          tableName: tableName,
+          triggerName: short_id,
+          method: method,
+          condition: condition,
+        };
+
+        const payload = {
+          data: {
+            id: flowId,
+            short_id: short_id,
+            name,
+            nodes: nodes,
+            edges: edges,
+            type: "trigger",
+          },
+          tableName: "workflows",
+        };
+
+        const requests = [axiosInstance.post(`/table/addtrigger`, triggerPayload), axiosInstance.post(`/table/insertdata/`, payload)];
+
+        const responses = await Promise.all(requests);
+
+        const allSuccessful = responses.every((response) => response?.status === 201);
+
+        if (!allSuccessful) {
+          return toastAlert(false, "Flow could not be saved!");
+        }
+
+        setFlowName(name);
+
+        return toastAlert(true, `"${name}" saved.`);
+      } else if (cron && cron.length > 0) {
+        const cronNode = cron[0];
+        const cronPayload = {
+          tableName: "cron",
+          triggerName: short_id,
+          schedule: cronNode.data.schedule,
+        };
+
+        // SELECT cron.schedule('0 * * * *', $$CALL perform_hourly_task()$$);
+        const cronQuery = `SELECT cron.schedule('${cronNode.data.schedule}', $$CALL ${short_id}()$$);`;
+
+        const payload = {
+          data: {
+            id: flowId,
+            short_id: short_id,
+            name,
+            nodes: nodes,
+            edges: edges,
+            type: "cron",
+          },
+          tableName: "workflows",
+        };
+
+        const requests = [axiosInstance.post(`/table/addcron`, cronPayload), axiosInstance.post(`/table/insertdata/`, payload)];
+
+        const responses = await Promise.all(requests);
+
+        const allSuccessful = responses.every((response) => response?.status === 201);
+
+        if (!allSuccessful) {
+          return toastAlert(false, "Flow could not be saved!");
+        }
+
+        setFlowName(name);
+
+        return toastAlert(true, `"${name}" saved.`);
+      }
     } catch (e) {
       toastAlert(false, "Something went wrong!");
     } finally {
       setShowNameModal(false);
       setSaveLoading(false);
     }
+  };
+
+  const createTriggerFlow = async (tableName: string, method: string, condition: string, short_id: string) => {
+    const payload = {
+      tableName: tableName,
+      triggerName: short_id,
+      method: method,
+      condition: condition,
+    };
+
+    const response = await axiosInstance.post(`/table/addtrigger`, payload);
+
+    if (response.status === 201) {
+      return short_id;
+    }
+    return null;
   };
 
   const generateShortId = () => {
@@ -313,24 +379,13 @@ export default function Flow({ params }: { params: { id: string } }) {
         <div className="text-lg font-semibold">{isEmpty(flowName) ? "New Flow" : flowName}</div>
         <div className="flex items-center">
           <Dropdown handleAdd={handleAdd} />
-          <button
-            className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9"
-            onClick={() => handleSave(flowName)}
-          >
+          <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={() => handleSave(flowName)}>
             Save Flow
           </button>
         </div>
       </div>
 
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-        nodeTypes={nodeTypes}
-      >
+      <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} fitView nodeTypes={nodeTypes}>
         <Background variant={"dots" as BackgroundVariant} gap={12} size={1} />
       </ReactFlow>
 
@@ -352,30 +407,11 @@ export default function Flow({ params }: { params: { id: string } }) {
                   <form onSubmit={handleSubmit}>
                     <Stack spacing="8">
                       <Stack spacing="6">
-                        <FormControl
-                          isInvalid={
-                            !!errors.newFlowName && touched.newFlowName
-                          }
-                        >
-                          <Field
-                            as={Input}
-                            className="rounded-md"
-                            id="newFlowName"
-                            name="newFlowName"
-                            placeholder="Flow Name"
-                          />
-                          {!isEmpty(errors?.newFlowName) && (
-                            <FormErrorMessage>
-                              {errors?.newFlowName
-                                ? "Flow Name is required"
-                                : ""}
-                            </FormErrorMessage>
-                          )}
+                        <FormControl isInvalid={!!errors.newFlowName && touched.newFlowName}>
+                          <Field as={Input} className="rounded-md" id="newFlowName" name="newFlowName" placeholder="Flow Name" />
+                          {!isEmpty(errors?.newFlowName) && <FormErrorMessage>{errors?.newFlowName ? "Flow Name is required" : ""}</FormErrorMessage>}
                         </FormControl>
-                        <button
-                          className="w-full p-2 text-white rounded-md bg-secondary hover:bg-secondaryHover"
-                          type="submit"
-                        >
+                        <button className="w-full p-2 text-white rounded-md bg-secondary hover:bg-secondaryHover" type="submit">
                           Save
                         </button>
                       </Stack>

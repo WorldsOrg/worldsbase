@@ -27,6 +27,10 @@ export class DBService {
     });
 
     this.subscriber.notifications.on('my_event_channel', (payload) => {
+      console.log(
+        'Received notification in channel my_event_channel:',
+        payload,
+      );
       this.workflowService.executeFlow(payload);
     });
 

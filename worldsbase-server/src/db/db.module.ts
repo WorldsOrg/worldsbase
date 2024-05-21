@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { PG_CONNECTION } from 'src/constants';
 import { DBService } from './db.service';
 import { WorkflowModule } from 'src/workflow/workflow.module';
+import { DbController } from './db.controller';
 
 const dbProvider = {
   provide: PG_CONNECTION,
@@ -22,5 +23,6 @@ const dbProvider = {
   imports: [ConfigModule, forwardRef(() => WorkflowModule)],
   providers: [dbProvider, DBService],
   exports: [dbProvider, DBService],
+  controllers: [DbController],
 })
 export class DbModule {}
