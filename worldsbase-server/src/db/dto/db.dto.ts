@@ -7,13 +7,13 @@ export class CreateCronDTO {
     description: 'Cron Expression',
   })
   @IsString()
-  readonly cronExpression: string;
+  readonly schedule: string;
   @ApiProperty({
     example: 'update_table()',
     description: 'Function to be executed by cron job',
   })
   @IsString()
-  readonly cronFunction: string;
+  readonly function: string;
 }
 
 export class CronApiResponse<T> {
