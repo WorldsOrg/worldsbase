@@ -3,19 +3,6 @@ import { ApiHeader, ApiTags } from '@nestjs/swagger';
 import { CreateCronDTO, CronApiResponse } from './dto/db.dto';
 import { DBService } from './db.service';
 
-type ScheduleKey =
-  | 'every minute'
-  | 'every 10 minutes'
-  | 'every 30 minutes'
-  | 'every hour'
-  | 'every 4 hours'
-  | 'every 6 hours'
-  | 'every 12 hours'
-  | 'every day'
-  | 'every week'
-  | 'every month'
-  | 'every year';
-
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('DB')
 @Controller('db')
