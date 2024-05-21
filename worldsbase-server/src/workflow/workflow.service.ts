@@ -180,7 +180,7 @@ export class WorkflowService {
     const result = await this.ethersService.mintErc20Vault(
       node.data.transaction.contractAddress,
       to,
-      amount,
+      amount.toString(),
       node.data.transaction.minter,
       node.data.transaction.chainId,
     );
@@ -191,7 +191,7 @@ export class WorkflowService {
       result.transactionHash,
       node.data.transaction.minter,
       to,
-      amount,
+      amount.toString(),
       node.data.transaction.contractAddress,
       node.data.transaction.chainId,
     ];
