@@ -19,6 +19,9 @@ export class DBService {
 
   async onModuleInit() {
     await this.initSubscriber();
+    if (this.configService.get<string>('DATA_TEST') === 'true') {
+      await this.test();
+    }
   }
 
   private async initSubscriber() {
@@ -51,5 +54,15 @@ export class DBService {
       console.error('Error executing query:', error);
       throw new BadRequestException('Error executing query');
     }
+  }
+
+  async test() {
+    const query = `SELECT * FROM "twitter_engagement_score" WHERE "wallet" IS NOT NULL`;
+    const result = await this.executeQuery(query);
+    console.log(result);
+    result.data.forEach((row) => {
+      const query = `UPDATE "twitter_engagement_score" SET "total_engagement_points" = "total_engagement_points" + 1 WHERE "wallet" = $1`;
+      this.executeQuery(query, [row.wallet]);
+    });
   }
 }
