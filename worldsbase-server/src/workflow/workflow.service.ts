@@ -175,20 +175,25 @@ export class WorkflowService {
       return;
     }
 
-    const amountInWei = this.convertEtherToWei(amount);
+    //const amountInWei = this.convertEtherToWei(amount);
 
-    const result = await this.thirdwebService.mintErc20Vault(
+    const result = await this.ethersService.mintErc20Vault(
       node.data.transaction.contractAddress,
       to,
-      amountInWei.toString(),
+      amount.toString(),
       node.data.transaction.minter,
       node.data.transaction.chainId,
     );
     console.log(result, 'tx');
 
+    if (!result || !result.txHash) {
+      console.error('Error minting token:', result);
+      return;
+    }
+
     const tx_query = `INSERT INTO wtf_tx (transactionHash, from_address, to_address, amount, contract_address, chain_id) VALUES ($1, $2, $3, $4, $5, $6)`;
     const tx_values = [
-      result.transactionHash,
+      result.txHash,
       node.data.transaction.minter,
       to,
       amount.toString(),
