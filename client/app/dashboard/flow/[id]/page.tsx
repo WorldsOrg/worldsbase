@@ -244,6 +244,7 @@ export default function Flow({ params }: { params: { id: string } }) {
             nodes: nodes,
             edges: edges,
             type: "trigger",
+            table_name: tableName
           },
           tableName: "workflows",
         };
