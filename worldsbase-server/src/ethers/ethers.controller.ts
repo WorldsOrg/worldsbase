@@ -5,6 +5,8 @@ import {
   SendEthRequestDto,
   WalletBalanceResponseDto,
   MintERC20Dto,
+  MultiMintERC20Dto,
+  MultiEthersTxResponseDto,
   BurnERC20Dto,
 } from './dto/ethers.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -50,6 +52,27 @@ export class EthersController {
       mintErc20.amount,
       mintErc20.minter,
       mintErc20.chainId,
+    );
+  }
+
+  @Post('/multi_mint_erc20_vault')
+  @ApiOperation({
+    summary:
+      'Creates, signs and sends txs that mint erc20 tokens to multiple recipients using a private key stored in vault given different amounts to mint and waits for each tx to complete before starting the next one',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'success',
+    type: MultiEthersTxResponseDto,
+  })
+  async multiMintErc20Vault(
+    @Body() multiMintErc20: MultiMintERC20Dto,
+  ): Promise<string> {
+    return this.ethersService.multiMintErc20Vault(
+      multiMintErc20.contractAddress,
+      multiMintErc20.data,
+      multiMintErc20.minter,
+      multiMintErc20.chainId,
     );
   }
 
