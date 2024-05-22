@@ -60,12 +60,12 @@ export class ThirdwebService {
     }
   }
 
-  async mintERC20Vault(
-    minter: string,
-    chainIdOrRpc: string,
+  async mintErc20Vault(
     contractAddress: string,
     to: string,
     amount: string,
+    minter: string,
+    chainIdOrRpc: string,
   ): Promise<any> {
     try {
       const mintSDK = await this.getSdkFromVaultSecret(minter, chainIdOrRpc);

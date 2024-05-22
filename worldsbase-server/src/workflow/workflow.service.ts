@@ -175,12 +175,12 @@ export class WorkflowService {
       return;
     }
 
-    //const amountInWei = this.convertEtherToWei(amount);
+    const amountInWei = this.convertEtherToWei(amount);
 
-    const result = await this.ethersService.mintErc20Vault(
+    const result = await this.thirdwebService.mintErc20Vault(
       node.data.transaction.contractAddress,
       to,
-      amount.toString(),
+      amountInWei.toString(),
       node.data.transaction.minter,
       node.data.transaction.chainId,
     );
