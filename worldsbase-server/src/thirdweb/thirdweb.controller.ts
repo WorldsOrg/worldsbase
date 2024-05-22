@@ -21,7 +21,7 @@ export class ThirdwebController {
     type: ThirdwebResponseDto,
   })
   mintErc20Vault(@Body() mintERC20: MintERC20Dto): Promise<string> {
-    return this.thirdwebService.mintERC20Vault(
+    return this.thirdwebService.mintErc20Vault(
       mintERC20.minter,
       mintERC20.chainIdOrRpc,
       mintERC20.contractAddress,
