@@ -1,3 +1,4 @@
+import { DbFunction } from "@/types/DB.type";
 import { useEffect, useState } from "react";
 import { Handle, Position, useReactFlow, useStoreApi } from "reactflow";
 
@@ -5,10 +6,14 @@ function CronNode({ data, id }: { data: any; id: any }) {
   const { setNodes } = useReactFlow();
   const store = useStoreApi();
   const [cronValue, setCronValue] = useState();
+  const [functionValue, setFunctionValue] = useState();
 
   useEffect(() => {
     if (data && data.schedule) {
       setCronValue(data.schedule);
+    }
+    if (data && data.function) {
+      setFunctionValue(data.function);
     }
   }, [id]);
 
@@ -20,6 +25,20 @@ function CronNode({ data, id }: { data: any; id: any }) {
         node.data = {
           ...node.data,
           schedule: evt.target.value,
+        };
+        return node;
+      })
+    );
+  };
+
+  const handleFunctionChange = (evt: any) => {
+    setFunctionValue(evt.target.value);
+    const { nodeInternals } = store.getState();
+    setNodes(
+      Array.from(nodeInternals.values()).map((node) => {
+        node.data = {
+          ...node.data,
+          function: evt.target.value,
         };
         return node;
       })
@@ -53,6 +72,22 @@ function CronNode({ data, id }: { data: any; id: any }) {
             <option value="0 0 * * 0">Every Week at Sunday Midnight</option>
             <option value="0 0 1 * *">Every Month on the 1st</option>
             <option value="0 0 1 1 *">Every Year on January 1st</option>
+          </select>
+        </div>
+        <div className="flex-grow mr-2 mt-2">
+          <div>DB Function</div>
+          <select
+            className="nodrag mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            onChange={handleFunctionChange}
+            value={functionValue}
+          >
+            {data &&
+              data.functions &&
+              data.functions.map((func: DbFunction) => (
+                <option key={func["Function Name"]} value={func["Function Name"]}>
+                  {func["Function Name"]}
+                </option>
+              ))}
           </select>
         </div>
 

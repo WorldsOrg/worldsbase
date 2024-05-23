@@ -5,6 +5,7 @@ import { textColumn, keyColumn } from "react-datasheet-grid";
 import _sortBy from "lodash/sortBy";
 import { useToastContext } from "./toastContext";
 import axiosInstance from "../utils/axiosInstance";
+import { DbFunction } from "@/types/DB.type";
 
 interface TableContextProps {
   loading: boolean;
@@ -32,6 +33,7 @@ interface TableContextProps {
   getSchemas: () => void;
   renameTable: (oldTableName: string, newTableName: string) => Promise<any>;
   handleSelectTable: (tableName: string) => void;
+  functions: DbFunction[];
 }
 
 export const TableContext = createContext<TableContextProps>({
@@ -72,6 +74,7 @@ export const TableContext = createContext<TableContextProps>({
   },
   handleSelectTable: (tableName: string) => {},
   createSchema: async (schemaName: string) => {},
+  functions: [],
 });
 
 interface Navigation {
@@ -104,7 +107,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const [navigation, setNavigation] = useState<Array<Navigation>>([]);
   const [schemas, setSchemas] = useState<Array<Schema>>([]);
   const [selectedSchema, setSelectedSchema] = useState("public");
-
+  const [functions, setFunctions] = useState<string[]>([]);
   const fetchData = useCallback(
     async (tableName: string, page?: string) => {
       setLoadingData(true);
@@ -158,7 +161,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await Promise.all([getTables(), getSchemas()]);
+      await Promise.all([getTables(), getSchemas(), getFunctions()]);
     };
 
     fetchData();
@@ -346,6 +349,12 @@ export const TableProvider = ({ children }: TableProviderProps) => {
     }
   }, []);
 
+  const getFunctions = useCallback(async () => {
+    const { data } = await axiosInstance.get("/db/functions");
+    console.log(data);
+    setFunctions(data);
+  }, []);
+
   const value = useMemo(
     () => ({
       renameTable,
@@ -373,6 +382,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       selectedSchema,
       handleSelectSchema,
       tableLoading,
+      functions,
     }),
     [
       renameTable,
@@ -398,6 +408,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
       selectedSchema,
       handleSelectSchema,
       tableLoading,
+      functions,
     ]
   );
 
