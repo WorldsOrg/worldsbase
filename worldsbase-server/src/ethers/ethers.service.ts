@@ -170,11 +170,14 @@ export class EthersService {
           minter,
           chainId,
         );
+        console.log(tx);
         const signedTx = await this.signTxVault(minter, tx);
+        console.log(signedTx);
         const txSignature = await this.sendRawTransaction(
           signedTx.signedTx,
           chainId,
         );
+        console.log(txSignature);
         await this.providers[chainId].waitForTransaction(txSignature);
         txSignatures.push(txSignature);
       }
