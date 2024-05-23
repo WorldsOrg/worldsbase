@@ -61,6 +61,9 @@ export class WorkflowService {
       case 'tokenNode':
         await this.processMintNode(node, parsedData, variables, index);
         break;
+      case 'batchMintNode':
+        await this.processBatchMintNode(node);
+        break;
       case 'triggerNode':
         // do nothing
         break;
@@ -203,6 +206,51 @@ export class WorkflowService {
     await this.tableService.executeQuery(tx_query, tx_values);
     const query = `UPDATE wtf_users SET social_score = social_score + ${amount} WHERE provisioned_wallet = '${to}'`;
     await this.tableService.executeQuery(query);
+  }
+
+  private async processBatchMintNode(node: {
+    data: {
+      table: string;
+      transaction: {
+        toAddress: any;
+        amount: any;
+        minter: any;
+        chainId: any;
+        contractAddress: any;
+      };
+    };
+  }) {
+    const toAddressColumnName = node.data.transaction.toAddress.slice(1);
+
+    if (toAddressColumnName === undefined) {
+      console.warn(`Value for field ${toAddressColumnName} is undefined`);
+      return;
+    }
+
+    const amountColumnName = node.data.transaction.amount.slice(1);
+
+    if (amountColumnName === undefined) {
+      console.warn(`Value for field ${amountColumnName} is undefined`);
+      return;
+    }
+
+    const getTableQuery = `SELECT * FROM ${node.data.table} WHERE ${toAddressColumnName} IS NOT NULL AND ${amountColumnName} IS NOT NULL AND ${amountColumnName} > 0`;
+    const result = await this.tableService.executeQuery(getTableQuery);
+
+    if (result.status === 200) {
+      const batchData = result.data.map((row: any) => ({
+        toAddress: row[toAddressColumnName],
+        amount: row[amountColumnName],
+      }));
+
+      const tx = await this.ethersService.multiMintErc20Vault(
+        node.data.transaction.contractAddress,
+        batchData,
+        node.data.transaction.minter,
+        node.data.transaction.chainId,
+      );
+      console.log(tx);
+    }
   }
 
   async executeFlow(payload: {
