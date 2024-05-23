@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Edge } from './entities/worflow.entities';
 import { WalletService } from 'src/wallet/wallet.service';
 import { TableService } from 'src/table/table.service';
-import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
 import { EthersService } from 'src/ethers/ethers.service';
 
 @Injectable()
@@ -10,7 +9,6 @@ export class WorkflowService {
   constructor(
     private readonly tableService: TableService,
     private readonly walletService: WalletService,
-    private readonly thirdwebService: ThirdwebService,
     private readonly ethersService: EthersService,
   ) {}
 

@@ -107,7 +107,7 @@ export const TableProvider = ({ children }: TableProviderProps) => {
   const [navigation, setNavigation] = useState<Array<Navigation>>([]);
   const [schemas, setSchemas] = useState<Array<Schema>>([]);
   const [selectedSchema, setSelectedSchema] = useState("public");
-  const [functions, setFunctions] = useState<string[]>([]);
+  const [functions, setFunctions] = useState<DbFunction[]>([]);
   const fetchData = useCallback(
     async (tableName: string, page?: string) => {
       setLoadingData(true);
