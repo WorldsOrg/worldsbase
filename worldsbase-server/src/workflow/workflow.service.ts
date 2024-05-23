@@ -240,7 +240,7 @@ export class WorkflowService {
         toAddress: row[toAddressColumnName],
         amount: row[amountColumnName],
       }));
-
+      console.log('Start minting', batchData);
       const tx = await this.ethersService.multiMintErc20Vault(
         node.data.transaction.contractAddress,
         batchData,
