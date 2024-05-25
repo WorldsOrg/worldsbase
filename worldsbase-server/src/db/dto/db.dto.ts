@@ -16,8 +16,18 @@ export class CreateCronDTO {
   readonly function: string;
 }
 
-export class CronApiResponse<T> {
+export class DeleteCronDTO {
+  @ApiProperty({
+    example: '1',
+    description: 'Cron Id',
+  })
+  @IsString()
+  readonly cron_id: string;
+}
+
+export class CronApiResponse {
   status: number;
-  data?: T;
   error?: string;
+  message?: string;
+  id?: string;
 }

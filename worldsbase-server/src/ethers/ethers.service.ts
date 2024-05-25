@@ -153,6 +153,43 @@ export class EthersService {
     }
   }
 
+  public async multiMintErc20Vault(
+    contractAddress: string,
+    data: Array<any>,
+    minter: string,
+    chainId: number,
+  ): Promise<any> {
+    try {
+      const txSignatures = [];
+      // loop through data and create txs
+      for (let i = 0; i < data.length; i++) {
+        const tx = await this.createMintErc20Tx(
+          contractAddress,
+          data[i].toAddress,
+          data[i].amount,
+          minter,
+          chainId,
+        );
+        console.log(tx);
+        const signedTx = await this.signTxVault(minter, tx);
+        console.log(signedTx);
+        const txSignature = await this.sendRawTransaction(
+          signedTx.signedTx,
+          chainId,
+        );
+        console.log(txSignature);
+        await this.providers[chainId].waitForTransaction(txSignature);
+        txSignatures.push(txSignature);
+      }
+      return {
+        txHashs: txSignatures,
+      };
+    } catch (error) {
+      console.error('Error in multiMintErc20Vault:', error);
+      return new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   public async mintErc20Vault(
     contractAddress: string,
     to: string,

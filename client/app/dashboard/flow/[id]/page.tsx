@@ -1,10 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
-import ReactFlow, { Background, useNodesState, useEdgesState, addEdge, BackgroundVariant } from "reactflow";
+import ReactFlow, { Background, addEdge, BackgroundVariant } from "reactflow";
 import { isEmpty } from "lodash";
-import { Field, Formik } from "formik";
-import * as Yup from "yup";
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, Stack, FormControl, Input, FormErrorMessage } from "@chakra-ui/react";
 import TableNode from "./nodes/TableNode";
 import "reactflow/dist/style.css";
 import StickyNoteNode from "./nodes/StickyNoteNode";
@@ -18,6 +15,9 @@ import Loading from "@/components/ui/Loading";
 import { useToastContext } from "@/context/toastContext";
 import CronNode from "./nodes/CronNode";
 import FunctionNode from "./nodes/FunctionNode";
+import { useWorkflow } from "@/hooks/useWorkflow";
+import WorkflowModal from "@/components/workflow/WorkflowModal";
+import BatchMintNode from "./nodes/BatchMintNode";
 
 const nodeTypes = {
   tableNode: TableNode,
@@ -27,16 +27,15 @@ const nodeTypes = {
   tokenNode: SendTokenNode,
   cronNode: CronNode,
   functionNode: FunctionNode,
+  batchMintNode: BatchMintNode,
 };
 
 export default function Flow({ params }: { params: { id: string } }) {
   const flowId = params.id;
-  const { navigation } = useTable();
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [flowName, setFlowName] = useState("");
+  const { nodes, onNodesChange, edges, onEdgesChange, flowName, setFlowName, setNodes, setEdges, flowFound } = useWorkflow(params.id);
+  const { navigation, functions } = useTable();
   const [showNameModal, setShowNameModal] = useState(false);
-  const [walletId, setWalletId] = useState("");
+
   const [saveLoading, setSaveLoading] = useState(false);
   const onConnect = useCallback((params: any) => setEdges((eds) => addEdge(params, eds)), []);
 
@@ -44,15 +43,10 @@ export default function Flow({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     getWorkflows();
-  }, [navigation, flowId]);
+  }, [navigation, flowId, flowFound]);
 
   const getWorkflows = async () => {
-    const result = await axiosInstance.get(`/table/gettablevalue/workflows/id/${flowId}`);
-    if (result.data[0]) {
-      setNodes(result.data[0].nodes);
-      setEdges(result.data[0].edges);
-      setFlowName(result.data[0].name);
-    } else {
+    if (flowFound) {
       if (navigation && navigation.length > 0 && nodes.length === 0) {
         addTriggerNode();
         handleAdd("Note");
@@ -90,7 +84,7 @@ export default function Flow({ params }: { params: { id: string } }) {
             id: (n.length + 1).toString(),
             type: "tableNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
-            data: { label: "Insert" },
+            data: { method: "insert" },
           },
         ]);
         break;
@@ -151,7 +145,7 @@ export default function Flow({ params }: { params: { id: string } }) {
             type: "walletNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: {
-              userId: walletId,
+              userId: "",
             },
           },
         ]);
@@ -164,7 +158,20 @@ export default function Flow({ params }: { params: { id: string } }) {
             type: "tokenNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: {
-              userId: walletId,
+              userId: "",
+            },
+          },
+        ]);
+        break;
+      case "BatchMint":
+        setNodes((n) => [
+          ...n,
+          {
+            id: (n.length + 100).toString(),
+            type: "batchMintNode",
+            position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+            data: {
+              tables: navigation,
             },
           },
         ]);
@@ -178,6 +185,8 @@ export default function Flow({ params }: { params: { id: string } }) {
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
             data: {
               schedule: "0 * * * *",
+              functions: functions,
+              function: functions[0]?.["Function Name"],
             },
           },
         ]);
@@ -204,6 +213,7 @@ export default function Flow({ params }: { params: { id: string } }) {
     }
     try {
       setSaveLoading(true);
+      setFlowName(name);
       const short_id = generateShortId();
       const trigger = nodes.filter((node) => node.type === "triggerNode");
       const cron = nodes.filter((node) => node.type === "cronNode");
@@ -220,6 +230,7 @@ export default function Flow({ params }: { params: { id: string } }) {
       }
 
       if (trigger.length > 0) {
+        console.log(trigger[0].data);
         const tableName = trigger[0].data.table;
         const method = trigger[0].data.method;
         const filter = trigger[0].data.filter ? trigger[0].data.filter : null;
@@ -264,14 +275,13 @@ export default function Flow({ params }: { params: { id: string } }) {
         return toastAlert(true, `"${name}" saved.`);
       } else if (cron && cron.length > 0) {
         const cronNode = cron[0];
+
         const cronPayload = {
-          tableName: "cron",
-          triggerName: short_id,
+          function: cronNode.data.function,
           schedule: cronNode.data.schedule,
         };
 
-        // SELECT cron.schedule('0 * * * *', $$CALL perform_hourly_task()$$);
-        const cronQuery = `SELECT cron.schedule('${cronNode.data.schedule}', $$CALL ${short_id}()$$);`;
+        const result = await axiosInstance.post(`/db/cron`, cronPayload);
 
         const payload = {
           data: {
@@ -281,21 +291,16 @@ export default function Flow({ params }: { params: { id: string } }) {
             nodes: nodes,
             edges: edges,
             type: "cron",
+            cron_id: result.data.id,
           },
           tableName: "workflows",
         };
 
-        const requests = [axiosInstance.post(`/table/addcron`, cronPayload), axiosInstance.post(`/table/insertdata/`, payload)];
+        const response = await axiosInstance.post(`/table/insertdata/`, payload);
 
-        const responses = await Promise.all(requests);
-
-        const allSuccessful = responses.every((response) => response?.status === 201);
-
-        if (!allSuccessful) {
+        if (response.status !== 201) {
           return toastAlert(false, "Flow could not be saved!");
         }
-
-        setFlowName(name);
 
         return toastAlert(true, `"${name}" saved.`);
       }
@@ -305,22 +310,6 @@ export default function Flow({ params }: { params: { id: string } }) {
       setShowNameModal(false);
       setSaveLoading(false);
     }
-  };
-
-  const createTriggerFlow = async (tableName: string, method: string, condition: string, short_id: string) => {
-    const payload = {
-      tableName: tableName,
-      triggerName: short_id,
-      method: method,
-      condition: condition,
-    };
-
-    const response = await axiosInstance.post(`/table/addtrigger`, payload);
-
-    if (response.status === 201) {
-      return short_id;
-    }
-    return null;
   };
 
   const generateShortId = () => {
@@ -390,40 +379,7 @@ export default function Flow({ params }: { params: { id: string } }) {
         <Background variant={"dots" as BackgroundVariant} gap={12} size={1} />
       </ReactFlow>
 
-      {showNameModal && (
-        <Modal isOpen={showNameModal} onClose={() => setShowNameModal(false)}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Enter Flow name</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Formik
-                initialValues={{ newFlowName: "" }}
-                validationSchema={Yup.object().shape({
-                  newFlowName: Yup.string().required(),
-                })}
-                onSubmit={(values) => handleSave(values?.newFlowName)}
-              >
-                {({ handleSubmit, errors, touched }) => (
-                  <form onSubmit={handleSubmit}>
-                    <Stack spacing="8">
-                      <Stack spacing="6">
-                        <FormControl isInvalid={!!errors.newFlowName && touched.newFlowName}>
-                          <Field as={Input} className="rounded-md" id="newFlowName" name="newFlowName" placeholder="Flow Name" />
-                          {!isEmpty(errors?.newFlowName) && <FormErrorMessage>{errors?.newFlowName ? "Flow Name is required" : ""}</FormErrorMessage>}
-                        </FormControl>
-                        <button className="w-full p-2 text-white rounded-md bg-secondary hover:bg-secondaryHover" type="submit">
-                          Save
-                        </button>
-                      </Stack>
-                    </Stack>
-                  </form>
-                )}
-              </Formik>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-      )}
+      <WorkflowModal isOpen={showNameModal} onClose={() => setShowNameModal(false)} onSave={handleSave} />
     </div>
   );
 }

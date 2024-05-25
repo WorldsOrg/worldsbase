@@ -52,6 +52,38 @@ export class MintERC20Dto {
   chainId: number;
 }
 
+export class MultiMintERC20Dto {
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Contract Address',
+  })
+  contractAddress: string;
+  @ApiProperty({
+    example: `[
+      {
+          "toAddress": "0x08eEB885AfF95a31971ae323FB554ed397E5a63B", 
+          "amount": "0.2"
+       },
+       {
+         "toAddress": "0x7D858ac0ec8c8f7CFC878a6448d58178801c3c29",
+         "amount": "1.4"
+       }
+      ]`,
+    description: 'Batch mint data',
+  })
+  data: Array<any>;
+  @ApiProperty({
+    example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
+    description: 'Wallet Address',
+  })
+  minter: string;
+  @ApiProperty({
+    example: '1',
+    description: 'Chain ID',
+  })
+  chainId: number;
+}
+
 export class BurnERC20Dto {
   @ApiProperty({
     example: '0x01A9B82dbE9873bFC22CAd4A37E1860FC00b0440',
@@ -82,6 +114,17 @@ export class EthersTxResponseDto {
     description: 'Transaction Hash',
   })
   txHash: string;
+}
+
+export class MultiEthersTxResponseDto {
+  @ApiProperty({
+    example: `[
+        "0x9077c895ecfa6965dcb53349fc0309105822adca77082979f221ddb943372740",
+        "0xc2efa0ecba6dcc44bdc0c1fd25f425d2292523ded4726a89b866fdbadd40f551"
+      ]`,
+    description: 'Transaction Hash',
+  })
+  txHashs: Array<string>;
 }
 
 export class WalletBalanceResponseDto {
