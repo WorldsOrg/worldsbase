@@ -1,16 +1,17 @@
 "use client";
 
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import Table from "@/components/dashboard/databasePage/Table";
 import IconInput from "@/components/ui/IconInput";
 import SchemaButton from "@/components/ui/table/SchemaButton";
 import { useTable } from "@/context/tableContext";
-import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function Database() {
   const { schemas, schemasLoading, selectedSchema, handleSelectSchema } =
     useTable();
 
   return (
-    <div className="flex flex-col w-full gap-4 text-white">
+    <div className="flex flex-col w-full gap-4 text-white ">
       <span className="mb-2 text-xl">{`Database `}</span>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 w-max">
@@ -48,6 +49,7 @@ export default function Database() {
           Create a new function
         </button>
       </div>
+      <Table />
     </div>
   );
 }
