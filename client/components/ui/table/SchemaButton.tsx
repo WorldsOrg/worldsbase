@@ -26,6 +26,7 @@ interface SchemaButtonProps {
   schemasLoading: boolean;
   selectedSchema: string;
   handleSelectSchema: (schema: string) => void;
+  dropdownClass?: string;
 }
 
 const SchemaButton = ({
@@ -33,6 +34,7 @@ const SchemaButton = ({
   schemasLoading,
   selectedSchema,
   handleSelectSchema,
+  dropdownClass,
 }: SchemaButtonProps) => {
   const { onOpen, onClose, isOpen } = useDisclosure();
 
@@ -74,7 +76,11 @@ const SchemaButton = ({
 
   return (
     <>
-      <PopoverUI isOpen={!schemasLoading && isOpen} onOpen={onOpen} onClose={onClose}>
+      <PopoverUI
+        isOpen={!schemasLoading && isOpen}
+        onOpen={onOpen}
+        onClose={onClose}
+      >
         <PopoverTrigger>
           <button className="flex items-center w-full h-10 gap-2 px-3 py-2 border rounded-md border-primary text-primary bg-background hover:bg-hoverBg">
             <div className="flex items-center gap-1 text-xs">
@@ -82,7 +88,7 @@ const SchemaButton = ({
                 <div className="flex items-center gap-2">
                   <PiSpinnerBold className="w-4 h-4 animate-spin" />
                   <span>Loading schemas...</span>
-                  </div>
+                </div>
               ) : (
                 <>
                   <span className="text-gray-500 ">schema:</span>
@@ -92,7 +98,9 @@ const SchemaButton = ({
             </div>
           </button>
         </PopoverTrigger>
-        <PopoverContent className="bg-background text-primary md:w-[197px] max-h-[292px] w-[280px] text-xs">
+        <PopoverContent
+          className={`bg-background text-primary md:w-[197px] max-h-[292px] w-[280px] text-xs ${dropdownClass}`}
+        >
           <IconInput
             type="string"
             icon={<MagnifyingGlassIcon className="w-4 h-4 text-primary" />}

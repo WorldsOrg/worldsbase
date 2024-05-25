@@ -1,7 +1,7 @@
 "use client";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { Bars3Icon, HomeIcon, XMarkIcon, TableCellsIcon, BookOpenIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, HomeIcon, XMarkIcon, TableCellsIcon, BookOpenIcon, CircleStackIcon } from "@heroicons/react/24/outline";
 import { MdExitToApp, MdGamepad, MdGames, MdQueryStats, MdSettings, MdSupervisedUserCircle, MdVerifiedUser } from "react-icons/md";
 import { GoWorkflow } from "react-icons/go";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -27,6 +27,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       name: "Table Editor",
       href: "/dashboard/table_editor",
       icon: TableCellsIcon,
+      current: false,
+    },
+    {
+      name: "Database",
+      href: "/dashboard/database",
+      icon: CircleStackIcon,
       current: false,
     },
     {
