@@ -3,6 +3,7 @@ import { Edge } from './entities/worflow.entities';
 import { WalletService } from 'src/wallet/wallet.service';
 import { TableService } from 'src/table/table.service';
 import { EthersService } from 'src/ethers/ethers.service';
+import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
 
 @Injectable()
 export class WorkflowService {
@@ -10,6 +11,7 @@ export class WorkflowService {
     private readonly tableService: TableService,
     private readonly walletService: WalletService,
     private readonly ethersService: EthersService,
+    private readonly thirdwebService: ThirdwebService,
   ) {}
 
   convertEtherToWei(etherAmount: string | number | bigint | boolean) {
@@ -241,7 +243,7 @@ export class WorkflowService {
         amount: row[amountColumnName],
       }));
       console.log('Start minting', batchData);
-      const tx = await this.ethersService.multiMintErc20Vault(
+      const tx = await this.thirdwebService.mintErc20BatchEngine(
         node.data.transaction.contractAddress,
         batchData,
         node.data.transaction.minter,
