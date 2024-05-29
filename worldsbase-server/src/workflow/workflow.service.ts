@@ -130,7 +130,7 @@ export class WorkflowService {
       return;
     }
 
-    const result = await this.walletService.createVaultWallet(userId);
+    const result = await this.thirdwebService.createEngineWallet(userId);
 
     variables.push(result);
     const query = `UPDATE wtf_users SET provisioned_wallet = $1 WHERE id = $2`;
