@@ -2,7 +2,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Sepolia } from '@thirdweb-dev/chains';
 import { ThirdwebSDK } from '@thirdweb-dev/sdk';
+import { BigNumber } from 'ethers';
 import { VaultService } from 'src/vault/vault.service';
+
+interface Receipt {
+  txHash: string;
+}
 
 @Injectable()
 export class ThirdwebService {
@@ -49,7 +54,7 @@ export class ThirdwebService {
   async getSdkFromVaultSecret(
     pubKey: string,
     chainIdOrRpc: string,
-  ): Promise<any> {
+  ): Promise<ThirdwebSDK> {
     try {
       const pk = await this.vaultService.readVaultSecret(pubKey);
       return ThirdwebSDK.fromPrivateKey(pk, chainIdOrRpc, {
@@ -60,13 +65,26 @@ export class ThirdwebService {
     }
   }
 
+  async getBalanceVault(
+    from: string,
+    chainIdOrRpc: string,
+  ): Promise<BigNumber> {
+    try {
+      const balanceSDK = await this.getSdkFromVaultSecret(from, chainIdOrRpc);
+      const { value } = await balanceSDK.wallet.balance();
+      return value;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async mintErc20Vault(
     contractAddress: string,
     to: string,
     amount: string,
     minter: string,
     chainIdOrRpc: string,
-  ): Promise<any> {
+  ): Promise<Receipt> {
     try {
       const mintSDK = await this.getSdkFromVaultSecret(minter, chainIdOrRpc);
       const contract = await mintSDK.getContract(contractAddress);
@@ -75,7 +93,7 @@ export class ThirdwebService {
         txHash: tx.receipt.transactionHash,
       };
     } catch (error) {
-      return new HttpException(error, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -84,7 +102,7 @@ export class ThirdwebService {
     chainIdOrRpc: string,
     contractAddress: string,
     amount: string,
-  ): Promise<any> {
+  ): Promise<Receipt> {
     try {
       const mintSDK = await this.getSdkFromVaultSecret(
         tokenOwner,
@@ -96,7 +114,27 @@ export class ThirdwebService {
         txHash: tx.receipt.transactionHash,
       };
     } catch (error) {
-      return new HttpException(error, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async transferNativeVault(
+    from: string,
+    to: string,
+    chainIdOrRpc: string,
+    amount: string,
+  ): Promise<Receipt> {
+    try {
+      const fromSDK = await this.getSdkFromVaultSecret(from, chainIdOrRpc);
+      const balance = await fromSDK.wallet.balance();
+      if (balance.value.lt(amount))
+        throw new Error(`Not enough funds to transfer from: ${from}`);
+      const tx = await fromSDK.wallet.transfer(to, amount);
+      return {
+        txHash: tx.receipt.transactionHash,
+      };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
 }
