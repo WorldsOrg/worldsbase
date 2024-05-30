@@ -11,5 +11,8 @@
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd worldsbase-server && npm run start:dev",
     "dev:docs": "cd docs && npm run dev"
+  },
+  "dependencies": {
+    "@thirdweb-dev/engine": "^0.0.9"
   }
 }

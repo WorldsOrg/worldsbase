@@ -4,6 +4,7 @@ import { Sepolia } from '@thirdweb-dev/chains';
 import { ThirdwebSDK } from '@thirdweb-dev/sdk';
 import { BigNumber } from 'ethers';
 import { VaultService } from 'src/vault/vault.service';
+import { Engine } from '@thirdweb-dev/engine';
 
 interface Receipt {
   txHash: string;
@@ -12,7 +13,7 @@ interface Receipt {
 @Injectable()
 export class ThirdwebService {
   private sdk: ThirdwebSDK;
-
+  private engine: Engine;
   //   rpc: https://rpc-worlds-hwbmpbzcnh.t.conduit.xyz/
   // wss: wss://rpc-worlds-hwbmpbzcnh.t.conduit.xyz
   // id: 31929
@@ -45,6 +46,11 @@ export class ThirdwebService {
         secretKey: process.env.THIRDWEB_SDK_SECRET_KEY as string,
       },
     );
+
+    this.engine = new Engine({
+      url: process.env.THIRDWEB_ENGINE_URL as string,
+      accessToken: process.env.THIRDWEB_ACCESS_TOKEN as string,
+    });
   }
 
   getSDK(): ThirdwebSDK {
@@ -135,6 +141,45 @@ export class ThirdwebService {
       };
     } catch (error) {
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async mintErc20BatchEngine(
+    contractAddress: string,
+    data: Array<any>,
+    minter: string,
+    chainId: number,
+  ): Promise<any> {
+    try {
+      const res = await this.engine.erc20.mintBatchTo(
+        chainId.toString(),
+        contractAddress,
+        minter,
+        {
+          data: data,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return res.result;
+    } catch (error) {
+      console.error('Error in mintErc20BatchEngine:', error);
+      return new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async createEngineWallet(user_id: string): Promise<any> {
+    try {
+      const res = await this.engine.backendWallet.create({ label: user_id });
+      const customRes = {
+        address: res.result.walletAddress,
+        user_id: user_id,
+      };
+      return customRes;
+    } catch (error) {
+      console.error('Error creating engine wallet:', error);
+      return new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
