@@ -5,6 +5,7 @@ import { ThirdwebSDK } from '@thirdweb-dev/sdk';
 import { BigNumber } from 'ethers';
 import { VaultService } from 'src/vault/vault.service';
 import { Engine } from '@thirdweb-dev/engine';
+import { BigNumberish, ZeroAddress, formatEther, parseUnits } from 'ethersV6';
 
 interface Receipt {
   txHash: string;
@@ -71,19 +72,6 @@ export class ThirdwebService {
     }
   }
 
-  async getBalanceVault(
-    from: string,
-    chainIdOrRpc: string,
-  ): Promise<BigNumber> {
-    try {
-      const balanceSDK = await this.getSdkFromVaultSecret(from, chainIdOrRpc);
-      const { value } = await balanceSDK.wallet.balance();
-      return value;
-    } catch (error) {
-      throw new HttpException(error, HttpStatus.BAD_REQUEST);
-    }
-  }
-
   async mintErc20Vault(
     contractAddress: string,
     to: string,
@@ -116,26 +104,6 @@ export class ThirdwebService {
       );
       const contract = await mintSDK.getContract(contractAddress);
       const tx = await contract.call('burn', [amount]);
-      return {
-        txHash: tx.receipt.transactionHash,
-      };
-    } catch (error) {
-      throw new HttpException(error, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  async transferNativeVault(
-    from: string,
-    to: string,
-    chainIdOrRpc: string,
-    amount: string,
-  ): Promise<Receipt> {
-    try {
-      const fromSDK = await this.getSdkFromVaultSecret(from, chainIdOrRpc);
-      const balance = await fromSDK.wallet.balance();
-      if (balance.value.lt(amount))
-        throw new Error(`Not enough funds to transfer from: ${from}`);
-      const tx = await fromSDK.wallet.transfer(to, amount);
       return {
         txHash: tx.receipt.transactionHash,
       };
@@ -180,6 +148,55 @@ export class ThirdwebService {
     } catch (error) {
       console.error('Error creating engine wallet:', error);
       return new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getBalanceEngine(from: string, chain: string): Promise<bigint> {
+    try {
+      const {
+        result: { value },
+      } = await this.engine.backendWallet.getBalance(chain, from);
+      return parseUnits(value, 'wei');
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getWalletsEngine(): Promise<string[]> {
+    try {
+      const results: string[] = [];
+      for (let page = 1; ; page++) {
+        const { result } = await this.engine.backendWallet.getAll(page, 1000);
+        if (result.length === 0) break;
+        results.push(
+          ...result
+            .filter(({ label }) => label !== null)
+            .map(({ address }) => address),
+        );
+      }
+      return results;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async transferNativeEngine(
+    from: string,
+    to: string,
+    chain: string,
+    amount: bigint,
+  ): Promise<string> {
+    try {
+      const {
+        result: { queueId },
+      } = await this.engine.backendWallet.transfer(chain, from, {
+        to,
+        currencyAddress: ZeroAddress,
+        amount: formatEther(amount),
+      });
+      return queueId;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
 }

@@ -1,13 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { DBService } from 'src/db/db.service';
 import { ConfigService } from '@nestjs/config';
 import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
+import { parseUnits } from 'ethersV6';
 
 @Injectable()
 export class TopUpService {
   constructor(
-    private dbService: DBService,
     private thirdwebService: ThirdwebService,
     private configService: ConfigService,
   ) {}
@@ -23,42 +22,39 @@ export class TopUpService {
       'TOPUP_ADMIN_WALLET_ADDRESS',
     ) as string;
     const chainId = this.configService.get<string>('TOPUP_CHAIN_ID') as string;
-    const minBalance = this.configService.get<number>(
+    const minBalanceString = this.configService.get<string>(
       'TOPUP_MIN_BALANCE',
-    ) as number;
-    const minTransfer = this.configService.get<number>(
+    ) as string;
+    const minTransferString = this.configService.get<string>(
       'TOPUP_MIN_TRANSFER',
-    ) as number;
+    ) as string;
 
-    const { status, data } = await this.dbService.executeQuery(
-      'SELECT * FROM "users" WHERE "wallet" IS NOT NULL',
-    );
+    const minBalance = parseUnits(minBalanceString, 'wei');
+    const minTransfer = parseUnits(minTransferString, 'wei');
 
-    if (status != 200) throw new Error('Error fetching data from tables');
-
-    const totalUsers = data.length;
-
+    const wallets = await this.thirdwebService.getWalletsEngine();
+    const totalUsers = wallets.length;
     try {
-      const availableBalance = await this.thirdwebService.getBalanceVault(
+      const availableBalance = await this.thirdwebService.getBalanceEngine(
         adminWallet,
         chainId,
       );
 
-      if (availableBalance.lt(totalUsers * minBalance))
+      if (availableBalance < BigInt(totalUsers) * minBalance)
         throw new Error('Not enough funds in admin wallet');
 
-      for (const user of data) {
-        const balance = await this.thirdwebService.getBalanceVault(
-          user.wallet,
+      for (const wallet of wallets) {
+        const balance = await this.thirdwebService.getBalanceEngine(
+          wallet,
           chainId,
         );
-        const transferValue = balance.sub(minBalance);
-        if (balance.sub(minBalance).gt(minTransfer)) continue;
-        await this.thirdwebService.transferNativeVault(
+        const transferValue = balance - minBalance;
+        if (balance - minBalance > minTransfer) continue;
+        await this.thirdwebService.transferNativeEngine(
           adminWallet,
-          user.wallet,
+          wallet,
           chainId,
-          transferValue.toString(),
+          transferValue,
         );
       }
     } catch (error) {
