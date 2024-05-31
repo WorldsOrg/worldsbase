@@ -6,8 +6,17 @@ import { VaultService } from 'src/vault/vault.service';
 import { Engine } from '@thirdweb-dev/engine';
 import { ZeroAddress, formatEther, parseUnits } from 'ethersV6';
 
-interface Receipt {
+interface TxReceipt {
   txHash: string;
+}
+
+interface QueueReceipt {
+  queueId: string;
+}
+
+interface BackendWallet {
+  address: string;
+  user_id: string;
 }
 
 @Injectable()
@@ -77,7 +86,7 @@ export class ThirdwebService {
     amount: string,
     minter: string,
     chainIdOrRpc: string,
-  ): Promise<Receipt> {
+  ): Promise<TxReceipt> {
     try {
       const mintSDK = await this.getSdkFromVaultSecret(minter, chainIdOrRpc);
       const contract = await mintSDK.getContract(contractAddress);
@@ -95,7 +104,7 @@ export class ThirdwebService {
     chainIdOrRpc: string,
     contractAddress: string,
     amount: string,
-  ): Promise<Receipt> {
+  ): Promise<TxReceipt> {
     try {
       const mintSDK = await this.getSdkFromVaultSecret(
         tokenOwner,
@@ -116,14 +125,14 @@ export class ThirdwebService {
     data: Array<any>,
     minter: string,
     chainId: number,
-  ): Promise<any> {
+  ): Promise<QueueReceipt> {
     try {
       const res = await this.engine.erc20.mintBatchTo(
         chainId.toString(),
         contractAddress,
         minter,
         {
-          data: data,
+          data,
           txOverrides: {
             gas: '1000000',
           },
@@ -132,11 +141,11 @@ export class ThirdwebService {
       return res.result;
     } catch (error) {
       console.error('Error in mintErc20BatchEngine:', error);
-      return new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async createEngineWallet(user_id: string): Promise<any> {
+  async createEngineWallet(user_id: string): Promise<BackendWallet> {
     try {
       const res = await this.engine.backendWallet.create({ label: user_id });
       const customRes = {
@@ -146,7 +155,7 @@ export class ThirdwebService {
       return customRes;
     } catch (error) {
       console.error('Error creating engine wallet:', error);
-      return new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -184,16 +193,14 @@ export class ThirdwebService {
     to: string,
     chain: string,
     amount: bigint,
-  ): Promise<string> {
+  ): Promise<QueueReceipt> {
     try {
-      const {
-        result: { queueId },
-      } = await this.engine.backendWallet.transfer(chain, from, {
+      const { result } = await this.engine.backendWallet.transfer(chain, from, {
         to,
         currencyAddress: ZeroAddress,
         amount: formatEther(amount),
       });
-      return queueId;
+      return result;
     } catch (error) {
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
