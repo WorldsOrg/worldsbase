@@ -2,10 +2,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Sepolia } from '@thirdweb-dev/chains';
 import { ThirdwebSDK } from '@thirdweb-dev/sdk';
-import { BigNumber } from 'ethers';
 import { VaultService } from 'src/vault/vault.service';
 import { Engine } from '@thirdweb-dev/engine';
-import { BigNumberish, ZeroAddress, formatEther, parseUnits } from 'ethersV6';
+import { ZeroAddress, formatEther, parseUnits } from 'ethersV6';
 
 interface Receipt {
   txHash: string;
