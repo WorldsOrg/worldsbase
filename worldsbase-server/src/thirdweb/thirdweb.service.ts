@@ -6,15 +6,15 @@ import { VaultService } from 'src/vault/vault.service';
 import { Engine } from '@thirdweb-dev/engine';
 import { ZeroAddress, formatEther, parseUnits } from 'ethersV6';
 
-interface TxReceipt {
+export interface TxReceipt {
   txHash: string;
 }
 
-interface QueueReceipt {
+export interface QueueReceipt {
   queueId: string;
 }
 
-interface BackendWallet {
+export interface BackendWallet {
   address: string;
   user_id: string;
 }
