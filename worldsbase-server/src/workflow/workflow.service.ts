@@ -58,6 +58,9 @@ export class WorkflowService {
         console.log('walletNode');
         await this.processWalletNode(node, variables, index);
         break;
+      case 'transferPackNode':
+        await this.processTransferPackNode(node, variables, index);
+        break;
       case 'tokenNode':
         await this.processMintNode(node, parsedData, variables, index);
         break;
@@ -137,6 +140,24 @@ export class WorkflowService {
     const values = [result.address, userId];
 
     await this.tableService.executeQuery(query, values);
+  }
+
+  private async processTransferPackNode(
+    node: any,
+    variables: any[],
+    index: number,
+  ): Promise<void> {
+    const wallet = node.data.wallet.startsWith('.')
+      ? variables[index][node.data.userId.slice(1)]
+      : node.data.userId;
+    if (wallet === undefined) {
+      console.warn(`Value for field ${wallet} is undefined`);
+      return;
+    }
+
+    const result = await this.thirdwebService.transferPackEngine(wallet);
+
+    variables.push(result);
   }
 
   private async processMintNode(
