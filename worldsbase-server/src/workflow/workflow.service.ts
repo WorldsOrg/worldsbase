@@ -3,6 +3,7 @@ import { Edge } from './entities/worflow.entities';
 import { WalletService } from 'src/wallet/wallet.service';
 import { TableService } from 'src/table/table.service';
 import { EthersService } from 'src/ethers/ethers.service';
+import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
 
 @Injectable()
 export class WorkflowService {
@@ -10,6 +11,7 @@ export class WorkflowService {
     private readonly tableService: TableService,
     private readonly walletService: WalletService,
     private readonly ethersService: EthersService,
+    private readonly thirdwebService: ThirdwebService,
   ) {}
 
   convertEtherToWei(etherAmount: string | number | bigint | boolean) {
@@ -55,6 +57,9 @@ export class WorkflowService {
       case 'walletNode':
         console.log('walletNode');
         await this.processWalletNode(node, variables, index);
+        break;
+      case 'transferPackNode':
+        await this.processTransferPackNode(node, variables, index);
         break;
       case 'tokenNode':
         await this.processMintNode(node, parsedData, variables, index);
@@ -128,13 +133,31 @@ export class WorkflowService {
       return;
     }
 
-    const result = await this.walletService.createVaultWallet(userId);
+    const result = await this.thirdwebService.createEngineWallet(userId);
 
     variables.push(result);
     const query = `UPDATE wtf_users SET provisioned_wallet = $1 WHERE id = $2`;
     const values = [result.address, userId];
 
     await this.tableService.executeQuery(query, values);
+  }
+
+  private async processTransferPackNode(
+    node: any,
+    variables: any[],
+    index: number,
+  ): Promise<void> {
+    const wallet = node.data.wallet.startsWith('.')
+      ? variables[index][node.data.userId.slice(1)]
+      : node.data.userId;
+    if (wallet === undefined) {
+      console.warn(`Value for field ${wallet} is undefined`);
+      return;
+    }
+
+    const result = await this.thirdwebService.transferPackEngine(wallet);
+
+    variables.push(result);
   }
 
   private async processMintNode(
@@ -241,7 +264,7 @@ export class WorkflowService {
         amount: row[amountColumnName],
       }));
       console.log('Start minting', batchData);
-      const tx = await this.ethersService.multiMintErc20Vault(
+      const tx = await this.thirdwebService.mintErc20BatchEngine(
         node.data.transaction.contractAddress,
         batchData,
         node.data.transaction.minter,

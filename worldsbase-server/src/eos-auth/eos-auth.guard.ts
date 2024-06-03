@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 import JwksRsa from 'jwks-rsa';
@@ -30,7 +35,7 @@ interface Token {
 
 @Injectable()
 export class EOSAuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(@Inject() private readonly jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<UserRequest>();

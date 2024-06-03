@@ -549,7 +549,7 @@ export class TableController {
 
     let createTriggerQuery = `
     CREATE TRIGGER "${triggerDTO.triggerName}"
-    AFTER ${triggerDTO.method} ON "${triggerDTO.tableName}"
+    AFTER "${triggerDTO.method}" ON "${triggerDTO.tableName}"
     FOR EACH ROW
     EXECUTE FUNCTION notify_event();
 `;
@@ -557,7 +557,7 @@ export class TableController {
     if (triggerDTO.condition) {
       createTriggerQuery = `
       CREATE TRIGGER "${triggerDTO.triggerName}"
-          AFTER ${triggerDTO.method} ON "${triggerDTO.tableName}"
+          AFTER "${triggerDTO.method}" ON "${triggerDTO.tableName}"
           FOR EACH ROW
           WHEN (${triggerDTO.condition})
           EXECUTE FUNCTION notify_event();

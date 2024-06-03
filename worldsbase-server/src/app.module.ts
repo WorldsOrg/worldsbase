@@ -9,6 +9,7 @@ import { TableModule } from './table/table.module';
 import { AuthModule } from './auth/auth.module';
 import { DbModule } from './db/db.module';
 import { TasksModule } from './tasks/tasks.module';
+import { TopUpModule } from './topup/topup.module';
 import { EthersModule } from './ethers/ethers.module';
 import { WorkflowModule } from './workflow/workflow.module';
 
@@ -20,6 +21,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     }),
     ScheduleModule.forRoot(),
     TasksModule,
+    TopUpModule,
     DbModule,
     WorkflowModule,
     ChainModule,

@@ -3,11 +3,26 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Sepolia } from '@thirdweb-dev/chains';
 import { ThirdwebSDK } from '@thirdweb-dev/sdk';
 import { VaultService } from 'src/vault/vault.service';
+import { Engine } from '@thirdweb-dev/engine';
+import { ZeroAddress, formatEther, parseUnits } from 'ethersV6';
+
+export interface TxReceipt {
+  txHash: string;
+}
+
+export interface QueueReceipt {
+  queueId: string;
+}
+
+export interface BackendWallet {
+  address: string;
+  user_id: string;
+}
 
 @Injectable()
 export class ThirdwebService {
   private sdk: ThirdwebSDK;
-
+  private engine: Engine;
   //   rpc: https://rpc-worlds-hwbmpbzcnh.t.conduit.xyz/
   // wss: wss://rpc-worlds-hwbmpbzcnh.t.conduit.xyz
   // id: 31929
@@ -40,6 +55,11 @@ export class ThirdwebService {
         secretKey: process.env.THIRDWEB_SDK_SECRET_KEY as string,
       },
     );
+
+    this.engine = new Engine({
+      url: process.env.THIRDWEB_ENGINE_URL as string,
+      accessToken: process.env.THIRDWEB_ACCESS_TOKEN as string,
+    });
   }
 
   getSDK(): ThirdwebSDK {
@@ -49,7 +69,7 @@ export class ThirdwebService {
   async getSdkFromVaultSecret(
     pubKey: string,
     chainIdOrRpc: string,
-  ): Promise<any> {
+  ): Promise<ThirdwebSDK> {
     try {
       const pk = await this.vaultService.readVaultSecret(pubKey);
       return ThirdwebSDK.fromPrivateKey(pk, chainIdOrRpc, {
@@ -66,7 +86,7 @@ export class ThirdwebService {
     amount: string,
     minter: string,
     chainIdOrRpc: string,
-  ): Promise<any> {
+  ): Promise<TxReceipt> {
     try {
       const mintSDK = await this.getSdkFromVaultSecret(minter, chainIdOrRpc);
       const contract = await mintSDK.getContract(contractAddress);
@@ -75,7 +95,7 @@ export class ThirdwebService {
         txHash: tx.receipt.transactionHash,
       };
     } catch (error) {
-      return new HttpException(error, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -84,7 +104,7 @@ export class ThirdwebService {
     chainIdOrRpc: string,
     contractAddress: string,
     amount: string,
-  ): Promise<any> {
+  ): Promise<TxReceipt> {
     try {
       const mintSDK = await this.getSdkFromVaultSecret(
         tokenOwner,
@@ -96,7 +116,120 @@ export class ThirdwebService {
         txHash: tx.receipt.transactionHash,
       };
     } catch (error) {
-      return new HttpException(error, HttpStatus.BAD_REQUEST);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async mintErc20BatchEngine(
+    contractAddress: string,
+    data: Array<any>,
+    minter: string,
+    chainId: number,
+  ): Promise<QueueReceipt> {
+    try {
+      const res = await this.engine.erc20.mintBatchTo(
+        chainId.toString(),
+        contractAddress,
+        minter,
+        {
+          data,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return res.result;
+    } catch (error) {
+      console.error('Error in mintErc20BatchEngine:', error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async createEngineWallet(user_id: string): Promise<BackendWallet> {
+    try {
+      const res = await this.engine.backendWallet.create({ label: user_id });
+      const customRes = {
+        address: res.result.walletAddress,
+        user_id: user_id,
+      };
+      return customRes;
+    } catch (error) {
+      console.error('Error creating engine wallet:', error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getBalanceEngine(from: string, chain: string): Promise<bigint> {
+    try {
+      const {
+        result: { value },
+      } = await this.engine.backendWallet.getBalance(chain, from);
+      return parseUnits(value, 'wei');
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getWalletsEngine(): Promise<string[]> {
+    try {
+      const results: string[] = [];
+      for (let page = 1; ; page++) {
+        const { result } = await this.engine.backendWallet.getAll(page, 1000);
+        if (result.length === 0) break;
+        results.push(
+          ...result
+            .filter(({ label }) => label !== null)
+            .map(({ address }) => address),
+        );
+      }
+      return results;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async transferNativeEngine(
+    from: string,
+    to: string,
+    chain: string,
+    amount: bigint,
+  ): Promise<QueueReceipt> {
+    try {
+      const { result } = await this.engine.backendWallet.transfer(chain, from, {
+        to,
+        currencyAddress: ZeroAddress,
+        amount: formatEther(amount),
+      });
+      return result;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async transferPackEngine(wallet: string): Promise<any> {
+    try {
+      const chainId = '31929';
+      const packAddress = '0x403B2528cF7d2b22ee5014A7D21e63BdA3DE36e1';
+      const backendWalletAddress = '0x08eeb885aff95a31971ae323fb554ed397e5a63b';
+      const packId = '0';
+      const amount = '1';
+      const data = '0x';
+      const res = await this.engine.contract.write(
+        chainId,
+        packAddress,
+        backendWalletAddress,
+        {
+          functionName: 'safeTransferFrom',
+          args: [backendWalletAddress, wallet, packId, amount, data],
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return res.result;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error transferring pack to user');
     }
   }
 }

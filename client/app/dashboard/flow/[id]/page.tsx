@@ -18,6 +18,7 @@ import FunctionNode from "./nodes/FunctionNode";
 import { useWorkflow } from "@/hooks/useWorkflow";
 import WorkflowModal from "@/components/workflow/WorkflowModal";
 import BatchMintNode from "./nodes/BatchMintNode";
+import TransferPackNode from "./nodes/TransferPackNode";
 
 const nodeTypes = {
   tableNode: TableNode,
@@ -28,6 +29,7 @@ const nodeTypes = {
   cronNode: CronNode,
   functionNode: FunctionNode,
   batchMintNode: BatchMintNode,
+  transferPackNode: TransferPackNode,
 };
 
 export default function Flow({ params }: { params: { id: string } }) {
@@ -150,6 +152,19 @@ export default function Flow({ params }: { params: { id: string } }) {
           },
         ]);
         break;
+        case "TransferPack":
+          setNodes((n) => [
+            ...n,
+            {
+              id: (n.length + 100).toString(),
+              type: "transferPackNode",
+              position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+              data: {
+                userId: "",
+              },
+            },
+          ]);
+          break;
       case "Token":
         setNodes((n) => [
           ...n,
@@ -255,6 +270,7 @@ export default function Flow({ params }: { params: { id: string } }) {
             nodes: nodes,
             edges: edges,
             type: "trigger",
+            table_name: tableName
           },
           tableName: "workflows",
         };

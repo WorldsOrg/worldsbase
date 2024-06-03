@@ -39,6 +39,7 @@
     "@simplewebauthn/server": "^9.0.3",
     "@thirdweb-dev/chains": "^0.1.72",
     "@thirdweb-dev/sdk": "^4.0.47",
+    "@thirdweb-dev/engine": "^0.0.9",
     "@turnkey/api-key-stamper": "^0.4.0",
     "@turnkey/http": "^2.7.1",
     "alchemy-sdk": "^3.2.0",
