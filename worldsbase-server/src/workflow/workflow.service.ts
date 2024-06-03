@@ -59,6 +59,7 @@ export class WorkflowService {
         await this.processWalletNode(node, variables, index);
         break;
       case 'transferPackNode':
+        console.log('transferPackNode');
         await this.processTransferPackNode(node, variables, index);
         break;
       case 'tokenNode':
