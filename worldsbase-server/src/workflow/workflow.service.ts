@@ -59,6 +59,7 @@ export class WorkflowService {
         await this.processWalletNode(node, variables, index);
         break;
       case 'transferPackNode':
+        console.log('transferPackNode');
         await this.processTransferPackNode(node, variables, index);
         break;
       case 'tokenNode':
@@ -290,6 +291,7 @@ export class WorkflowService {
       if (result && result.data.length > 0) {
         const { nodes, edges } = result.data[0];
         const order = this.getNodeExecutionOrder(edges);
+        console.log('Execution order:', order);
         order.shift(); // remove the trigger node
         const parsedData = JSON.parse(data);
         const variables = [parsedData];

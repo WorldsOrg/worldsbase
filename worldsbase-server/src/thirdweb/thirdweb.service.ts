@@ -208,6 +208,7 @@ export class ThirdwebService {
 
   async transferPackEngine(wallet: string): Promise<any> {
     try {
+      console.log('wallet:', wallet);
       const chainId = '31929';
       const packAddress = '0x403B2528cF7d2b22ee5014A7D21e63BdA3DE36e1';
       const backendWalletAddress = '0x08eeb885aff95a31971ae323fb554ed397e5a63b';
