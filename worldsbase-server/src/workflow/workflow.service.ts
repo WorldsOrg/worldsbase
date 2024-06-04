@@ -19,24 +19,26 @@ export class WorkflowService {
     return BigInt(etherAmount) * weiPerEther;
   }
 
-  getNodeExecutionOrder(edges: Edge[]): string[] {
-    if (!edges.length) return [];
+  getNodeExecutionOrder(edges: Edge[]): [string[], Map<string, number>] {
+    if (!edges.length) return [[], new Map<string, number>()];
     const order: string[] = [];
     const visited = new Set<string>();
+    const depthMap = new Map<string, number>();
 
-    function dfs(node: string) {
+    function dfs(node: string, depth: number) {
       if (!visited.has(node)) {
         visited.add(node);
         order.push(node);
+        depthMap.set(node, depth);
         const children = edges.filter((edge) => edge.source === node);
         for (const child of children) {
-          dfs(child.target);
+          dfs(child.target, depth + 1);
         }
       }
     }
 
-    dfs(edges[0].source);
-    return order;
+    dfs(edges[0].source, 0);
+    return [order, depthMap];
   }
 
   async executeNode(
@@ -291,13 +293,13 @@ export class WorkflowService {
 
       if (result && result.data.length > 0) {
         const { nodes, edges } = result.data[0];
-        const order = this.getNodeExecutionOrder(edges);
+        const [order, depth] = this.getNodeExecutionOrder(edges);
         console.log('Execution order:', order);
         order.shift(); // remove the trigger node
         const parsedData = JSON.parse(data);
         const variables = [parsedData];
         for (const nodeId of order) {
-          const index = order.indexOf(nodeId);
+          const index = depth.get(nodeId);
           const node = nodes.find((n: { id: string }) => n.id === nodeId);
           if (node) await this.executeNode(node, parsedData, variables, index);
         }
