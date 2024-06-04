@@ -65,6 +65,12 @@ export default function Dropdown({ handleAdd }: { handleAdd: (type: string) => v
               </button>
             </Menu.Item>
             <Menu.Item>
+              <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("TopOffEth")}>
+                <WalletIcon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                Top Off Eth
+              </button>
+            </Menu.Item>
+            <Menu.Item>
               <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("Token")}>
                 <PiCoinThin className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
                 Send Token
