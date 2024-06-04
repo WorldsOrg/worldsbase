@@ -77,6 +77,9 @@ export class WorkflowService {
     variables: any[],
     index: number,
   ): Promise<void> {
+    console.log('table ', node);
+    console.log('table ', variables);
+    console.log('table ', index);
     const { label, fields, tableName } = node.data;
     const fieldValues = this.prepareFieldValues(
       fields,
@@ -143,6 +146,9 @@ export class WorkflowService {
     variables: any[],
     index: number,
   ): Promise<void> {
+    console.log('tp ', node);
+    console.log('tp ', variables);
+    console.log('tp ', index);
     const wallet = node.data.wallet.startsWith('.')
       ? variables[index][node.data.wallet.slice(1)]
       : node.data.wallet;
