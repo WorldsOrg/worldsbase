@@ -299,7 +299,11 @@ export class WorkflowService {
         const parsedData = JSON.parse(data);
         const variables = [parsedData];
         for (const nodeId of order) {
-          const index = depth.get(nodeId);
+          const nodeDepth = depth.get(nodeId);
+          const index =
+            typeof nodeDepth === 'number' && nodeDepth !== undefined
+              ? nodeDepth - 1
+              : 0;
           const node = nodes.find((n: { id: string }) => n.id === nodeId);
           if (node) await this.executeNode(node, parsedData, variables, index);
         }
