@@ -24,23 +24,18 @@ export class WorkflowService {
     const order: string[] = [];
     const visited = new Set<string>();
 
-    let current = edges[0];
-    while (current) {
-      if (!visited.has(current.source)) {
-        order.push(current.source);
-        visited.add(current.source);
-      }
-
-      const nextEdge = edges.find((edge) => edge.source === current.target);
-      if (!nextEdge) {
-        if (!visited.has(current.target)) {
-          order.push(current.target);
-          visited.add(current.target);
+    function dfs(node: string) {
+      if (!visited.has(node)) {
+        visited.add(node);
+        order.push(node);
+        const children = edges.filter((edge) => edge.source === node);
+        for (const child of children) {
+          dfs(child.target);
         }
-        break;
       }
-      current = nextEdge;
     }
+
+    dfs(edges[0].source);
     return order;
   }
 
