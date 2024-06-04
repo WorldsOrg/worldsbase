@@ -144,8 +144,8 @@ export class WorkflowService {
     index: number,
   ): Promise<void> {
     const wallet = node.data.wallet.startsWith('.')
-      ? variables[index][node.data.userId.slice(1)]
-      : node.data.userId;
+      ? variables[index][node.data.wallet.slice(1)]
+      : node.data.wallet;
     if (wallet === undefined) {
       console.warn(`Value for field ${wallet} is undefined`);
       return;
