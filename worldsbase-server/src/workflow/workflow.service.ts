@@ -23,6 +23,7 @@ export class WorkflowService {
     if (!edges.length) return [[], new Map<string, number>()];
     const order: string[] = [];
     const visited = new Set<string>();
+    // track the depth of each node to handle when a node has multiple edges
     const depthMap = new Map<string, number>();
 
     function dfs(node: string, depth: number) {
@@ -52,11 +53,9 @@ export class WorkflowService {
         await this.processTableNode(node, parsedData, variables, index);
         break;
       case 'walletNode':
-        console.log('walletNode');
         await this.processWalletNode(node, variables, index);
         break;
       case 'transferPackNode':
-        console.log('transferPackNode');
         await this.processTransferPackNode(node, variables, index);
         break;
       case 'tokenNode':
@@ -79,9 +78,6 @@ export class WorkflowService {
     variables: any[],
     index: number,
   ): Promise<void> {
-    console.log('table ', node);
-    console.log('table ', variables);
-    console.log('table ', index);
     const { label, fields, tableName } = node.data;
     const fieldValues = this.prepareFieldValues(
       fields,
@@ -148,9 +144,6 @@ export class WorkflowService {
     variables: any[],
     index: number,
   ): Promise<void> {
-    console.log('tp ', node);
-    console.log('tp ', variables);
-    console.log('tp ', index);
     const wallet = node.data.wallet.startsWith('.')
       ? variables[index][node.data.wallet.slice(1)]
       : node.data.wallet;
@@ -299,7 +292,9 @@ export class WorkflowService {
         const parsedData = JSON.parse(data);
         const variables = [parsedData];
         for (const nodeId of order) {
+          // get the depth of the node
           const nodeDepth = depth.get(nodeId);
+          // subtract 1 from the depth to get the index of the node in the variables array since we remove the trigger node
           const index =
             typeof nodeDepth === 'number' && nodeDepth !== undefined
               ? nodeDepth - 1
