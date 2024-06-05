@@ -17,6 +17,28 @@ export class TopUpService {
     this.topUpUsersWallets();
   }
 
+  async topUpUserWallet(wallet: string) {
+    const adminWallet = this.configService.get<string>(
+      'TOPUP_ADMIN_WALLET_ADDRESS',
+    ) as string;
+    const chainId = this.configService.get<string>('TOPUP_CHAIN_ID') as string;
+    const minBalanceString = this.configService.get<string>(
+      'TOPUP_MIN_BALANCE',
+    ) as string;
+    const minBalance = parseUnits(minBalanceString, 'wei');
+    try {
+      await this.thirdwebService.transferNativeEngine(
+        adminWallet,
+        wallet,
+        chainId,
+        minBalance,
+      );
+    } catch (error) {
+      this.logger.error(error);
+      return;
+    }
+  }
+
   async topUpUsersWallets() {
     const adminWallet = this.configService.get<string>(
       'TOPUP_ADMIN_WALLET_ADDRESS',

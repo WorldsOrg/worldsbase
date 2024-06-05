@@ -4,6 +4,7 @@ import { WalletService } from 'src/wallet/wallet.service';
 import { TableService } from 'src/table/table.service';
 import { EthersService } from 'src/ethers/ethers.service';
 import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
+import { TopUpService } from 'src/topup/topup.service';
 
 @Injectable()
 export class WorkflowService {
@@ -12,6 +13,7 @@ export class WorkflowService {
     private readonly walletService: WalletService,
     private readonly ethersService: EthersService,
     private readonly thirdwebService: ThirdwebService,
+    private readonly topupService: TopUpService,
   ) {}
 
   convertEtherToWei(etherAmount: string | number | bigint | boolean) {
@@ -57,6 +59,9 @@ export class WorkflowService {
         break;
       case 'transferPackNode':
         await this.processTransferPackNode(node, variables, index);
+        break;
+      case 'topOffEthNode':
+        await this.processTopOffEthNode(node, variables, index);
         break;
       case 'tokenNode':
         await this.processMintNode(node, parsedData, variables, index);
@@ -153,6 +158,24 @@ export class WorkflowService {
     }
 
     const result = await this.thirdwebService.transferPackEngine(wallet);
+
+    variables.push(result);
+  }
+
+  private async processTopOffEthNode(
+    node: any,
+    variables: any[],
+    index: number,
+  ): Promise<void> {
+    const wallet = node.data.wallet.startsWith('.')
+      ? variables[index][node.data.wallet.slice(1)]
+      : node.data.wallet;
+    if (wallet === undefined) {
+      console.warn(`Value for field ${wallet} is undefined`);
+      return;
+    }
+
+    const result = await this.topupService.topUpUserWallet(wallet);
 
     variables.push(result);
   }

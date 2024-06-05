@@ -19,6 +19,7 @@ import { useWorkflow } from "@/hooks/useWorkflow";
 import WorkflowModal from "@/components/workflow/WorkflowModal";
 import BatchMintNode from "./nodes/BatchMintNode";
 import TransferPackNode from "./nodes/TransferPackNode";
+import TopOffEthNode from "./nodes/TopOffEthNode";
 
 const nodeTypes = {
   tableNode: TableNode,
@@ -30,6 +31,7 @@ const nodeTypes = {
   functionNode: FunctionNode,
   batchMintNode: BatchMintNode,
   transferPackNode: TransferPackNode,
+  topOffEthNode: TopOffEthNode,
 };
 
 export default function Flow({ params }: { params: { id: string } }) {
@@ -158,6 +160,19 @@ export default function Flow({ params }: { params: { id: string } }) {
             {
               id: (n.length + 100).toString(),
               type: "transferPackNode",
+              position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+              data: {
+                userId: "",
+              },
+            },
+          ]);
+          break;
+        case "TopOffEth":
+          setNodes((n) => [
+            ...n,
+            {
+              id: (n.length + 100).toString(),
+              type: "topOffEthNode",
               position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
               data: {
                 userId: "",
