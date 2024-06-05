@@ -5,6 +5,7 @@ import { TableService } from 'src/table/table.service';
 import { DbModule } from 'src/db/db.module';
 import { EthersService } from 'src/ethers/ethers.service';
 import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
+import { TopUpService } from 'src/topup/topup.service';
 
 @Module({
   imports: [forwardRef(() => DbModule)],
@@ -14,6 +15,7 @@ import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
     TableService,
     EthersService,
     ThirdwebService,
+    TopUpService,
   ],
   exports: [WorkflowService],
 })
