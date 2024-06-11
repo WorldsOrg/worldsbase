@@ -2,10 +2,13 @@ import { Body, Controller, Post } from '@nestjs/common';
 import {
   BurnERC20Dto,
   MintERC20Dto,
+  QueueReceipt,
+  ThirdwebEngineTransferErc1155RequestDto,
   ThirdwebResponseDto,
+  TxReceipt,
 } from './dto/thirdweb.dto';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ThirdwebService, TxReceipt } from './thirdweb.service';
+import { ThirdwebService } from './thirdweb.service';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Thirdweb')
@@ -43,6 +46,28 @@ export class ThirdwebController {
       burnErc20.chainIdOrRpc,
       burnErc20.contractAddress,
       burnErc20.amount,
+    );
+  }
+
+  @Post('/transfer_erc1155_engine')
+  @ApiOperation({
+    summary: 'Transfers erc1155 tokens to a wallet using engine',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Token(s) transferred',
+    type: QueueReceipt,
+  })
+  transferErc1155Engine(
+    @Body() transferErc1155: ThirdwebEngineTransferErc1155RequestDto,
+  ): Promise<QueueReceipt> {
+    return this.thirdwebService.transferErc1155Engine(
+      transferErc1155.wallet,
+      transferErc1155.tokenId,
+      transferErc1155.amount,
+      transferErc1155.chainId,
+      transferErc1155.contractAddress,
+      transferErc1155.backendWalletAddress,
     );
   }
 }

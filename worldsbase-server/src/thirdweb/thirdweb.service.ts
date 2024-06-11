@@ -5,14 +5,7 @@ import { ThirdwebSDK } from '@thirdweb-dev/sdk';
 import { VaultService } from 'src/vault/vault.service';
 import { Engine } from '@thirdweb-dev/engine';
 import { ZeroAddress, formatEther, parseUnits } from 'ethersV6';
-
-export interface TxReceipt {
-  txHash: string;
-}
-
-export interface QueueReceipt {
-  queueId: string;
-}
+import { QueueReceipt, TxReceipt } from './dto/thirdweb.dto';
 
 export interface BackendWallet {
   address: string;
@@ -230,6 +223,35 @@ export class ThirdwebService {
     } catch (error) {
       console.error(error);
       throw new Error('Error transferring pack to user');
+    }
+  }
+
+  async transferErc1155Engine(
+    wallet: string,
+    tokenId: string,
+    amount: string,
+    chainId: string,
+    contractAddress: string,
+    backendWalletAddress: string,
+  ) {
+    try {
+      const response = await this.engine.erc1155.transferFrom(
+        chainId,
+        contractAddress,
+        backendWalletAddress,
+        {
+          from: backendWalletAddress,
+          to: wallet,
+          tokenId: tokenId,
+          amount: amount,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return response.result;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
 }
