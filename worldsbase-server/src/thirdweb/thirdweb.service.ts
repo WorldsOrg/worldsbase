@@ -381,6 +381,9 @@ export class ThirdwebService {
         contractAddress,
       );
 
+      // sleep for 5 seconds to allow for the allowance to be set
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
       const response = await this.engine.erc20.burnFrom(
         chainId,
         contractAddress,
