@@ -4,6 +4,7 @@ import {
   MintERC20Dto,
   QueueReceipt,
   ThirdwebEngineBurnErc1155RequestDto,
+  ThirdwebEngineBurnErc20RequestDto,
   ThirdwebEngineTransferErc1155RequestDto,
   ThirdwebResponseDto,
   TxReceipt,
@@ -90,6 +91,26 @@ export class ThirdwebController {
       burnErc1155.amount,
       burnErc1155.chainId,
       burnErc1155.contractAddress,
+    );
+  }
+
+  @Post('/burn_erc20_engine')
+  @ApiOperation({
+    summary: 'Burns erc20 token(s) from a wallet using engine',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Token(s) burned',
+    type: QueueReceipt,
+  })
+  burnErc20Engine(
+    @Body() burnErc20: ThirdwebEngineBurnErc20RequestDto,
+  ): Promise<QueueReceipt> {
+    return this.thirdwebService.burnErc20Engine(
+      burnErc20.wallet,
+      burnErc20.amount,
+      burnErc20.chainId,
+      burnErc20.contractAddress,
     );
   }
 }

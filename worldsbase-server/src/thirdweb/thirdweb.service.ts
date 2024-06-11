@@ -280,4 +280,89 @@ export class ThirdwebService {
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async getErc20BalanceEngine(
+    wallet: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const res = await this.engine.erc20.balanceOf(
+        wallet,
+        chainId,
+        contractAddress,
+      );
+      return Number(res.result.value) / 10 ** Number(res.result.decimals);
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error getting ERC20 balance');
+    }
+  }
+
+  async setAllowanceErc20Engine(
+    wallet: string,
+    amount: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const result = await this.engine.erc20.setAllowance(
+        chainId,
+        contractAddress,
+        wallet,
+        {
+          spenderAddress: wallet,
+          amount: amount,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error setting ERC20 allowance');
+    }
+  }
+
+  async burnErc20Engine(
+    wallet: string,
+    amount: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const currentAmount = await this.getErc20BalanceEngine(
+        wallet,
+        chainId,
+        contractAddress,
+      );
+      if (currentAmount < Number(amount)) {
+        throw new Error('Insufficient balance');
+      }
+      await this.setAllowanceErc20Engine(
+        wallet,
+        amount,
+        chainId,
+        contractAddress,
+      );
+
+      const response = await this.engine.erc20.burnFrom(
+        chainId,
+        contractAddress,
+        wallet,
+        {
+          holderAddress: wallet,
+          amount: amount,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return response.result;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error burning ERC20');
+    }
+  }
 }
