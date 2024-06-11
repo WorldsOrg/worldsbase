@@ -5,6 +5,7 @@ import {
   QueueReceipt,
   ThirdwebEngineBurnErc1155RequestDto,
   ThirdwebEngineBurnErc20RequestDto,
+  ThirdwebEngineMintErc20RequestDto,
   ThirdwebEngineTransferErc1155RequestDto,
   ThirdwebResponseDto,
   TxReceipt,
@@ -111,6 +112,27 @@ export class ThirdwebController {
       burnErc20.amount,
       burnErc20.chainId,
       burnErc20.contractAddress,
+    );
+  }
+
+  @Post('/mint_erc20_engine')
+  @ApiOperation({
+    summary: 'Mints erc20 token(s) using engine',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Token(s) minted',
+    type: QueueReceipt,
+  })
+  mintErc20Engine(
+    @Body() mintErc20: ThirdwebEngineMintErc20RequestDto,
+  ): Promise<QueueReceipt> {
+    return this.thirdwebService.mintErc20Engine(
+      mintErc20.wallet,
+      mintErc20.amount,
+      mintErc20.chainId,
+      mintErc20.contractAddress,
+      mintErc20.backendWalletAddress,
     );
   }
 }

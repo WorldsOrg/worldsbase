@@ -143,3 +143,29 @@ export class ThirdwebEngineBurnErc20RequestDto {
   })
   contractAddress: string;
 }
+
+export class ThirdwebEngineMintErc20RequestDto {
+  @ApiProperty({ example: '0x1234abcd...', description: 'The wallet address' })
+  wallet: string;
+
+  @ApiProperty({
+    example: '100',
+    description: 'The amount to transfer in ether',
+  })
+  amount: string;
+
+  @ApiProperty({ example: '1', description: 'The chain ID' })
+  chainId: string;
+
+  @ApiProperty({
+    example: '0x1234abcd...',
+    description: 'The contract address',
+  })
+  contractAddress: string;
+
+  @ApiProperty({
+    example: '0x1234abcd...',
+    description: 'The backend wallet address',
+  })
+  backendWalletAddress: string;
+}
