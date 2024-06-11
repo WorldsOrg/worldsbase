@@ -254,4 +254,30 @@ export class ThirdwebService {
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async burnErc1155Engine(
+    wallet: string,
+    tokenId: string,
+    amount: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const response = await this.engine.erc1155.burn(
+        chainId,
+        contractAddress,
+        wallet,
+        {
+          tokenId,
+          amount,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return response.result;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
 }
