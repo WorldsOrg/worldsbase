@@ -2,10 +2,16 @@ import { Body, Controller, Post } from '@nestjs/common';
 import {
   BurnERC20Dto,
   MintERC20Dto,
+  QueueReceipt,
+  ThirdwebEngineBurnErc1155RequestDto,
+  ThirdwebEngineBurnErc20RequestDto,
+  ThirdwebEngineMintErc20RequestDto,
+  ThirdwebEngineTransferErc1155RequestDto,
   ThirdwebResponseDto,
+  TxReceipt,
 } from './dto/thirdweb.dto';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ThirdwebService, TxReceipt } from './thirdweb.service';
+import { ThirdwebService } from './thirdweb.service';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Thirdweb')
@@ -43,6 +49,90 @@ export class ThirdwebController {
       burnErc20.chainIdOrRpc,
       burnErc20.contractAddress,
       burnErc20.amount,
+    );
+  }
+
+  @Post('/transfer_erc1155_engine')
+  @ApiOperation({
+    summary: 'Transfers erc1155 tokens to a wallet using engine',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Token(s) transferred',
+    type: QueueReceipt,
+  })
+  transferErc1155Engine(
+    @Body() transferErc1155: ThirdwebEngineTransferErc1155RequestDto,
+  ): Promise<QueueReceipt> {
+    return this.thirdwebService.transferErc1155Engine(
+      transferErc1155.wallet,
+      transferErc1155.tokenId,
+      transferErc1155.amount,
+      transferErc1155.chainId,
+      transferErc1155.contractAddress,
+      transferErc1155.backendWalletAddress,
+    );
+  }
+
+  @Post('/burn_erc1155_engine')
+  @ApiOperation({
+    summary: 'Burns an erc1155 token(s) from a wallet using engine',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Token(s) burned',
+    type: QueueReceipt,
+  })
+  burnErc1155Engine(
+    @Body() burnErc1155: ThirdwebEngineBurnErc1155RequestDto,
+  ): Promise<QueueReceipt> {
+    return this.thirdwebService.burnErc1155Engine(
+      burnErc1155.wallet,
+      burnErc1155.tokenId,
+      burnErc1155.amount,
+      burnErc1155.chainId,
+      burnErc1155.contractAddress,
+    );
+  }
+
+  @Post('/burn_erc20_engine')
+  @ApiOperation({
+    summary: 'Burns erc20 token(s) from a wallet using engine',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Token(s) burned',
+    type: QueueReceipt,
+  })
+  burnErc20Engine(
+    @Body() burnErc20: ThirdwebEngineBurnErc20RequestDto,
+  ): Promise<QueueReceipt> {
+    return this.thirdwebService.burnErc20Engine(
+      burnErc20.wallet,
+      burnErc20.amount,
+      burnErc20.chainId,
+      burnErc20.contractAddress,
+    );
+  }
+
+  @Post('/mint_erc20_engine')
+  @ApiOperation({
+    summary: 'Mints erc20 token(s) using engine',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Token(s) minted',
+    type: QueueReceipt,
+  })
+  mintErc20Engine(
+    @Body() mintErc20: ThirdwebEngineMintErc20RequestDto,
+  ): Promise<QueueReceipt> {
+    return this.thirdwebService.mintErc20Engine(
+      mintErc20.wallet,
+      mintErc20.amount,
+      mintErc20.chainId,
+      mintErc20.contractAddress,
+      mintErc20.backendWalletAddress,
     );
   }
 }

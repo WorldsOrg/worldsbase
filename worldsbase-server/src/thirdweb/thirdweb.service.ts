@@ -5,14 +5,7 @@ import { ThirdwebSDK } from '@thirdweb-dev/sdk';
 import { VaultService } from 'src/vault/vault.service';
 import { Engine } from '@thirdweb-dev/engine';
 import { ZeroAddress, formatEther, parseUnits } from 'ethersV6';
-
-export interface TxReceipt {
-  txHash: string;
-}
-
-export interface QueueReceipt {
-  queueId: string;
-}
+import { QueueReceipt, TxReceipt } from './dto/thirdweb.dto';
 
 export interface BackendWallet {
   address: string;
@@ -145,6 +138,33 @@ export class ThirdwebService {
     }
   }
 
+  async mintErc20Engine(
+    wallet: string,
+    amount: string,
+    chainId: string,
+    contractAddress: string,
+    backendWalletAddress: string,
+  ) {
+    try {
+      const response = await this.engine.erc20.mintTo(
+        chainId,
+        contractAddress,
+        backendWalletAddress,
+        {
+          toAddress: wallet,
+          amount: amount,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return response.result;
+    } catch (error) {
+      console.error('Error minting erc20 engine:', error);
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async createEngineWallet(user_id: string): Promise<BackendWallet> {
     try {
       const res = await this.engine.backendWallet.create({ label: user_id });
@@ -166,6 +186,7 @@ export class ThirdwebService {
       } = await this.engine.backendWallet.getBalance(chain, from);
       return parseUnits(value, 'wei');
     } catch (error) {
+      console.error('Error getting wallet balance engine:', error);
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
@@ -184,6 +205,7 @@ export class ThirdwebService {
       }
       return results;
     } catch (error) {
+      console.error('Error getting wallets engine:', error);
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
@@ -202,6 +224,7 @@ export class ThirdwebService {
       });
       return result;
     } catch (error) {
+      console.error('Error transfering native currency engine:', error);
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
@@ -230,6 +253,153 @@ export class ThirdwebService {
     } catch (error) {
       console.error(error);
       throw new Error('Error transferring pack to user');
+    }
+  }
+
+  async transferErc1155Engine(
+    wallet: string,
+    tokenId: string,
+    amount: string,
+    chainId: string,
+    contractAddress: string,
+    backendWalletAddress: string,
+  ) {
+    try {
+      const response = await this.engine.erc1155.transferFrom(
+        chainId,
+        contractAddress,
+        backendWalletAddress,
+        {
+          from: backendWalletAddress,
+          to: wallet,
+          tokenId: tokenId,
+          amount: amount,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return response.result;
+    } catch (error) {
+      console.error('Error transferring erc1155 engine:', error);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async burnErc1155Engine(
+    wallet: string,
+    tokenId: string,
+    amount: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const response = await this.engine.erc1155.burn(
+        chainId,
+        contractAddress,
+        wallet,
+        {
+          tokenId,
+          amount,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return response.result;
+    } catch (error) {
+      console.error('Error burning er1155 engine:', error);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getErc20BalanceEngine(
+    wallet: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const res = await this.engine.erc20.balanceOf(
+        wallet,
+        chainId,
+        contractAddress,
+      );
+      return Number(res.result.value) / 10 ** Number(res.result.decimals);
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error getting ERC20 balance');
+    }
+  }
+
+  async setAllowanceErc20Engine(
+    wallet: string,
+    amount: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const result = await this.engine.erc20.setAllowance(
+        chainId,
+        contractAddress,
+        wallet,
+        {
+          spenderAddress: wallet,
+          amount: amount,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error setting ERC20 allowance');
+    }
+  }
+
+  async burnErc20Engine(
+    wallet: string,
+    amount: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const currentAmount = await this.getErc20BalanceEngine(
+        wallet,
+        chainId,
+        contractAddress,
+      );
+
+      if (currentAmount < Number(amount)) {
+        throw new Error('Insufficient balance');
+      }
+
+      await this.setAllowanceErc20Engine(
+        wallet,
+        amount,
+        chainId,
+        contractAddress,
+      );
+
+      // sleep for 5 seconds to allow for the allowance to be set
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      const response = await this.engine.erc20.burnFrom(
+        chainId,
+        contractAddress,
+        wallet,
+        {
+          holderAddress: wallet,
+          amount: amount,
+          txOverrides: {
+            gas: '1000000',
+          },
+        },
+      );
+      return response.result;
+    } catch (error) {
+      console.error('Error burning erc20 engine:', error);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
 }
