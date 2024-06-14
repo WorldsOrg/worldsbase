@@ -9,6 +9,7 @@ export class Web3ReconcileService {
   private chainId: string;
   private socialPointsContract: string;
   private affectionPointsContract: string;
+  private giftItemsContract: string;
   private adminWallet: string;
 
   constructor(
@@ -26,11 +27,19 @@ export class Web3ReconcileService {
     this.adminWallet = this.configService.get<string>(
       'TOPUP_ADMIN_WALLET_ADDRESS',
     ) as string;
+    this.giftItemsContract = this.configService.get<string>(
+      'GIFT_ITEMS_CONTRACT',
+    ) as string;
   }
 
-  @Cron('* * * * *')
-  handleCron() {
-    this.reconcile();
+  @Cron('0 6,12 * * *')
+  handleCronErc1155() {
+    this.reconcileMiniGameErc1155();
+  }
+
+  @Cron('30 6,12 * * *')
+  handleCronErc20() {
+    this.reconcileMiniGameErc1155();
   }
 
   async reconcileErc20(wallet: string, difference: number, contract: string) {
@@ -59,7 +68,7 @@ export class Web3ReconcileService {
     }
   }
 
-  async reconcile() {
+  async reconcileMiniGameErc20() {
     try {
       const query = `SELECT score, social_score, provisioned_wallet FROM "wtf_users" WHERE "provisioned_wallet" IS NOT NULL`;
       const result = await this.dbService.executeQuery(query);
@@ -107,7 +116,62 @@ export class Web3ReconcileService {
         }
       }
     } catch (error) {
-      console.error('Error reconciling web3:', error);
+      console.error('Error reconciling web3 erc20:', error);
+    }
+  }
+
+  async reconcileMiniGameErc1155() {
+    try {
+      const query = `SELECT * FROM "user_inventory_summary"`;
+      const result = await this.dbService.executeQuery(query);
+      const engineWallets = await this.thirdwebService.getWalletsEngine();
+      if (result.status == 200) {
+        const data = result.data;
+        for (const row of data) {
+          const wallet = row.provisioned_wallet;
+          const itemQuantities = [];
+          itemQuantities.push(row.item_1_quantity);
+          itemQuantities.push(row.item_2_quantity);
+          itemQuantities.push(row.item_3_quantity);
+          itemQuantities.push(row.item_4_quantity);
+          itemQuantities.push(row.item_5_quantity);
+          itemQuantities.push(row.item_6_quantity);
+          if (engineWallets.includes(wallet.toString().toLowerCase())) {
+            for (let i = 0; i < itemQuantities.length; i++) {
+              const erc1155Balance =
+                await this.thirdwebService.getErc1155BalanceEngine(
+                  wallet,
+                  i.toString(),
+                  this.chainId,
+                  this.giftItemsContract,
+                );
+              if (erc1155Balance != itemQuantities[i]) {
+                const amount = Number(erc1155Balance) - itemQuantities[i];
+                if (amount > 0) {
+                  await this.thirdwebService.burnErc1155Engine(
+                    wallet,
+                    i.toString(),
+                    amount.toString(),
+                    this.chainId,
+                    this.giftItemsContract,
+                  );
+                } else {
+                  await this.thirdwebService.transferErc1155Engine(
+                    wallet,
+                    i.toString(),
+                    Math.abs(amount).toString(),
+                    this.chainId,
+                    this.giftItemsContract,
+                    this.adminWallet,
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error reconciling web3 erc1155:', error);
     }
   }
 }

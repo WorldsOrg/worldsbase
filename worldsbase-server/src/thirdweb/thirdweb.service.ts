@@ -256,6 +256,26 @@ export class ThirdwebService {
     }
   }
 
+  async getErc1155BalanceEngine(
+    wallet: string,
+    tokenId: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const response = await this.engine.erc1155.balanceOf(
+        wallet,
+        tokenId,
+        chainId,
+        contractAddress,
+      );
+      return response.result;
+    } catch (error) {
+      console.error('Error getting erc1155 balance engine:', error);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async transferErc1155Engine(
     wallet: string,
     tokenId: string,
