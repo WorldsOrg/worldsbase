@@ -1,0 +1,89 @@
+version: '3'
+services:
+  thirdweb-db:
+    container_name: thirdweb-db
+    image: postgres
+    ports:
+      - '6544:5432'
+    networks:
+      - integration-network
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./db/thirdweb_dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    healthcheck:
+      test: pg_isready -h thirdweb-db
+      interval: 1s
+      retries: 10
+
+  worldsbase-db:
+    container_name: worldsbase-db
+    image: postgres
+    ports:
+      - '6543:5432'
+    networks:
+      - integration-network
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./db/worldsbase_dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    healthcheck:
+      test: pg_isready -h worldsbase-db
+      interval: 1s
+      retries: 10
+
+  thirdweb-engine:
+    container_name: thirdweb-engine
+    image: thirdweb/engine:latest
+    ports:
+      - '3005:3005'
+    networks:
+      - integration-network
+    depends_on:
+      thirdweb-db:
+        condition: service_healthy
+    environment:
+      - ENCRYPTION_PASSWORD=thirdweb-engine-docker
+      - THIRDWEB_API_SECRET_KEY=Cv6jB3T5Rr-Nv4TTRJUm-P6HSKKQZxiJTKQ-Lau58dwhK5v-Tno4rPxycS8_GXtAnvOdb3tN72Oru7mxegfS_A
+      - ADMIN_WALLET_ADDRESS=0x08eEB885AfF95a31971ae323FB554ed397E5a63B
+      - POSTGRES_CONNECTION_URL=postgresql://postgres:postgres@thirdweb-db:5432/postgres?sslmode=disable
+      - ENABLE_HTTPS=false
+    healthcheck:
+      test: wget --no-verbose --tries=1 http://localhost:3005 || exit 1
+      interval: 5s
+      retries: 5
+
+  worldsbase-server:
+    container_name: worldsbase-server
+    image: worldsbase-server
+    ports:
+      - '8080:8080'
+    networks:
+      - integration-network
+    build: ../worldsbase-server
+    depends_on:
+      thirdweb-engine:
+        condition: service_healthy
+      worldsbase-db:
+        condition: service_healthy
+    environment:
+      - PORT=8080
+      - X_API_KEY=integration-test-api-key
+      - THIRDWEB_ENGINE_URL=http://thirdweb-engine:3005
+      - THIRDWEB_ACCESS_TOKEN=eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIweGU0QzQ1QzZkMTU1MjgxOGJjMDU0MUVhQzI1N0NkNmU2YkNGMUVBYzgiLCJzdWIiOiIweDA4ZUVCODg1QWZGOTVhMzE5NzFhZTMyM0ZCNTU0ZWQzOTdFNWE2M0IiLCJhdWQiOiJ0aGlyZHdlYi5jb20iLCJleHAiOjQ4NzEzODczMjUsIm5iZiI6MTcxNzc4NzMyNSwiaWF0IjoxNzE3Nzg3MzI1LCJqdGkiOiJmMmFiY2Y1ZS0yOGZjLTRhYTYtYjBhZC01MGFjZDkxZDMwM2EiLCJjdHgiOnsicGVybWlzc2lvbnMiOiJBRE1JTiJ9fQ.MHhkMTdhY2YyNDdiNDVjYWIyMzFlYWYzZmU0NjNlZWFmMDBlNGJjODhiZDljNzhmNjM4YzMwNTYzYzVkZTcwYjk1MjFiMjU4NGY0MTc5ZWY1Mzg4OTdiMWIzNjY5OWJhMjY0MTE2ZmRhMDExNDgzOGNiY2EyOGRiM2QwY2E2MmJkMzFi
+      - CONNECTION_STRING=postgres://postgres:postgres@worldsbase-db:5432/postgres?sslmode=disable
+      - POSTGRES_HOST=worldsbase-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_DATABASE=postgres
+      - POSTGRES_PASSWORD=postgres
+      - MAIN_WALLET_PRIVATE_KEY=162b35e75adbe83d49c03e79a0bd4d54bcbf15c5ccb5ea70e3cc94a81623b170
+      - THIRDWEB_SDK_SECRET_KEY=Cv6jB3T5Rr-Nv4TTRJUm-P6HSKKQZxiJTKQ-Lau58dwhK5v-Tno4rPxycS8_GXtAnvOdb3tN72Oru7mxegfS_A
+      - USING_VAULT=false
+      - TOPUP_ADMIN_WALLET_ADDRESS=0x08eEB885AfF95a31971ae323FB554ed397E5a63B
+      - TOPUP_CHAIN_ID=31929
+      - TOPUP_MIN_BALANCE=2000000000000
+      - TOPUP_MIN_TRANSFER=1000000000000
+
+networks:
+  integration-network:
