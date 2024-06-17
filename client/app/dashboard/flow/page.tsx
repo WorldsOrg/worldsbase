@@ -58,23 +58,25 @@ function WorkflowsPage() {
           })
         : data.map((item: any) => {
             return (
-              <div className="p-4 m-2 border border-black rounded-md" key={item.id}>
-                <div className="flex justify-between">
-                  <div className="text-primary">
-                    <h1>{item.name}</h1>
-                    <h1 className="mt-1 w-50 "> executed : {item.execution_count}</h1>
-                  </div>
-                  <div className="text-white dark:text-black">
-                    <button className="p-2 m-1 rounded-md bg-primary" onClick={() => handleDelete(item?.id, item?.short_id, item?.table_name)}>
+              <Link key={item.id} href={`/dashboard/flow/${item.id}`}>
+                <div className="p-4 m-2 border border-black rounded-md" key={item.id}>
+                  <div className="flex justify-between">
+                    <div className="text-primary">
+                      <h1>{item.name}</h1>
+                      <h1 className="mt-1 w-50 "> executed : {item.execution_count}</h1>
+                    </div>
+                    <div className="text-white dark:text-black">
+                      {/* <button className="p-2 m-1 rounded-md bg-primary" onClick={() => handleDelete(item?.id, item?.short_id, item?.table_name)}>
                       Delete
-                    </button>
+                    </button> */}
 
-                    <Link href={`/dashboard/flow/${item.id}`}>
+                      {/* <Link href={`/dashboard/flow/${item.id}`}>
                       <button className="p-2 m-1 rounded-md bg-primary">Edit</button>
-                    </Link>
+                    </Link> */}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
     </>
