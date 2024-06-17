@@ -154,32 +154,32 @@ export default function Flow({ params }: { params: { id: string } }) {
           },
         ]);
         break;
-        case "TransferPack":
-          setNodes((n) => [
-            ...n,
-            {
-              id: (n.length + 100).toString(),
-              type: "transferPackNode",
-              position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
-              data: {
-                userId: "",
-              },
+      case "TransferPack":
+        setNodes((n) => [
+          ...n,
+          {
+            id: (n.length + 100).toString(),
+            type: "transferPackNode",
+            position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+            data: {
+              userId: "",
             },
-          ]);
-          break;
-        case "TopOffEth":
-          setNodes((n) => [
-            ...n,
-            {
-              id: (n.length + 100).toString(),
-              type: "topOffEthNode",
-              position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
-              data: {
-                userId: "",
-              },
+          },
+        ]);
+        break;
+      case "TopOffEth":
+        setNodes((n) => [
+          ...n,
+          {
+            id: (n.length + 100).toString(),
+            type: "topOffEthNode",
+            position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+            data: {
+              userId: "",
             },
-          ]);
-          break;
+          },
+        ]);
+        break;
       case "Token":
         setNodes((n) => [
           ...n,
@@ -285,7 +285,7 @@ export default function Flow({ params }: { params: { id: string } }) {
             nodes: nodes,
             edges: edges,
             type: "trigger",
-            table_name: tableName
+            table_name: tableName,
           },
           tableName: "workflows",
         };
@@ -399,9 +399,9 @@ export default function Flow({ params }: { params: { id: string } }) {
         <div className="text-lg font-semibold">{isEmpty(flowName) ? "New Flow" : flowName}</div>
         <div className="flex items-center">
           <Dropdown handleAdd={handleAdd} />
-          <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={() => handleSave(flowName)}>
+          {/* <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={() => handleSave(flowName)}>
             Save Flow
-          </button>
+          </button> */}
         </div>
       </div>
 
