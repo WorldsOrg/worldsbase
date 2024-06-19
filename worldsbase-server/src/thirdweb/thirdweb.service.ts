@@ -256,6 +256,26 @@ export class ThirdwebService {
     }
   }
 
+  async getErc1155BalanceEngine(
+    wallet: string,
+    tokenId: string,
+    chainId: string,
+    contractAddress: string,
+  ) {
+    try {
+      const response = await this.engine.erc1155.balanceOf(
+        wallet,
+        tokenId,
+        chainId,
+        contractAddress,
+      );
+      return response.result;
+    } catch (error) {
+      console.error('Error getting erc1155 balance engine:', error);
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async transferErc1155Engine(
     wallet: string,
     tokenId: string,
@@ -382,7 +402,7 @@ export class ThirdwebService {
       );
 
       // sleep for 5 seconds to allow for the allowance to be set
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 8000));
 
       const response = await this.engine.erc20.burnFrom(
         chainId,

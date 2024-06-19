@@ -12,6 +12,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { TopUpModule } from './topup/topup.module';
 import { EthersModule } from './ethers/ethers.module';
 import { WorkflowModule } from './workflow/workflow.module';
+import { Web3ReconcileModule } from './web3reconcile/web3reconcile.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { WorkflowModule } from './workflow/workflow.module';
     TableModule,
     AuthModule,
     EthersModule,
+    Web3ReconcileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

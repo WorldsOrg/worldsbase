@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { Client } from '@litehex/node-vault';
 import axios from 'axios';
 
@@ -44,6 +45,15 @@ export class VaultService {
     this.vaultAddress = process.env.VAULT_ADDRESS || '';
     this.usingVault = process.env.USING_VAULT || '';
     if (this.usingVault !== 'false') {
+      this.loginWithAppRole();
+    }
+  }
+
+  // This cron job runs every day at midnight to login to vault (The token generated from authenticating with app role has a TTL)
+  @Cron('0 0 * * *')
+  handleCron() {
+    if (this.usingVault !== 'false') {
+      console.log('Logging in to vault');
       this.loginWithAppRole();
     }
   }
