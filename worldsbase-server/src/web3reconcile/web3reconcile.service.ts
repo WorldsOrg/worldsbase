@@ -32,12 +32,18 @@ export class Web3ReconcileService {
 
   @Cron('0 6,12 * * *')
   handleCronErc1155() {
-    if (this.production) this.reconcileMiniGameErc1155();
+    if (this.production) {
+      console.log('Reconciling MiniGame ERC1155');
+      this.reconcileMiniGameErc1155();
+    }
   }
 
   @Cron('30 6,12 * * *')
   handleCronErc20() {
-    if (this.production) this.reconcileMiniGameErc20();
+    if (this.production) {
+      console.log('Reconciling MiniGame ERC20');
+      this.reconcileMiniGameErc20();
+    }
   }
 
   async reconcileErc20(wallet: string, difference: number, contract: string) {
