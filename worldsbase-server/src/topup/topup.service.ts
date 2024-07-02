@@ -14,6 +14,7 @@ export class TopUpService {
 
   @Cron('0 0 * * *')
   handleCron() {
+    console.log('Running cron job to top up users wallets');
     this.topUpUsersWallets();
   }
 
@@ -70,14 +71,15 @@ export class TopUpService {
           wallet,
           chainId,
         );
-        const transferValue = balance - minBalance;
-        if (balance - minBalance > minTransfer) continue;
-        await this.thirdwebService.transferNativeEngine(
-          adminWallet,
-          wallet,
-          chainId,
-          transferValue,
-        );
+        const transferValue = minBalance - balance; // Calculate how much is needed to top up to the minimum balance
+        if (transferValue >= minTransfer) {
+          await this.thirdwebService.transferNativeEngine(
+            adminWallet,
+            wallet,
+            chainId,
+            transferValue,
+          );
+        }
       }
     } catch (error) {
       // TODO: notify error through discord? Specially for admin missing funds

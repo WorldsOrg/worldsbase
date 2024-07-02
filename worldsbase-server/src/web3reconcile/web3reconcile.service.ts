@@ -27,8 +27,21 @@ export class Web3ReconcileService {
     this.giftItemsContract = this.configService.get<string>(
       'GIFT_ITEMS_CONTRACT',
     ) as string;
-    this.production = this.configService.get<string>('RAILWAY_ENVIRONMENT_NAME') as string == 'production' ? true : false;
+    this.production =
+      (this.configService.get<string>('RAILWAY_ENVIRONMENT_NAME') as string) ==
+      'production'
+        ? true
+        : false;
   }
+
+  // currently no erc1155 in mini game
+  // @Cron('0 6,12 * * *')
+  // handleCronErc1155() {
+  //   if (this.production) {
+  //     console.log('Reconciling MiniGame ERC1155');
+  //     this.reconcileMiniGameErc1155();
+  //   }
+  // }
 
   @Cron('0 6,12 * * *')
   handleCronErc1155() {
@@ -73,17 +86,14 @@ export class Web3ReconcileService {
 
   async reconcileMiniGameErc20() {
     try {
-      console.log('Reconciling MiniGame ERC20');
-      const query = `SELECT score, social_score, provisioned_wallet FROM "wtf_users" WHERE "provisioned_wallet" IS NOT NULL`;
+      const query = `SELECT score, provisioned_wallet FROM "wtf_users" WHERE "provisioned_wallet" IS NOT NULL`;
       const result = await this.dbService.executeQuery(query);
       const engineWallets = await this.thirdwebService.getWalletsEngine();
       if (result.status == 200) {
         const data = result.data;
         for (const row of data) {
           const score = Number(row.score);
-          const socialScore = Number(row.social_score);
           const wallet = row.provisioned_wallet;
-          const totalScore = score + socialScore;
           if (
             engineWallets.includes(wallet.toString().toLowerCase()) &&
             score > 0
@@ -94,10 +104,8 @@ export class Web3ReconcileService {
                 this.chainId,
                 this.affectionPointsContract,
               );
-            const roundedDifference = Math.round(totalScore - erc20BalanceAffection);
-            if (
-              roundedDifference != 0
-            ) {
+            const roundedDifference = Math.round(score - erc20BalanceAffection);
+            if (roundedDifference != 0) {
               await this.reconcileErc20(
                 wallet,
                 roundedDifference,
