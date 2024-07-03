@@ -16,6 +16,18 @@ services:
       interval: 1s
       retries: 10
 
+  thirdweb-redis:
+    container_name: thirdweb-redis
+    image: redis
+    ports:
+      - '6379:6379'
+    networks:
+      - integration-network
+    healthcheck:
+      test: redis-cli --raw incr ping
+      interval: 1s
+      retries: 10
+
   worldsbase-db:
     container_name: worldsbase-db
     image: postgres
@@ -42,14 +54,17 @@ services:
     depends_on:
       thirdweb-db:
         condition: service_healthy
+      thirdweb-redis:
+        condition: service_healthy
     environment:
       - ENCRYPTION_PASSWORD=thirdweb-engine-docker
       - THIRDWEB_API_SECRET_KEY=Cv6jB3T5Rr-Nv4TTRJUm-P6HSKKQZxiJTKQ-Lau58dwhK5v-Tno4rPxycS8_GXtAnvOdb3tN72Oru7mxegfS_A
       - ADMIN_WALLET_ADDRESS=0x08eEB885AfF95a31971ae323FB554ed397E5a63B
+      - REDIS_URL=redis://thirdweb-redis:6379/0
       - POSTGRES_CONNECTION_URL=postgresql://postgres:postgres@thirdweb-db:5432/postgres?sslmode=disable
       - ENABLE_HTTPS=false
     healthcheck:
-      test: wget --no-verbose --tries=1 http://localhost:3005 || exit 1
+      test: wget --no-verbose --tries=1 http://thirdweb-engine:3005 || exit 1
       interval: 5s
       retries: 5
 

@@ -279,7 +279,7 @@ export class WorkflowService {
     const result = await this.tableService.executeQuery(getTableQuery);
 
     if (result.status === 200) {
-      const batchData = result.data.map((row: any) => ({
+      const batchData = result.data!.map((row: any) => ({
         toAddress: row[toAddressColumnName],
         amount: row[amountColumnName],
       }));
@@ -307,7 +307,7 @@ export class WorkflowService {
         triggered_function,
       ]);
 
-      if (result && result.data.length > 0) {
+      if (result && result.data && result.data.length > 0) {
         const { nodes, edges } = result.data[0];
         const [order, depth] = this.getNodeExecutionOrder(edges);
         console.log('Execution order:', order);
