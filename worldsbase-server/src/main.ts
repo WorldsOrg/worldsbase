@@ -18,6 +18,15 @@ const port = process.env.PORT || 3005;
 async function bootstrap() {
   dotenv.config();
 
+  const allowedOrigins = [
+    'https://dashboard.worlds.org',
+    'https://wtf-mini-game.vercel.app',
+    'https://wtf-mini-game-preview.vercel.app',
+    'https://portal.wtf.gg',
+    'https://wtf.gg',
+    'http://localhost:3000', // Allow local development
+  ];
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
@@ -30,7 +39,7 @@ async function bootstrap() {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
         scriptSrc: ["'self'", 'https:', "'unsafe-inline'"],
-        connectSrc: ["'self'", 'https:', 'your-domain.com'],
+        connectSrc: ["'self'", 'https:', ...allowedOrigins],
         fontSrc: ["'self'", 'https:', 'data:'],
         objectSrc: ["'none'"],
       },
@@ -47,17 +56,10 @@ async function bootstrap() {
     xssFilter: true,
   });
 
-  // app.register(fastifyCors, {
-  //   origin: [
-  //     'https://dashboard.worlds.org',
-  //     'https://wtf-mini-game.vercel.app',
-  //     'https://wtf-mini-game-preview.vercel.app',
-  //     'https://portal.wtf.gg',
-  //     'https://wtf.gg',
-  //   ],
-  //   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  //   credentials: true,
-  // });
+  app.register(fastifyCors, {
+    origin: allowedOrigins,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Worldsbase')
