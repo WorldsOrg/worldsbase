@@ -5,6 +5,8 @@ import {
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import fastifyCors from '@fastify/cors';
+import helmet from '@fastify/helmet';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { XApiKeyGuard } from './x-api-key/x-api-key.guard';
@@ -19,8 +21,43 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
+    { logger: ['error', 'warn', 'log', 'verbose', 'debug'] },
   );
-  app.enableCors();
+
+  app.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+        scriptSrc: ["'self'", 'https:', "'unsafe-inline'"],
+        connectSrc: ["'self'", 'https:', 'your-domain.com'],
+        fontSrc: ["'self'", 'https:', 'data:'],
+        objectSrc: ["'none'"],
+      },
+    },
+    frameguard: {
+      action: 'deny',
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    noSniff: true,
+    xssFilter: true,
+  });
+
+  // app.register(fastifyCors, {
+  //   origin: [
+  //     'https://dashboard.worlds.org',
+  //     'https://wtf-mini-game.vercel.app',
+  //     'https://wtf-mini-game-preview.vercel.app',
+  //     'https://portal.wtf.gg',
+  //     'https://wtf.gg',
+  //   ],
+  //   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  //   credentials: true,
+  // });
 
   const config = new DocumentBuilder()
     .setTitle('Worldsbase')
