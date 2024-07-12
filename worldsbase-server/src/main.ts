@@ -6,7 +6,6 @@ import {
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import fastifyCors from '@fastify/cors';
-import helmet from '@fastify/helmet';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { XApiKeyGuard } from './x-api-key/x-api-key.guard';
@@ -23,29 +22,6 @@ async function bootstrap() {
     new FastifyAdapter(),
     { logger: ['error', 'warn', 'log', 'verbose', 'debug'] },
   );
-
-  app.register(helmet, {
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
-        scriptSrc: ["'self'", 'https:', "'unsafe-inline'"],
-        connectSrc: ["'self'", 'https:', 'your-domain.com'],
-        fontSrc: ["'self'", 'https:', 'data:'],
-        objectSrc: ["'none'"],
-      },
-    },
-    frameguard: {
-      action: 'deny',
-    },
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true,
-    },
-    noSniff: true,
-    xssFilter: true,
-  });
 
   app.register(fastifyCors, {
     origin: [
