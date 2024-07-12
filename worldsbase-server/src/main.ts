@@ -32,6 +32,7 @@ async function bootstrap() {
     new FastifyAdapter(),
     { logger: ['error', 'warn', 'log', 'verbose', 'debug'] },
   );
+  app.enableCors();
 
   // app.register(helmet, {
   //   contentSecurityPolicy: {
