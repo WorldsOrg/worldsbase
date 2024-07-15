@@ -1,4 +1,10 @@
-import { NestFactory } from '@nestjs/core';
+import './instrument';
+import * as Sentry from '@sentry/nestjs';
+import {
+  BaseExceptionFilter,
+  HttpAdapterHost,
+  NestFactory,
+} from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -32,6 +38,9 @@ async function bootstrap() {
     new FastifyAdapter(),
     { logger: ['error', 'warn', 'log', 'verbose', 'debug'] },
   );
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter));
 
   app.register(helmet, {
     contentSecurityPolicy: {
