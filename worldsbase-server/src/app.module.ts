@@ -1,6 +1,7 @@
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WalletModule } from './wallet/wallet.module';
@@ -21,6 +22,14 @@ import { Web3ReconcileModule } from './web3reconcile/web3reconcile.module';
       envFilePath: `${process.env.NODE_ENV}.env`,
     }),
     ScheduleModule.forRoot(),
+
+    ThrottlerModule.forRoot([
+      {
+        ttl: 1000,
+        limit: 1,
+      },
+    ]),
+
     TasksModule,
     TopUpModule,
     DbModule,
