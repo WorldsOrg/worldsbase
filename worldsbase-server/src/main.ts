@@ -30,7 +30,7 @@ async function bootstrap() {
     'https://wtf-mini-game-preview.vercel.app',
     'https://portal.wtf.gg',
     'https://wtf.gg',
-    // 'http://localhost:3000', // Allow local development
+    'https://mini-game-telegram-bot-menu-production.up.railway.app',
   ];
 
   const app = await NestFactory.create<NestFastifyApplication>(
