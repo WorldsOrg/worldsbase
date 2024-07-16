@@ -39,6 +39,8 @@
     "@nestjs/swagger": "^7.3.0",
     "@nestjs/throttler": "^6.0.0",
     "@nestjs/typeorm": "^10.0.2",
+    "@sentry/nestjs": "^8.17.0",
+    "@sentry/profiling-node": "^8.17.0",
     "@simplewebauthn/server": "^9.0.3",
     "@thirdweb-dev/chains": "^0.1.72",
     "@thirdweb-dev/engine": "^0.0.9",

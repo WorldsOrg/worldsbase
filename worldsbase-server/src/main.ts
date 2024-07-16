@@ -1,4 +1,10 @@
-import { NestFactory } from '@nestjs/core';
+import './instrument';
+import * as Sentry from '@sentry/nestjs';
+import {
+  BaseExceptionFilter,
+  HttpAdapterHost,
+  NestFactory,
+} from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -24,7 +30,7 @@ async function bootstrap() {
     'https://wtf-mini-game-preview.vercel.app',
     'https://portal.wtf.gg',
     'https://wtf.gg',
-    // 'http://localhost:3000', // Allow local development
+    'https://mini-game-telegram-bot-menu-production.up.railway.app',
   ];
 
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -32,6 +38,9 @@ async function bootstrap() {
     new FastifyAdapter(),
     { logger: ['error', 'warn', 'log', 'verbose', 'debug'] },
   );
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter));
 
   app.register(helmet, {
     contentSecurityPolicy: {
