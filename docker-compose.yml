@@ -9,22 +9,22 @@ services:
     build: ./client
     env_file: ./client/.env
 
-  # docs:
-  #   image: docs
-  #   ports:
-  #     - '3001:3001'
-  #   networks:
-  #     - wb-network
-  #   build: ./docs
+  docs:
+    image: docs
+    ports:
+      - '3001:3001'
+    networks:
+      - wb-network
+    build: ./docs
 
-  # worldsbase-server:
-  #   image: worldsbase-server
-  #   ports:
-  #     - "3005:3005"
-  #   networks:
-  #     - wb-network
-  #   build: ./worldsbase-server
-  #   env_file: ./worldsbase-server/.env
+  worldsbase-server:
+    image: worldsbase-server
+    ports:
+      - '3005:3005'
+    networks:
+      - wb-network
+    build: ./worldsbase-server
+    env_file: ./worldsbase-server/.env
 
 networks:
   wb-network:
