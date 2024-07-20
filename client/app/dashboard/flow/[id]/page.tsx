@@ -20,6 +20,8 @@ import WorkflowModal from "@/components/workflow/WorkflowModal";
 import BatchMintNode from "./nodes/BatchMintNode";
 import TransferPackNode from "./nodes/TransferPackNode";
 import TopOffEthNode from "./nodes/TopOffEthNode";
+import MudTableNode from "./nodes/MudTableNode";
+import MudWorldNode from "./nodes/MudWorldNode";
 
 const nodeTypes = {
   tableNode: TableNode,
@@ -32,6 +34,8 @@ const nodeTypes = {
   batchMintNode: BatchMintNode,
   transferPackNode: TransferPackNode,
   topOffEthNode: TopOffEthNode,
+  mudTableNode: MudTableNode,
+  mudWorldNode: MudWorldNode,
 };
 
 export default function Flow({ params }: { params: { id: string } }) {
@@ -231,6 +235,31 @@ export default function Flow({ params }: { params: { id: string } }) {
             data: {
               tables: navigation,
             },
+          },
+        ]);
+        break;
+      case "MudWorld":
+        setNodes((n) => [
+          ...n,
+          {
+            id: (n.length + 100).toString(),
+            type: "mudWorldNode",
+            position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+            data: {
+              tables: navigation,
+              userId: "",
+            },
+          },
+        ]);
+        break;
+      case "MudTable":
+        setNodes((n) => [
+          ...n,
+          {
+            id: (n.length + 100).toString(),
+            type: "mudTableNode",
+            position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
+            data: {},
           },
         ]);
         break;
