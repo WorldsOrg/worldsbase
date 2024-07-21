@@ -11,8 +11,8 @@ import {
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import fastifyCors from '@fastify/cors';
-import helmet from '@fastify/helmet';
+// import fastifyCors from '@fastify/cors';
+// import helmet from '@fastify/helmet';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { XApiKeyGuard } from './x-api-key/x-api-key.guard';
@@ -38,6 +38,7 @@ async function bootstrap() {
     new FastifyAdapter(),
     { logger: ['error', 'warn', 'log', 'verbose', 'debug'] },
   );
+  app.enableCors();
 
   const { httpAdapter } = app.get(HttpAdapterHost);
   Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter));
@@ -65,10 +66,10 @@ async function bootstrap() {
     xssFilter: true,
   });
 
-  app.register(fastifyCors, {
-    origin: allowedOrigins,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  });
+  // app.register(fastifyCors, {
+  //   origin: allowedOrigins,
+  //   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  // });
 
   const config = new DocumentBuilder()
     .setTitle('Worldsbase')
