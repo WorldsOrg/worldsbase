@@ -6,6 +6,7 @@ import { PiCoinThin, PiFunction } from "react-icons/pi";
 import { BiTimer } from "react-icons/bi";
 import { MdFunctions } from "react-icons/md";
 import { FaEthereum } from "react-icons/fa";
+import { FiCpu } from "react-icons/fi";
 
 export default function Dropdown({ handleAdd }: { handleAdd: (type: string) => void }) {
   return (
@@ -94,6 +95,18 @@ export default function Dropdown({ handleAdd }: { handleAdd: (type: string) => v
                 Delete
               </button>
             </Menu.Item> */}
+            <Menu.Item>
+              <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("MudWorld")}>
+                <FiCpu className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                MUD World
+              </button>
+            </Menu.Item>
+            <Menu.Item>
+              <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("MudTable")}>
+                <FiCpu className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                MUD Table
+              </button>
+            </Menu.Item>
             <Menu.Item>
               <button className={"text-gray-700 group flex items-center px-4 py-2 text-sm"} onClick={() => handleAdd("Note")}>
                 <InformationCircleIcon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />

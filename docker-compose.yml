@@ -1,9 +1,9 @@
-version: "3"
+version: '3'
 services:
   client:
     image: nextjs-docker
     ports:
-      - "3000:3000"
+      - '3000:3000'
     networks:
       - wb-network
     build: ./client
@@ -12,7 +12,7 @@ services:
   docs:
     image: docs
     ports:
-      - "3001:3001"
+      - '3001:3001'
     networks:
       - wb-network
     build: ./docs
@@ -20,7 +20,7 @@ services:
   worldsbase-server:
     image: worldsbase-server
     ports:
-      - "3005:3005"
+      - '3005:3005'
     networks:
       - wb-network
     build: ./worldsbase-server
