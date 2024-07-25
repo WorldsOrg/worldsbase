@@ -68,16 +68,13 @@ export class SteamService {
   async getUserTableInventory(
     steamId: string,
     usersTableName: string,
-    userItemTableName: string,
     itemsTableName: string,
   ) {
     // TODO: Decouple column names
     const query = `
       SELECT *
-      FROM ${usersTableName} users WHERE WHERE steam_id = $1
-      INNER JOIN ${userItemTableName} user_item ON users.steam_id = user_item.steam_id
-      INNER JOIN ${itemsTableName} items ON items.id = user_item.waifu_id
-      inner join table3 t3 on t2.image_id=t3.image_id;
+      FROM ${usersTableName} users WHERE steam_id = $1
+      INNER JOIN ${itemsTableName} user_item ON users.steam_id = user_item.steam_id;
     `;
     const values = [steamId];
     return this.tableService.executeQuery(query, values);
@@ -97,7 +94,6 @@ export class SteamService {
       steamId,
       'wtf_steam_users',
       'wtf_steam_user_item',
-      'wtf_steam_items',
     );
     if (!tableInventory) throw new NotFoundException(error);
 
@@ -106,9 +102,10 @@ export class SteamService {
 
     const addedItems = steamInventory
       .filter(({ itemid }) => !tableItemIds.includes(itemid))
-      .map(({ itemid }) => ({
+      .map(({ itemid, itemdefid }) => ({
         item_id: itemid,
         steam_id: steamId,
+        template_id: itemdefid,
       }));
     const removedItems = tableItemIds.filter(
       (id) => !steamInventory.map(({ itemid }) => itemid).includes(id),
