@@ -17,8 +17,8 @@ export interface BackendWallet {
 @Injectable()
 export class SteamService {
   constructor(
-    private readonly httpService: HttpService,
     private readonly tableService: TableService,
+    private readonly httpService: HttpService,
   ) {}
 
   async getInventory(steamId: string) {

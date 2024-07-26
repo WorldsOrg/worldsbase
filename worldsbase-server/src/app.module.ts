@@ -14,6 +14,7 @@ import { TopUpModule } from './topup/topup.module';
 import { EthersModule } from './ethers/ethers.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { Web3ReconcileModule } from './web3reconcile/web3reconcile.module';
+import { SteamModule } from './steam/steam.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { Web3ReconcileModule } from './web3reconcile/web3reconcile.module';
     AuthModule,
     EthersModule,
     Web3ReconcileModule,
+    SteamModule,
   ],
   controllers: [AppController],
   providers: [AppService],

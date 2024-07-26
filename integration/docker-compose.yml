@@ -62,6 +62,7 @@ services:
       - REDIS_URL=redis://thirdweb-redis:6379/0
       - POSTGRES_CONNECTION_URL=postgresql://postgres:postgres@thirdweb-db:5432/postgres?sslmode=disable
       - ENABLE_HTTPS=false
+      - PORT=3005
     healthcheck:
       test: wget --no-verbose --tries=1 http://thirdweb-engine:3005 || exit 1
       interval: 5s

@@ -5,6 +5,7 @@ import { SteamController } from './steam.controller';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TableService } from 'src/table/table.service';
+import { DbModule } from 'src/db/db.module';
 
 @Global()
 @Module({
@@ -12,6 +13,7 @@ import { TableService } from 'src/table/table.service';
   controllers: [SteamController],
   exports: [SteamService],
   imports: [
+    DbModule,
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
