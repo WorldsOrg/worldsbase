@@ -1,4 +1,5 @@
 import { ConfigModule } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -21,8 +22,8 @@ import { Web3ReconcileModule } from './web3reconcile/web3reconcile.module';
       isGlobal: true, // Makes ConfigModule available throughout your application
       envFilePath: `${process.env.NODE_ENV}.env`,
     }),
+    CacheModule.register({ isGlobal: true }),
     ScheduleModule.forRoot(),
-
     ThrottlerModule.forRoot([
       {
         ttl: 1000,

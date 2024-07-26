@@ -258,6 +258,7 @@ export class TableController {
     @Param()
     getTableNameDTO: GetTableNameDTO,
   ): Promise<TableApiResponse<any>> {
+    console.log(getTableNameDTO);
     const query = `SELECT * FROM "${getTableNameDTO.tableName}" WHERE "${getTableNameDTO.columnName}" = $1;`;
     const result = await this.tableService.executeQuery(query, [
       getTableNameDTO.columnValue,
