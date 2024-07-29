@@ -36,7 +36,7 @@ const nodeTypes = {
 
 export default function Flow({ params }: { params: { id: string } }) {
   const flowId = params.id;
-  const { nodes, onNodesChange, edges, onEdgesChange, flowName, setFlowName, setNodes, setEdges, flowFound } = useWorkflow(params.id);
+  const { nodes, onNodesChange, edges, onEdgesChange, flowName, setFlowName, setNodes, setEdges, flowFound, locked, setLocked } = useWorkflow(params.id);
   const { navigation, functions } = useTable();
   const [showNameModal, setShowNameModal] = useState(false);
 
@@ -342,6 +342,21 @@ export default function Flow({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleLock = async (locked: boolean) => {
+    setLocked(locked);
+    try {
+      axiosInstance.put(`/table/updatedata`, {
+        tableName: "workflows",
+        data: {
+          locked: locked,
+        },
+        condition: `id='${flowId}'`,
+      });
+    } catch (e) {
+      toastAlert(false, "Something went wrong!");
+    }
+  }
+
   const generateShortId = () => {
     // Start with a random letter (a-z)
     let id = String.fromCharCode(97 + Math.floor(Math.random() * 26));
@@ -398,10 +413,20 @@ export default function Flow({ params }: { params: { id: string } }) {
       <div className="flex items-center justify-between h-12 px-2 text-white bg-black">
         <div className="text-lg font-semibold">{isEmpty(flowName) ? "New Flow" : flowName}</div>
         <div className="flex items-center">
-          <Dropdown handleAdd={handleAdd} />
-          <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={() => handleSave(flowName)}>
-            Save Flow
-          </button>
+          {!locked && 
+          <>
+            <Dropdown handleAdd={handleAdd} />
+            <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={() => handleSave(flowName)}>
+              Save Flow
+            </button>
+            <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={() => handleLock(true)}>
+              Lock Flow
+            </button>
+          </>}
+          {/* {locked && 
+          <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={() => handleLock(false)}>
+          Un-lock Flow
+          </button>} */}
         </div>
       </div>
 
