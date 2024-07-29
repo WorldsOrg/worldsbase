@@ -399,9 +399,9 @@ export default function Flow({ params }: { params: { id: string } }) {
         <div className="text-lg font-semibold">{isEmpty(flowName) ? "New Flow" : flowName}</div>
         <div className="flex items-center">
           <Dropdown handleAdd={handleAdd} />
-          {/* <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={() => handleSave(flowName)}>
+          <button className="px-2 m-1 font-semibold text-black rounded-md dark:bg-primary bg-contrastPrimary h-9" onClick={() => handleSave(flowName)}>
             Save Flow
-          </button> */}
+          </button>
         </div>
       </div>
 
