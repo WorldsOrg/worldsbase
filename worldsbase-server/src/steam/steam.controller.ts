@@ -1,15 +1,16 @@
-import { Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { SteamItemDto } from './dto/steam.dto';
-import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SteamService } from '../steam/steam.service';
+import { SteamGuard, UserRequest } from './steam.guard';
 
-@ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Steam')
 @Controller('steam')
+@UseGuards(SteamGuard)
 export class SteamController {
   constructor(private readonly steamService: SteamService) {}
 
-  @Get('/inventory')
+  @Get('/inventory/get')
   @ApiOperation({
     summary: 'Get Steam Inventory of SteamID in AppId defined by env',
   })
@@ -18,11 +19,11 @@ export class SteamController {
     description: 'Inventory Items',
     type: Array<SteamItemDto>,
   })
-  getInventory(@Param('steamId') steamId: string) {
+  getInventory(@Req() { user: { steamId } }: UserRequest) {
     return this.steamService.getInventory(steamId);
   }
 
-  @Put('/inventory')
+  @Get('/inventory/sync')
   @ApiOperation({
     summary: 'Synchronize Steam Inventory of SteamID with database tables',
   })
@@ -30,19 +31,31 @@ export class SteamController {
     status: 200,
     description: 'OK',
   })
-  syncInventory(@Param('steamId') steamId: string) {
+  syncInventory(@Req() { user: { steamId } }: UserRequest) {
     return this.steamService.syncInventory(steamId);
   }
 
-  @Post('/inventory')
+  @Post('/inventory/claim')
   @ApiOperation({ summary: 'Adds item to user inventory on Steam' })
   @ApiResponse({
     status: 200,
-    description: 'Token(s) minted',
+    description: 'Added Item',
     type: Array<SteamItemDto>,
   })
-  claimItem(@Param('steamId') steamId: string) {
+  claimItem(@Req() { user: { steamId } }: UserRequest) {
     // TODO: Add body to get other info, like item-type, rarity, level, etc?
     return this.steamService.claimItem(steamId);
+  }
+
+  @Post('/inventory/default')
+  @ApiOperation({ summary: 'Adds default item to user inventory on Steam' })
+  @ApiResponse({
+    status: 200,
+    description: 'Added Item',
+    type: Array<SteamItemDto>,
+  })
+  claimDefault(@Req() { user: { steamId } }: UserRequest) {
+    // TODO: Add body to get other info, like item-type, rarity, level, etc?
+    return this.steamService.claimDefaultItem(steamId);
   }
 }

@@ -7,6 +7,22 @@ export interface SteamResponse {
   };
 }
 
+export interface SteamAuthResponse {
+  response: {
+    params?: {
+      result: string;
+      steamid: string;
+      ownersteamid: string;
+      vacbanned: boolean;
+      publisherbanned: boolean;
+    };
+    error?: {
+      errorcode: number;
+      errordesc: string;
+    };
+  };
+}
+
 export class SteamItemDto {
   @ApiProperty()
   @IsString()
