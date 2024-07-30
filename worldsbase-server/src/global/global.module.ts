@@ -1,19 +1,23 @@
 // src/steam/steam.module.ts
 import { Module, Global } from '@nestjs/common';
-import { SteamService } from './steam.service';
-import { SteamController } from './steam.controller';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TableService } from 'src/table/table.service';
-import { DbModule } from 'src/db/db.module';
+import { APP_GUARD } from '@nestjs/core';
+import { GlobalGuard } from './global.guard';
+import { XApiKeyGuard } from 'src/x-api-key/x-api-key.guard';
+import { SteamGuard } from 'src/steam/steam.guard';
 
 @Global()
 @Module({
-  providers: [SteamService, TableService],
-  controllers: [SteamController],
-  exports: [SteamService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: GlobalGuard,
+    },
+    XApiKeyGuard,
+    SteamGuard,
+  ],
   imports: [
-    DbModule,
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -27,4 +31,4 @@ import { DbModule } from 'src/db/db.module';
     }),
   ],
 })
-export class SteamModule {}
+export class GlobalModule {}

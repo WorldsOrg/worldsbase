@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { SteamItemDto } from './dto/steam.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SteamService } from '../steam/steam.service';

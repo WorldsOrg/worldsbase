@@ -14,7 +14,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
-// import { XApiKeyGuard } from './x-api-key/x-api-key.guard';
 
 declare const module: any;
 
@@ -84,7 +83,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('api', app, document);
-  // app.useGlobalGuards(new XApiKeyGuard());
   app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(port, '0.0.0.0');
