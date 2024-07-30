@@ -90,7 +90,7 @@ export class WorkflowService {
       variables,
       index,
     );
-
+    console.log(variables, 'variables');
     let query;
     switch (label) {
       case 'Delete':
