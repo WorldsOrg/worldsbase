@@ -90,6 +90,7 @@ export class WorkflowService {
       variables,
       index,
     );
+
     let query;
     switch (label) {
       case 'Delete':
