@@ -84,6 +84,7 @@ export class WorkflowService {
     index: number,
   ): Promise<void> {
     const { label, fields, tableName } = node.data;
+    console.log('node data:', node.data);
     const fieldValues = this.prepareFieldValues(
       fields,
       parsedData,
