@@ -84,7 +84,6 @@ export class WorkflowService {
     index: number,
   ): Promise<void> {
     const { label, fields, tableName } = node.data;
-    console.log('node data:', node.data);
     const fieldValues = this.prepareFieldValues(
       fields,
       parsedData,
@@ -101,7 +100,15 @@ export class WorkflowService {
         query = `INSERT INTO "${tableName}" (${fields.map((f: { label: any }) => f.label).join(', ')}) VALUES (${fieldValues.join(', ')})`;
         break;
       case 'Update':
-        query = `UPDATE "${tableName}" SET ${fields.map((f: { label: any }, i: any) => `${f.label} = ${fieldValues[i]}`).join(', ')} WHERE ${fields[0].label} = '${parsedData.id}'`;
+        const {
+          key: filterKey,
+          value: filterValue,
+          condition,
+        } = node.data.filters;
+        const filterValueResolved = filterValue.startsWith('.')
+          ? variables[index][filterValue.slice(1)]
+          : filterValue;
+        query = `UPDATE "${tableName}" SET ${fields.map((f: { label: any }, i: any) => `${f.label} = ${fieldValues[i]}`).join(', ')} WHERE ${filterKey} ${condition} '${filterValueResolved}'`;
         break;
       default:
         throw new Error(`Unknown operation label: ${label}`);
