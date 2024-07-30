@@ -17,7 +17,7 @@ import { DbModule } from 'src/db/db.module';
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        baseURL: 'https://partner.steam-api.com/',
+        baseURL: 'https://api.steampowered.com/',
         params: {
           key: configService.get('STEAM_API_KEY'),
           appid: configService.get('STEAM_APP_ID'),
