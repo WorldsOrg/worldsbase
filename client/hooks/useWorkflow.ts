@@ -8,6 +8,7 @@ export const useWorkflow = (flowId: string) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [flowName, setFlowName] = useState("");
   const [flowFound, setFlowFound] = useState(false);
+  const [locked, setLocked] = useState(false);
 
   useEffect(() => {
     const fetchWorkflow = async () => {
@@ -17,10 +18,11 @@ export const useWorkflow = (flowId: string) => {
         setEdges(result.data[0].edges);
         setFlowName(result.data[0].name);
         setFlowFound(true);
+        setLocked(result.data[0].locked);
       }
     };
     fetchWorkflow();
   }, [flowId, setNodes, setEdges]);
 
-  return { nodes, setNodes, onNodesChange, edges, setEdges, onEdgesChange, flowName, setFlowName, flowFound };
+  return { nodes, setNodes, onNodesChange, edges, setEdges, onEdgesChange, flowName, setFlowName, flowFound, locked, setLocked };
 };

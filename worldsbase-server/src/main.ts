@@ -1,15 +1,19 @@
-import { NestFactory } from '@nestjs/core';
+import './instrument';
+import * as Sentry from '@sentry/nestjs';
+import {
+  BaseExceptionFilter,
+  HttpAdapterHost,
+  NestFactory,
+} from '@nestjs/core';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-// import fastifyCors from '@fastify/cors';
-// import helmet from '@fastify/helmet';
+
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
-import { XApiKeyGuard } from './x-api-key/x-api-key.guard';
 
 declare const module: any;
 
@@ -18,14 +22,14 @@ const port = process.env.PORT || 3005;
 async function bootstrap() {
   dotenv.config();
 
-  // const allowedOrigins = [
-  //   'https://dashboard.worlds.org',
-  //   'https://wtf-mini-game.vercel.app',
-  //   'https://wtf-mini-game-preview.vercel.app',
-  //   'https://portal.wtf.gg',
-  //   'https://wtf.gg',
-  //   // 'http://localhost:3000', // Allow local development
-  // ];
+  const allowedOrigins = [
+    'https://dashboard.worlds.org',
+    'https://wtf-mini-game.vercel.app',
+    'https://wtf-mini-game-preview.vercel.app',
+    'https://portal.wtf.gg',
+    'https://wtf.gg',
+    'https://mini-game-telegram-bot-menu-production.up.railway.app',
+  ];
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -34,33 +38,41 @@ async function bootstrap() {
   );
   app.enableCors();
 
-  // app.register(helmet, {
-  //   contentSecurityPolicy: {
-  //     directives: {
-  //       defaultSrc: ["'self'"],
-  //       styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
-  //       scriptSrc: ["'self'", 'https:', "'unsafe-inline'"],
-  //       connectSrc: ["'self'", 'https:', ...allowedOrigins],
-  //       fontSrc: ["'self'", 'https:', 'data:'],
-  //       objectSrc: ["'none'"],
-  //     },
-  //   },
-  //   frameguard: {
-  //     action: 'deny',
-  //   },
-  //   hsts: {
-  //     maxAge: 31536000,
-  //     includeSubDomains: true,
-  //     preload: true,
-  //   },
-  //   noSniff: true,
-  //   xssFilter: true,
-  // });
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter));
 
-  // app.register(fastifyCors, {
-  //   origin: allowedOrigins,
-  //   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  // });
+  if (process.env.NODE_ENV === 'production') {
+    const helmet = await import('@fastify/helmet');
+    const fastifyCors = await import('@fastify/cors');
+
+    app.register(helmet, {
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+          scriptSrc: ["'self'", 'https:', "'unsafe-inline'"],
+          connectSrc: ["'self'", 'https:', ...allowedOrigins],
+          fontSrc: ["'self'", 'https:', 'data:'],
+          objectSrc: ["'none'"],
+        },
+      },
+      frameguard: {
+        action: 'deny',
+      },
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+      noSniff: true,
+      xssFilter: true,
+    });
+
+    app.register(fastifyCors, {
+      origin: allowedOrigins,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    });
+  }
 
   const config = new DocumentBuilder()
     .setTitle('Worldsbase')
@@ -71,7 +83,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('api', app, document);
-  app.useGlobalGuards(new XApiKeyGuard());
   app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(port, '0.0.0.0');

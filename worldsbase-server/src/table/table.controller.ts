@@ -25,7 +25,6 @@ import {
   QueryDTO,
   RenameColumnDTO,
   SchemaDTO,
-  TableApiResponse,
   TableNameDTO,
   TriggerDTO,
   UpdateDataDTO,
@@ -59,9 +58,7 @@ export class TableController {
   @ApiBody({ type: CreateTableDTO })
   @ApiResponse({ status: 201, description: 'Table created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  async createTable(
-    @Body() createTableDTO: CreateTableDTO,
-  ): Promise<TableApiResponse<any>> {
+  async createTable(@Body() createTableDTO: CreateTableDTO): Promise<any> {
     const columnDefinitions = createTableDTO.columns
       .map((col) => `"${col.name}" ${col.type} ${col.constraints || ''}`)
       .join(', ');
@@ -86,7 +83,7 @@ export class TableController {
   @ApiResponse({ status: 404, description: 'Table not found' })
   async deleteTable(
     @Param('tableName') tableNameDTO: TableNameDTO,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     const result = await this.tableService.executeQuery(
       `DROP TABLE IF EXISTS "${tableNameDTO.tableName}";`,
     );
@@ -104,7 +101,7 @@ export class TableController {
   @ApiResponse({ status: 404, description: 'Table not found' })
   async updateTableName(
     @Body() updateTableNameDTO: UpdateTableNameDTO,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     const result = await this.tableService.executeQuery(
       `ALTER TABLE "${updateTableNameDTO.oldTableName}" RENAME TO "${updateTableNameDTO.newTableName}";`,
     );
@@ -120,9 +117,7 @@ export class TableController {
   @ApiBody({ type: AddColumnDTO })
   @ApiResponse({ status: 200, description: 'Column added successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  async addColumn(
-    @Body() addColumnDTO: AddColumnDTO,
-  ): Promise<TableApiResponse<any>> {
+  async addColumn(@Body() addColumnDTO: AddColumnDTO): Promise<any> {
     const result = await this.tableService.executeQuery(
       `ALTER TABLE "${addColumnDTO.tableName}" ADD COLUMN "${addColumnDTO.columnName}" ${addColumnDTO.columnType};`,
     );
@@ -140,7 +135,7 @@ export class TableController {
   @ApiResponse({ status: 404, description: 'Column not found' })
   async deleteColumn(
     @Body() deleteTableColumnDTO: DeleteTableColumnDTO,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     const result = await this.tableService.executeQuery(
       `ALTER TABLE "${deleteTableColumnDTO.tableName}" DROP COLUMN "${deleteTableColumnDTO.columnName}";`,
     );
@@ -156,9 +151,7 @@ export class TableController {
   @ApiBody({ type: RenameColumnDTO })
   @ApiResponse({ status: 200, description: 'Column renamed successfully' })
   @ApiResponse({ status: 404, description: 'Column not found' })
-  async renameColumn(
-    @Body() renameColumnDTO: RenameColumnDTO,
-  ): Promise<TableApiResponse<any>> {
+  async renameColumn(@Body() renameColumnDTO: RenameColumnDTO): Promise<any> {
     const result = await this.tableService.executeQuery(
       `ALTER TABLE "${renameColumnDTO.tableName}" RENAME COLUMN "${renameColumnDTO.oldColumnName}" TO "${renameColumnDTO.newColumnName}";`,
     );
@@ -178,9 +171,7 @@ export class TableController {
   })
   @ApiResponse({ status: 200, description: 'Columns retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Table not found' })
-  async getColumns(
-    @Param() tableNameDTO: TableNameDTO,
-  ): Promise<TableApiResponse<any>> {
+  async getColumns(@Param() tableNameDTO: TableNameDTO): Promise<any> {
     const result = await this.tableService.executeQuery(
       "SELECT c.column_name, c.data_type, CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN true ELSE false END AS is_primary_key FROM information_schema.columns AS c LEFT JOIN information_schema.key_column_usage AS kcu ON c.table_name = kcu.table_name AND c.column_name = kcu.column_name LEFT JOIN information_schema.table_constraints AS tc ON kcu.table_name = tc.table_name AND kcu.constraint_name = tc.constraint_name AND tc.constraint_type = 'PRIMARY KEY' WHERE c.table_name = $1 AND c.table_schema = 'public';",
       [tableNameDTO.tableName],
@@ -200,9 +191,7 @@ export class TableController {
     description: 'The schema to list tables from',
   })
   @ApiResponse({ status: 200, description: 'Tables retrieved successfully' })
-  async getTables(
-    @Param() schemaDTO: SchemaDTO,
-  ): Promise<TableApiResponse<any>> {
+  async getTables(@Param() schemaDTO: SchemaDTO): Promise<any> {
     const result = await this.tableService.executeQuery(
       `SELECT table_name FROM information_schema.tables WHERE table_schema = '${schemaDTO.schema}';`,
     );
@@ -236,7 +225,7 @@ export class TableController {
   async getTable(
     @Param() tableNameDTO: TableNameDTO,
     @Query('cache') useCache: string,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     const shouldUseCache = useCache === 'true';
     if (shouldUseCache) {
       const cachedValue = await this.cacheManager.get<string>(
@@ -290,7 +279,7 @@ export class TableController {
   async getTableValue(
     @Param()
     getTableNameDTO: GetTableNameDTO,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     const query = `SELECT * FROM "${getTableNameDTO.tableName}" WHERE "${getTableNameDTO.columnName}" = $1;`;
     const result = await this.tableService.executeQuery(query, [
       getTableNameDTO.columnValue,
@@ -326,7 +315,7 @@ export class TableController {
   async getTableValues(
     @Param('tableName') tableName: string,
     @Query('filters') filters?: string,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     const queryConditions: string[] = [];
     const queryParams: any[] = [];
     if (filters) {
@@ -358,9 +347,7 @@ export class TableController {
   @Post('/jointables')
   @ApiOperation({ summary: 'Joins two tables' })
   @ApiBody({ type: JoinTablesDTO })
-  async joinTables(
-    @Body() joinTablesDTO: JoinTablesDTO,
-  ): Promise<TableApiResponse<any>> {
+  async joinTables(@Body() joinTablesDTO: JoinTablesDTO): Promise<any> {
     const joinQuery = `FROM ${joinTablesDTO.tables[0]} ${joinTablesDTO.joinType} JOIN ${joinTablesDTO.tables[1]} ON ${joinTablesDTO.tables[0]}.${joinTablesDTO.joinColumns[0]} = ${joinTablesDTO.tables[1]}.${joinTablesDTO.joinColumns[1]}`;
     let query = `SELECT * ${joinQuery}`;
 
@@ -388,9 +375,7 @@ export class TableController {
   @Post('/executeselectquery')
   @ApiOperation({ summary: 'Execute a select query' })
   @ApiBody({ type: QueryDTO })
-  async executeSelectQuery(
-    @Body() queryDTO: QueryDTO,
-  ): Promise<TableApiResponse<any>> {
+  async executeSelectQuery(@Body() queryDTO: QueryDTO): Promise<any> {
     if (
       (queryDTO.query && !queryDTO.query.toLowerCase().startsWith('select')) ||
       /;\s*drop\s|;\s*delete\s|;\s*insert\s|;\s*update\s/.test(
@@ -414,15 +399,13 @@ export class TableController {
   @Post('/insertdata')
   @ApiOperation({ summary: 'Insert data into a table' })
   @ApiBody({ type: InsertDataDTO })
-  async insertData(
-    @Body() insertDataDTO: InsertDataDTO,
-  ): Promise<TableApiResponse<any>> {
+  async insertData(@Body() insertDataDTO: InsertDataDTO): Promise<any> {
     const columns = Object.keys(insertDataDTO.data).join(', ');
     const values = Object.values(insertDataDTO.data);
     const valuePlaceholders = values
       .map((_, index) => `$${index + 1}`)
       .join(', ');
-    const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) VALUES (${valuePlaceholders});`;
+    const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) VALUES (${valuePlaceholders}) RETURNING *;`;
     const result = await this.tableService.executeQuery(query, values);
     if (result.status === 200) {
       return result.data;
@@ -434,10 +417,8 @@ export class TableController {
   @Delete('/deletedata')
   @ApiOperation({ summary: 'Delete data from a table' })
   @ApiBody({ type: DeleteDataDTO })
-  async deleteData(
-    @Body() deleteDataDTO: DeleteDataDTO,
-  ): Promise<TableApiResponse<any>> {
-    const query = `DELETE FROM "${deleteDataDTO.tableName}" WHERE ${deleteDataDTO.condition};`;
+  async deleteData(@Body() deleteDataDTO: DeleteDataDTO): Promise<any> {
+    const query = `DELETE FROM "${deleteDataDTO.tableName}" WHERE ${deleteDataDTO.condition} RETURNING *;`;
     console.log(query);
     const result = await this.tableService.executeQuery(query);
     if (result.status === 200) {
@@ -450,9 +431,7 @@ export class TableController {
   @Put('/updatedata')
   @ApiOperation({ summary: 'Update data in a table' })
   @ApiBody({ type: UpdateDataDTO })
-  async updateData(
-    @Body() updateDataDTO: UpdateDataDTO,
-  ): Promise<TableApiResponse<any>> {
+  async updateData(@Body() updateDataDTO: UpdateDataDTO): Promise<any> {
     const values: any[] | undefined = [];
 
     // Generate the SET part of the SQL query, and populate the values array
@@ -464,7 +443,7 @@ export class TableController {
       .join(', ');
 
     // Construct the full SQL query
-    const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition};`;
+    const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition} RETURNING *;`;
 
     const result = await this.tableService.executeQuery(query, values);
     if (result.status === 200) {
@@ -479,7 +458,7 @@ export class TableController {
   @ApiBody({ type: UpdateFilterDataDTO })
   async updateFilteredData(
     @Body() updateDataDTO: UpdateFilterDataDTO,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     const values: any[] = [];
     const queryConditions: string[] = [];
 
@@ -514,7 +493,7 @@ export class TableController {
   @ApiBody({ type: IncrementDataDTO })
   async incrementData(
     @Body() incrementDataDTO: IncrementDataDTO,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     const query = `UPDATE "${incrementDataDTO.tableName}" SET ${incrementDataDTO.columnName} = ${incrementDataDTO.columnName} + ${incrementDataDTO.value} WHERE ${incrementDataDTO.condition};`;
     const result = await this.tableService.executeQuery(query);
     if (result.status === 200) {
@@ -529,7 +508,7 @@ export class TableController {
   @ApiBody({ type: IncrementDataDTO })
   async decrementData(
     @Body() decrementDataDTO: IncrementDataDTO,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     const query = `UPDATE "${decrementDataDTO.tableName}" SET ${decrementDataDTO.columnName} = ${decrementDataDTO.columnName} - ${decrementDataDTO.value} WHERE ${decrementDataDTO.condition};`;
     const result = await this.tableService.executeQuery(query);
     if (result.status === 200) {
@@ -543,7 +522,7 @@ export class TableController {
   @ApiOperation({
     summary: 'Get default tables to prevent creating tables with same names',
   })
-  async getDefaultDefinedTables(): Promise<TableApiResponse<any>> {
+  async getDefaultDefinedTables(): Promise<any> {
     const result = await this.tableService.executeQuery(
       "SELECT table_name FROM information_schema.tables WHERE table_schema != 'public';",
     );
@@ -562,9 +541,7 @@ export class TableController {
 
   @Post('/addtrigger')
   @ApiOperation({ summary: 'Add a trigger to a table' })
-  async addTrigger(
-    @Body() triggerDTO: TriggerDTO,
-  ): Promise<TableApiResponse<any>> {
+  async addTrigger(@Body() triggerDTO: TriggerDTO): Promise<any> {
     if (!/^[A-Za-z0-9_]+$/.test(triggerDTO.tableName)) {
       throw new BadRequestException('Invalid table name');
     }
@@ -609,7 +586,7 @@ export class TableController {
   async removeTrigger(
     @Body('shortId') shortId: string,
     @Body('tableName') tableName: string,
-  ): Promise<TableApiResponse<any>> {
+  ): Promise<any> {
     // Validate the tableName to ensure it's a valid identifier
     if (!/^[A-Za-z0-9_]+$/.test(shortId)) {
       throw new BadRequestException('Invalid table name');
@@ -637,7 +614,7 @@ export class TableController {
   @Get('/getschemas')
   @ApiOperation({ summary: 'Get all schemas' })
   @ApiResponse({ status: 200, description: 'Schemas retrieved successfully' })
-  async getSchemas(): Promise<TableApiResponse<any>> {
+  async getSchemas(): Promise<any> {
     const result = await this.tableService.executeQuery(
       `SELECT schema_name FROM information_schema.schemata;`,
     );
@@ -652,9 +629,7 @@ export class TableController {
   @ApiOperation({ summary: 'Create a new schema' })
   @ApiResponse({ status: 201, description: 'Schema created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  async createSchema(
-    @Body('schemaName') schemaName: string,
-  ): Promise<TableApiResponse<any>> {
+  async createSchema(@Body('schemaName') schemaName: string): Promise<any> {
     const query = `CREATE SCHEMA IF NOT EXISTS "${schemaName}";`;
     const result = await this.tableService.executeQuery(query);
     if (result.status === 201) {

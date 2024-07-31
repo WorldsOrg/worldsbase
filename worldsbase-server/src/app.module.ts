@@ -16,6 +16,8 @@ import { EthersModule } from './ethers/ethers.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { Web3ReconcileModule } from './web3reconcile/web3reconcile.module';
 import { ConfigService } from '@nestjs/config';
+import { SteamModule } from './steam/steam.module';
+import { GlobalModule } from './global/global.module';
 
 @Module({
   imports: [
@@ -54,6 +56,8 @@ import { ConfigService } from '@nestjs/config';
     AuthModule,
     EthersModule,
     Web3ReconcileModule,
+    SteamModule,
+    GlobalModule,
   ],
   controllers: [AppController],
   providers: [AppService],

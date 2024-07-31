@@ -1,0 +1,101 @@
+version: '3'
+services:
+  thirdweb-db:
+    container_name: thirdweb-db
+    image: postgres
+    ports:
+      - '6544:5432'
+    networks:
+      - integration-network
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./db/thirdweb_dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    healthcheck:
+      test: pg_isready -h thirdweb-db
+      interval: 1s
+      retries: 10
+
+  thirdweb-redis:
+    container_name: thirdweb-redis
+    image: redis
+    ports:
+      - '6379:6379'
+    networks:
+      - integration-network
+    healthcheck:
+      test: redis-cli --raw incr ping
+      interval: 1s
+      retries: 10
+
+  worldsbase-db:
+    container_name: worldsbase-db
+    image: postgres
+    ports:
+      - '6543:5432'
+    networks:
+      - integration-network
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./db/worldsbase_dump.sql:/docker-entrypoint-initdb.d/dump.sql
+    healthcheck:
+      test: pg_isready -h worldsbase-db
+      interval: 1s
+      retries: 10
+
+  thirdweb-engine:
+    container_name: thirdweb-engine
+    image: thirdweb/engine:latest
+    ports:
+      - '3005:3005'
+    networks:
+      - integration-network
+    depends_on:
+      thirdweb-db:
+        condition: service_healthy
+      thirdweb-redis:
+        condition: service_healthy
+    env_file: ../worldsbase-server/.env
+    environment:
+      - ENCRYPTION_PASSWORD=thirdweb-engine-docker
+      - REDIS_URL=redis://thirdweb-redis:6379/0
+      - POSTGRES_CONNECTION_URL=postgresql://postgres:postgres@thirdweb-db:5432/postgres?sslmode=disable
+      - ENABLE_HTTPS=false
+      - PORT=3005
+    healthcheck:
+      test: wget --no-verbose --tries=1 http://thirdweb-engine:3005 || exit 1
+      interval: 5s
+      retries: 5
+
+  worldsbase-server:
+    container_name: worldsbase-server
+    image: worldsbase-server
+    ports:
+      - '8080:8080'
+    networks:
+      - integration-network
+    build: ../worldsbase-server
+    depends_on:
+      thirdweb-engine:
+        condition: service_healthy
+      worldsbase-db:
+        condition: service_healthy
+    env_file: ../worldsbase-server/.env
+    environment:
+      - PORT=8080
+      - X_API_KEY=integration-test-api-key
+      - THIRDWEB_ENGINE_URL=http://thirdweb-engine:3005
+      - CONNECTION_STRING=postgres://postgres:postgres@worldsbase-db:5432/postgres?sslmode=disable
+      - POSTGRES_HOST=worldsbase-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_DATABASE=postgres
+      - POSTGRES_PASSWORD=postgres
+      - USING_VAULT=false
+      - TOPUP_CHAIN_ID=31929
+      - TOPUP_MIN_BALANCE=2000000000000
+      - TOPUP_MIN_TRANSFER=1000000000000
+
+networks:
+  integration-network:

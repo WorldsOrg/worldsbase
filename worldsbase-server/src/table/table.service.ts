@@ -1,9 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { PG_CONNECTION } from '../constants';
+import { Pool } from 'pg';
 
 @Injectable()
 export class TableService {
-  constructor(@Inject(PG_CONNECTION) private pool: any) {}
+  constructor(@Inject(PG_CONNECTION) private pool: Pool) {}
 
   async executeQuery(query: string, queryParams: any[] = []) {
     try {
