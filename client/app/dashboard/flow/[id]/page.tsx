@@ -88,7 +88,7 @@ export default function Flow({ params }: { params: { id: string } }) {
             id: (n.length + 1).toString(),
             type: "tableNode",
             position: { x: window.innerWidth + 350, y: window.innerHeight - 300 },
-            data: { method: "insert" },
+            data: { method: "insert", label: "Insert" },
           },
         ]);
         break;
