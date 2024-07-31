@@ -9,7 +9,9 @@ import {
   Param,
   BadRequestException,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { TableService } from './table.service';
 import {
   AddColumnDTO,
@@ -39,12 +41,18 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Table')
 @Controller('table')
 export class TableController {
-  constructor(private readonly tableService: TableService) {}
+  constructor(
+    private readonly tableService: TableService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @Post('/createtable')
   @ApiOperation({ summary: 'Create a new table' })
@@ -205,6 +213,8 @@ export class TableController {
     }
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get('/gettable/:tableName')
   @ApiOperation({ summary: 'Get the entire table data by table name' })
   @ApiParam({
@@ -220,10 +230,19 @@ export class TableController {
   async getTable(
     @Param() tableNameDTO: TableNameDTO,
   ): Promise<TableApiResponse<any>> {
+    // const value = await this.cacheManager.get<string>(tableNameDTO.tableName);
+    // console.log(value);
+
     const result = await this.tableService.executeQuery(
       `SELECT * FROM "${tableNameDTO.tableName}";`,
     );
     if (result.status === 200) {
+      await this.cacheManager.set(
+        tableNameDTO.tableName,
+        JSON.stringify(result.data),
+        10000,
+      );
+
       return result.data;
     } else {
       return result.error || result.data;
@@ -258,7 +277,6 @@ export class TableController {
     @Param()
     getTableNameDTO: GetTableNameDTO,
   ): Promise<TableApiResponse<any>> {
-    console.log(getTableNameDTO);
     const query = `SELECT * FROM "${getTableNameDTO.tableName}" WHERE "${getTableNameDTO.columnName}" = $1;`;
     const result = await this.tableService.executeQuery(query, [
       getTableNameDTO.columnValue,
@@ -297,7 +315,6 @@ export class TableController {
   ): Promise<TableApiResponse<any>> {
     const queryConditions: string[] = [];
     const queryParams: any[] = [];
-
     if (filters) {
       const filterPairs = filters.split(',');
 

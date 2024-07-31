@@ -1,5 +1,5 @@
 import { ConfigModule } from '@nestjs/config';
-import { CacheModule } from '@nestjs/cache-manager';
+import { CacheModule, CacheModuleOptions } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -15,14 +15,28 @@ import { TopUpModule } from './topup/topup.module';
 import { EthersModule } from './ethers/ethers.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { Web3ReconcileModule } from './web3reconcile/web3reconcile.module';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Makes ConfigModule available throughout your application
+      isGlobal: true,
       envFilePath: `${process.env.NODE_ENV}.env`,
     }),
-    CacheModule.register({ isGlobal: true }),
+    CacheModule.registerAsync<CacheModuleOptions>({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (
+        configService: ConfigService,
+      ): Promise<CacheModuleOptions> => ({
+        store: require('cache-manager-ioredis'), // Ensure the correct store is used
+        host: configService.get<string>('REDIS_HOST'),
+        port: configService.get<number>('REDIS_PORT'),
+        username: 'default',
+        password: configService.get<string>('REDIS_PASSWORD'),
+      }),
+      inject: [ConfigService],
+    }),
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([
       {
@@ -30,7 +44,6 @@ import { Web3ReconcileModule } from './web3reconcile/web3reconcile.module';
         limit: 1,
       },
     ]),
-
     TasksModule,
     TopUpModule,
     DbModule,
