@@ -63,7 +63,7 @@ export class Web3ReconcileService {
     }
   }
 
-  @Cron('35 * * * *')
+  @Cron('45 6,12 * * *')
   handleCronSteamErc1155() {
     if (this.production) {
       console.log('Reconciling Steam MiniGame ERC1155');
