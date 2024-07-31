@@ -3,7 +3,6 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
-  Logger,
 } from '@nestjs/common';
 import { XApiKeyGuard } from '../x-api-key/x-api-key.guard';
 import { SteamGuard } from '../steam/steam.guard';
