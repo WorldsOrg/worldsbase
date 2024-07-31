@@ -222,6 +222,12 @@ export class TableController {
     type: 'string',
     description: 'The name of the table to retrieve data from',
   })
+  @ApiQuery({
+    name: 'cache',
+    type: 'boolean',
+    required: false,
+    description: 'Whether to use cache or not',
+  })
   @ApiResponse({
     status: 200,
     description: 'Table data retrieved successfully',
@@ -229,9 +235,17 @@ export class TableController {
   @ApiResponse({ status: 404, description: 'Table not found' })
   async getTable(
     @Param() tableNameDTO: TableNameDTO,
+    @Query('cache') useCache: string,
   ): Promise<TableApiResponse<any>> {
-    // const value = await this.cacheManager.get<string>(tableNameDTO.tableName);
-    // console.log(value);
+    const shouldUseCache = useCache === 'true';
+    if (shouldUseCache) {
+      const cachedValue = await this.cacheManager.get<string>(
+        tableNameDTO.tableName,
+      );
+      if (cachedValue) {
+        return JSON.parse(cachedValue);
+      }
+    }
 
     const result = await this.tableService.executeQuery(
       `SELECT * FROM "${tableNameDTO.tableName}";`,
