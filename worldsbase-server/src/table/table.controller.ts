@@ -9,7 +9,9 @@ import {
   Param,
   BadRequestException,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { TableService } from './table.service';
 import {
   AddColumnDTO,
@@ -38,12 +40,18 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 
 @ApiHeader({ name: 'x-api-key', required: true })
 @ApiTags('Table')
 @Controller('table')
 export class TableController {
-  constructor(private readonly tableService: TableService) {}
+  constructor(
+    private readonly tableService: TableService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @Post('/createtable')
   @ApiOperation({ summary: 'Create a new table' })
@@ -194,6 +202,8 @@ export class TableController {
     }
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get('/gettable/:tableName')
   @ApiOperation({ summary: 'Get the entire table data by table name' })
   @ApiParam({
@@ -201,16 +211,41 @@ export class TableController {
     type: 'string',
     description: 'The name of the table to retrieve data from',
   })
+  @ApiQuery({
+    name: 'cache',
+    type: 'boolean',
+    required: false,
+    description: 'Whether to use cache or not',
+  })
   @ApiResponse({
     status: 200,
     description: 'Table data retrieved successfully',
   })
   @ApiResponse({ status: 404, description: 'Table not found' })
-  async getTable(@Param() tableNameDTO: TableNameDTO): Promise<any> {
+  async getTable(
+    @Param() tableNameDTO: TableNameDTO,
+    @Query('cache') useCache: string,
+  ): Promise<any> {
+    const shouldUseCache = useCache === 'true';
+    if (shouldUseCache) {
+      const cachedValue = await this.cacheManager.get<string>(
+        tableNameDTO.tableName,
+      );
+      if (cachedValue) {
+        return JSON.parse(cachedValue);
+      }
+    }
+
     const result = await this.tableService.executeQuery(
       `SELECT * FROM "${tableNameDTO.tableName}";`,
     );
     if (result.status === 200) {
+      await this.cacheManager.set(
+        tableNameDTO.tableName,
+        JSON.stringify(result.data),
+        10000,
+      );
+
       return result.data;
     } else {
       return result.error || result.data;
@@ -283,7 +318,6 @@ export class TableController {
   ): Promise<any> {
     const queryConditions: string[] = [];
     const queryParams: any[] = [];
-
     if (filters) {
       const filterPairs = filters.split(',');
 

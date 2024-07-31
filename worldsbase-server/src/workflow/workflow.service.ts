@@ -90,7 +90,7 @@ export class WorkflowService {
       variables,
       index,
     );
-
+    console.log(variables, 'variables');
     let query;
     switch (label) {
       case 'Delete':
@@ -113,6 +113,7 @@ export class WorkflowService {
       default:
         throw new Error(`Unknown operation label: ${label}`);
     }
+    console.log('Query:', query);
     await this.tableService.executeQuery(query);
   }
 
