@@ -1,21 +1,15 @@
 import { HttpService } from '@nestjs/axios';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import type { Request } from 'express';
+
 import { firstValueFrom } from 'rxjs';
 import { SteamAuthResponse } from './dto/steam.dto';
-
-export interface UserRequest extends Request {
-  user: {
-    steamId: string;
-  };
-}
 
 @Injectable()
 export class SteamGuard implements CanActivate {
   constructor(private readonly httpService: HttpService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<UserRequest>();
+    const req = context.switchToHttp().getRequest();
 
     const ticket = req.query['steamTicket'];
     const authRequest = this.httpService.get<SteamAuthResponse>(

@@ -86,6 +86,14 @@ export class SteamService {
     return this.tableService.executeQuery(query, values);
   }
 
+  async getUserTableTemplates() {
+    // TODO: Decouple table name
+    const query = `
+      SELECT id from wtf_steam_templates;
+    `;
+    return this.tableService.executeQuery(query);
+  }
+
   async claimItem(steamId: string) {
     // TODO: Use safety measures to return error on malicious behavior
     // TODO: Calculate drop rates and choose itemdefid
@@ -103,18 +111,23 @@ export class SteamService {
 
   async syncInventory(steamId: string) {
     // TODO: Decouple table names
-    const { data: tableInventory, error } = await this.getUserTableInventory(
-      steamId,
-      'wtf_steam_users',
-      'wtf_steam_user_item',
-    );
-    if (!tableInventory) throw new NotFoundException(error);
+    const { data: tableInventory, error: inventoryError } =
+      await this.getUserTableInventory(
+        steamId,
+        'wtf_steam_users',
+        'wtf_steam_user_item',
+      );
+    if (!tableInventory) throw new NotFoundException(inventoryError);
 
     const steamInventory = await this.getInventory(steamId);
+    const { data: tableTemplateIds, error: templatesError } =
+      await this.getUserTableTemplates();
+    if (!tableTemplateIds) throw new NotFoundException(templatesError);
     const tableItemIds = tableInventory.map(({ item_id }) => item_id);
 
     const addedItems = steamInventory
       .filter(({ itemid }) => !tableItemIds.includes(itemid))
+      .filter(({ itemdefid }) => tableTemplateIds.includes(itemdefid))
       .map(({ itemid, itemdefid }) => ({
         item_id: itemid,
         steam_id: steamId,
