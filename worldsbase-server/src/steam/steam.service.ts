@@ -1,12 +1,7 @@
 // src/steam/steam.service.ts
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { SteamItemDto, SteamResponse } from './dto/steam.dto';
 import { HttpService } from '@nestjs/axios';
-import { catchError, lastValueFrom, map } from 'rxjs';
 import { TableService } from 'src/table/table.service';
 
 export interface BackendWallet {
@@ -21,46 +16,25 @@ export class SteamService {
     private readonly httpService: HttpService,
   ) {}
 
-  async getInventory(steamId: string) {
-    const request = this.httpService
-      .get<SteamResponse>('/IInventoryService/GetInventory/v1', {
+  async getInventory(steamId: string): Promise<SteamItemDto[]> {
+    const { data } = await this.httpService.axiosRef.get<SteamResponse>(
+      '/IInventoryService/GetInventory/v1',
+      {
         params: { steamid: steamId },
-      })
-      .pipe<SteamItemDto[]>(
-        map((res) => JSON.parse(res.data?.response.item_json)),
-      )
-      .pipe(
-        catchError(() => {
-          throw new InternalServerErrorException(
-            'Error when fetching steam API',
-          );
-        }),
-      );
-    const response = await lastValueFrom(request);
-    return response;
+      },
+    );
+    return JSON.parse(data.response.item_json);
   }
 
-  async addItem(steamId: string, templateId: string) {
-    const request = this.httpService
-      .post<SteamResponse>(
-        '/IInventoryService/AddItem/v1',
-        {},
-        {
-          params: { steamid: steamId, itemdefid: [templateId], notify: true },
-        },
-      )
-      .pipe<SteamItemDto[]>(
-        map((res) => JSON.parse(res.data?.response.item_json)),
-      )
-      .pipe(
-        catchError(() => {
-          throw new InternalServerErrorException(
-            'Error when fetching steam API',
-          );
-        }),
-      );
-    const response = await lastValueFrom(request);
-    return response;
+  async addItem(steamId: string, templateId: string): Promise<SteamItemDto[]> {
+    const { data } = await this.httpService.axiosRef.post<SteamResponse>(
+      '/IInventoryService/AddItem/v1/',
+      {},
+      {
+        params: { steamid: steamId, 'itemdefid[0]': templateId, notify: true },
+      },
+    );
+    return JSON.parse(data.response.item_json);
   }
 
   async getBySteamId(steamId: string, tableName: string) {
