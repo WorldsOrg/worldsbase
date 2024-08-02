@@ -1,5 +1,9 @@
 // src/steam/steam.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { SteamItemDto, SteamResponse } from './dto/steam.dto';
 import { HttpService } from '@nestjs/axios';
 import { TableService } from 'src/table/table.service';
@@ -43,21 +47,13 @@ export class SteamService {
     return this.tableService.executeQuery(query, values);
   }
 
-  async getUserTableInventory(
-    steamId: string,
-    usersTableName: string,
-    itemsTableName: string,
-  ) {
+  async getUserItemIds(steamId: string, itemsTableName: string) {
     // TODO: Decouple column names
-    const query = `
-      SELECT users.*, user_item.*
-      FROM ${usersTableName} AS users
-      INNER JOIN ${itemsTableName} AS user_item
-        ON users.steam_id = user_item.steam_id
-      WHERE users.steam_id = $1;
-    `;
+    const query = `SELECT item_id FROM ${itemsTableName} WHERE steam_id = $1;`;
     const values = [steamId];
-    return this.tableService.executeQuery(query, values);
+    const { data, error } = await this.tableService.executeQuery(query, values);
+    if (!data) throw new NotFoundException(error);
+    return data.map(({ item_id }) => item_id);
   }
 
   async getUserTableTemplates() {
@@ -65,7 +61,9 @@ export class SteamService {
     const query = `
       SELECT id from wtf_steam_templates;
     `;
-    return this.tableService.executeQuery(query);
+    const { data, error } = await this.tableService.executeQuery(query);
+    if (!data) throw new InternalServerErrorException(error);
+    return data.map(({ id }) => id);
   }
 
   async claimItem(steamId: string) {
@@ -85,19 +83,13 @@ export class SteamService {
 
   async syncInventory(steamId: string) {
     // TODO: Decouple table names
-    const { data: tableInventory, error: inventoryError } =
-      await this.getUserTableInventory(
-        steamId,
-        'wtf_steam_users',
-        'wtf_steam_user_item',
-      );
-    if (!tableInventory) throw new NotFoundException(inventoryError);
+    const tableItemIds = await this.getUserItemIds(
+      steamId,
+      'wtf_steam_user_item',
+    );
 
     const steamInventory = await this.getInventory(steamId);
-    const { data: tableTemplateIds, error: templatesError } =
-      await this.getUserTableTemplates();
-    if (!tableTemplateIds) throw new NotFoundException(templatesError);
-    const tableItemIds = tableInventory.map(({ item_id }) => item_id);
+    const tableTemplateIds = await this.getUserTableTemplates();
 
     const addedItems = steamInventory
       .filter(({ itemid }) => !tableItemIds.includes(itemid))
@@ -112,7 +104,10 @@ export class SteamService {
     );
 
     if (removedItems.length > 0) {
-      const deleteQuery = `DELETE FROM "wtf_steam_user_item" WHERE id IN $1;`;
+      const placeholders = removedItems
+        .map((_, index) => `$${index + 1}`)
+        .join(', ');
+      const deleteQuery = `DELETE FROM "wtf_steam_user_item" WHERE item_id IN (${placeholders});`;
       await this.tableService.executeQuery(deleteQuery, removedItems);
     }
 
@@ -127,7 +122,7 @@ export class SteamService {
         }
         placeholders.push(`(${rowPlaceholders.join(', ')})`);
       }
-      const query = `INSERT INTO "wtf_steam_user_item" (${columns.join(', ')}) VALUES ${placeholders.join(', ')} RETURNING *;`;
+      const query = `INSERT INTO "wtf_steam_user_item" (${columns.join(', ')}) VALUES ${placeholders.join(', ')};`;
       await this.tableService.executeQuery(query, values);
     }
   }
