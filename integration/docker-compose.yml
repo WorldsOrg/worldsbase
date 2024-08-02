@@ -28,6 +28,18 @@ services:
       interval: 1s
       retries: 10
 
+  worldsbase-redis:
+    container_name: worldsbase-redis
+    image: redis
+    ports:
+      - '6379:6379'
+    networks:
+      - integration-network
+    healthcheck:
+      test: redis-cli --raw incr ping
+      interval: 1s
+      retries: 10
+
   worldsbase-db:
     container_name: worldsbase-db
     image: postgres
@@ -42,7 +54,7 @@ services:
     healthcheck:
       test: pg_isready -h worldsbase-db
       interval: 1s
-      retries: 10
+      retries: 60
 
   thirdweb-engine:
     container_name: thirdweb-engine
@@ -79,6 +91,8 @@ services:
     depends_on:
       thirdweb-engine:
         condition: service_healthy
+      worldsbase-redis:
+        condition: service_healthy
       worldsbase-db:
         condition: service_healthy
     env_file: ../worldsbase-server/.env
@@ -96,6 +110,7 @@ services:
       - TOPUP_CHAIN_ID=31929
       - TOPUP_MIN_BALANCE=2000000000000
       - TOPUP_MIN_TRANSFER=1000000000000
+      - REDIS_HOST=worldsbase-redis
 
 networks:
   integration-network:

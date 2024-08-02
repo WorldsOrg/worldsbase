@@ -1,12 +1,7 @@
 // src/steam/steam.service.ts
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { SteamItemDto, SteamResponse } from './dto/steam.dto';
 import { HttpService } from '@nestjs/axios';
-import { catchError, lastValueFrom, map } from 'rxjs';
 import { TableService } from 'src/table/table.service';
 
 export interface BackendWallet {
@@ -21,46 +16,25 @@ export class SteamService {
     private readonly httpService: HttpService,
   ) {}
 
-  async getInventory(steamId: string) {
-    const request = this.httpService
-      .get<SteamResponse>('/IInventoryService/GetInventory/v1', {
+  async getInventory(steamId: string): Promise<SteamItemDto[]> {
+    const { data } = await this.httpService.axiosRef.get<SteamResponse>(
+      '/IInventoryService/GetInventory/v1',
+      {
         params: { steamid: steamId },
-      })
-      .pipe<SteamItemDto[]>(
-        map((res) => JSON.parse(res.data?.response.item_json)),
-      )
-      .pipe(
-        catchError(() => {
-          throw new InternalServerErrorException(
-            'Error when fetching steam API',
-          );
-        }),
-      );
-    const response = await lastValueFrom(request);
-    return response;
+      },
+    );
+    return JSON.parse(data.response.item_json);
   }
 
-  async addItem(steamId: string, templateId: string) {
-    const request = this.httpService
-      .post<SteamResponse>(
-        '/IInventoryService/AddItem/v1',
-        {},
-        {
-          params: { steamid: steamId, itemdefid: [templateId], notify: true },
-        },
-      )
-      .pipe<SteamItemDto[]>(
-        map((res) => JSON.parse(res.data?.response.item_json)),
-      )
-      .pipe(
-        catchError(() => {
-          throw new InternalServerErrorException(
-            'Error when fetching steam API',
-          );
-        }),
-      );
-    const response = await lastValueFrom(request);
-    return response;
+  async addItem(steamId: string, templateId: string): Promise<SteamItemDto[]> {
+    const { data } = await this.httpService.axiosRef.post<SteamResponse>(
+      '/IInventoryService/AddItem/v1/',
+      {},
+      {
+        params: { steamid: steamId, 'itemdefid[0]': templateId, notify: true },
+      },
+    );
+    return JSON.parse(data.response.item_json);
   }
 
   async getBySteamId(steamId: string, tableName: string) {
@@ -86,6 +60,14 @@ export class SteamService {
     return this.tableService.executeQuery(query, values);
   }
 
+  async getUserTableTemplates() {
+    // TODO: Decouple table name
+    const query = `
+      SELECT id from wtf_steam_templates;
+    `;
+    return this.tableService.executeQuery(query);
+  }
+
   async claimItem(steamId: string) {
     // TODO: Use safety measures to return error on malicious behavior
     // TODO: Calculate drop rates and choose itemdefid
@@ -103,18 +85,23 @@ export class SteamService {
 
   async syncInventory(steamId: string) {
     // TODO: Decouple table names
-    const { data: tableInventory, error } = await this.getUserTableInventory(
-      steamId,
-      'wtf_steam_users',
-      'wtf_steam_user_item',
-    );
-    if (!tableInventory) throw new NotFoundException(error);
+    const { data: tableInventory, error: inventoryError } =
+      await this.getUserTableInventory(
+        steamId,
+        'wtf_steam_users',
+        'wtf_steam_user_item',
+      );
+    if (!tableInventory) throw new NotFoundException(inventoryError);
 
     const steamInventory = await this.getInventory(steamId);
+    const { data: tableTemplateIds, error: templatesError } =
+      await this.getUserTableTemplates();
+    if (!tableTemplateIds) throw new NotFoundException(templatesError);
     const tableItemIds = tableInventory.map(({ item_id }) => item_id);
 
     const addedItems = steamInventory
       .filter(({ itemid }) => !tableItemIds.includes(itemid))
+      .filter(({ itemdefid }) => tableTemplateIds.includes(itemdefid))
       .map(({ itemid, itemdefid }) => ({
         item_id: itemid,
         steam_id: steamId,
