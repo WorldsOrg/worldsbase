@@ -49,17 +49,17 @@ export class SteamService {
 
   async getUserItemIds(steamId: string, itemsTableName: string) {
     // TODO: Decouple column names
-    const query = `SELECT item_id FROM ${itemsTableName} WHERE steam_id = $1;`;
+    const query = `SELECT * FROM ${itemsTableName} WHERE steam_id = $1;`;
     const values = [steamId];
     const { data, error } = await this.tableService.executeQuery(query, values);
     if (!data) throw new NotFoundException(error);
-    return data.map(({ item_id }) => item_id);
+    return data;
   }
 
   async getUserTableTemplates() {
     // TODO: Decouple table name
     const query = `
-      SELECT id from wtf_steam_templates;
+      SELECT id from wtf_steam_templates WHERE sync;
     `;
     const { data, error } = await this.tableService.executeQuery(query);
     if (!data) throw new InternalServerErrorException(error);
@@ -70,13 +70,6 @@ export class SteamService {
     // TODO: Use safety measures to return error on malicious behavior
     // TODO: Calculate drop rates and choose itemdefid
     const addedItem = await this.addItem(steamId, '2');
-    await this.syncInventory(steamId);
-    return addedItem;
-  }
-
-  async claimDefaultItem(steamId: string) {
-    // TODO: Use safety measures to return error on malicious behavior
-    const addedItem = await this.addItem(steamId, '1');
     await this.syncInventory(steamId);
     return addedItem;
   }
@@ -99,9 +92,11 @@ export class SteamService {
         steam_id: steamId,
         template_id: itemdefid,
       }));
-    const removedItems = tableItemIds.filter(
-      (id) => !steamInventory.map(({ itemid }) => itemid).includes(id),
-    );
+    const removedItems = tableItemIds
+      .filter(({ template_id }) => tableTemplateIds.includes(template_id))
+      .filter(
+        ({ id }) => !steamInventory.map(({ itemid }) => itemid).includes(id),
+      );
 
     if (removedItems.length > 0) {
       const placeholders = removedItems
