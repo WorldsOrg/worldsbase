@@ -46,16 +46,4 @@ export class SteamController {
     // TODO: Add body to get other info, like item-type, rarity, level, etc?
     return this.steamService.claimItem(steamId);
   }
-
-  @Post('/inventory/default')
-  @ApiOperation({ summary: 'Adds default item to user inventory on Steam' })
-  @ApiResponse({
-    status: 200,
-    description: 'Added Item',
-    type: Array<SteamItemDto>,
-  })
-  claimDefault(@Req() { user: { steamId } }: UserRequest) {
-    // TODO: Add body to get other info, like item-type, rarity, level, etc?
-    return this.steamService.claimDefaultItem(steamId);
-  }
 }
