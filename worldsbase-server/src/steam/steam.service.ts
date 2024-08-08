@@ -35,7 +35,11 @@ export class SteamService {
       '/IInventoryService/AddItem/v1/',
       {},
       {
-        params: { steamid: steamId, 'itemdefid[0]': templateId, notify: true },
+        params: {
+          steamid: steamId,
+          'itemdefid[0]': templateId,
+          notify: true,
+        },
       },
     );
     return JSON.parse(data.response.item_json);
@@ -66,12 +70,29 @@ export class SteamService {
     return data.map(({ id }) => id);
   }
 
-  async claimItem(steamId: string) {
+  async claimItem(steamId: string, templateId?: string) {
     // TODO: Use safety measures to return error on malicious behavior
-    // TODO: Calculate drop rates and choose itemdefid
-    const addedItem = await this.addItem(steamId, '2');
+    console.log('templateId', templateId);
+    const addedItem = await this.addItem(
+      steamId,
+      templateId ? templateId : '2',
+    );
     await this.syncInventory(steamId);
     return addedItem;
+  }
+
+  async consumeItem(steamId: string, itemId: string) {
+    const { data } = await this.httpService.axiosRef.post<SteamResponse>(
+      '/IInventoryService/ConsumeItem/v1/',
+      {},
+      {
+        params: { steamid: steamId, itemid: itemId, quantity: 1 },
+      },
+    );
+    const consumedItem = JSON.parse(data.response.item_json);
+    console.log('consumedItem', consumedItem);
+    await this.syncInventory(steamId);
+    return consumedItem;
   }
 
   async syncInventory(steamId: string) {
@@ -85,25 +106,31 @@ export class SteamService {
     const tableTemplateIds = await this.getUserTableTemplates();
 
     const addedItems = steamInventory
-      .filter(({ itemid }) => !tableItemIds.includes(itemid))
+      .filter(
+        ({ itemid }) => !tableItemIds.some((item) => item.item_id === itemid),
+      )
       .filter(({ itemdefid }) => tableTemplateIds.includes(itemdefid))
       .map(({ itemid, itemdefid }) => ({
         item_id: itemid,
         steam_id: steamId,
         template_id: itemdefid,
       }));
+
     const removedItems = tableItemIds
       .filter(({ template_id }) => tableTemplateIds.includes(template_id))
       .filter(
-        ({ id }) => !steamInventory.map(({ itemid }) => itemid).includes(id),
+        ({ item_id }) =>
+          !steamInventory.some(({ itemid }) => itemid === item_id),
       );
 
     if (removedItems.length > 0) {
-      const placeholders = removedItems
+      // Extract item_id values from the removedItems objects
+      const itemIds = removedItems.map((item) => item.item_id);
+      const placeholders = itemIds
         .map((_, index) => `$${index + 1}`)
         .join(', ');
       const deleteQuery = `DELETE FROM "wtf_steam_user_item" WHERE item_id IN (${placeholders});`;
-      await this.tableService.executeQuery(deleteQuery, removedItems);
+      await this.tableService.executeQuery(deleteQuery, itemIds); // Pass the extracted item IDs instead of the full objects
     }
 
     if (addedItems.length > 0) {
