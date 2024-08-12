@@ -72,7 +72,6 @@ export class SteamService {
 
   async claimItem(steamId: string, templateId?: string) {
     // TODO: Use safety measures to return error on malicious behavior
-    console.log('templateId', templateId);
     const addedItem = await this.addItem(
       steamId,
       templateId ? templateId : '2',
