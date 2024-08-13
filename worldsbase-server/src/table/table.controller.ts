@@ -15,6 +15,7 @@ import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { TableService } from './table.service';
 import {
   AddColumnDTO,
+  AdminQueryDTO,
   CreateTableDTO,
   DeleteDataDTO,
   DeleteTableColumnDTO,
@@ -389,6 +390,21 @@ export class TableController {
     }
 
     const result = await this.tableService.executeQuery(queryDTO.query, []);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
+    }
+  }
+
+  @Post('/adminquery')
+  @ApiOperation({ summary: 'Execute a admin query' })
+  @ApiBody({ type: QueryDTO })
+  async adminQuery(@Body() adminQueryDTO: AdminQueryDTO): Promise<any> {
+    const result = await this.tableService.executeQuery(
+      adminQueryDTO.query,
+      adminQueryDTO.values,
+    );
     if (result.status === 200) {
       return result.data;
     } else {
