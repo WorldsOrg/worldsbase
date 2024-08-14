@@ -47,13 +47,13 @@ export class Web3ReconcileService {
   //   }
   // }
 
-  @Cron('30 6,12 * * *')
-  handleCronErc20() {
-    if (this.production) {
-      console.log('Reconciling MiniGame ERC20');
-      this.reconcileMiniGameErc20();
-    }
-  }
+  // @Cron('30 6,12 * * *')
+  // handleCronErc20() {
+  //   if (this.production) {
+  //     console.log('Reconciling MiniGame ERC20');
+  //     this.reconcileMiniGameErc20();
+  //   }
+  // }
 
   @Cron('30 6,12 * * *')
   handleCronSteamErc20() {
