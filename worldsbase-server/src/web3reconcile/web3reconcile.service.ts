@@ -170,8 +170,32 @@ export class Web3ReconcileService {
     }
   }
 
+  async getErc1155Dictionary() {
+    try {
+      const query = `SELECT template_id, token_id FROM "wtf_steam_erc1155"`;
+      const result = await this.dbService.executeQuery(query);
+
+      const erc1155Dictionary = new Map<number, number>();
+
+      if (result.status === 200) {
+        const data = result.data;
+        for (const row of data) {
+          const key = Number(row.template_id);
+          const value = Number(row.token_id);
+          erc1155Dictionary.set(key, value);
+        }
+      }
+
+      return erc1155Dictionary;
+    } catch (error) {
+      console.error('Error getting erc1155 reference:', error);
+    }
+  }
+
   async reconcileSteamMiniGameErc1155() {
     try {
+      const erc1155Dictionary = await this.getErc1155Dictionary();
+      console.log(erc1155Dictionary);
       const query = `SELECT * FROM "steam_user_item_summary"`;
       const result = await this.dbService.executeQuery(query);
       const engineWallets = await this.thirdwebService.getWalletsEngine();
@@ -180,11 +204,15 @@ export class Web3ReconcileService {
         for (const row of data) {
           const wallet = row.provisioned_wallet;
           const templateId = row.template_id;
-          const tokenId = (Number(templateId) - 1).toString();
-          const quantity = row.item_count;
+          const tokenId = erc1155Dictionary
+            ?.get(Number(templateId))
+            ?.toString();
+          const quantity = row.quantity;
+          console.log(wallet, templateId, tokenId, quantity);
           if (
             wallet &&
-            engineWallets.includes(wallet.toString().toLowerCase())
+            engineWallets.includes(wallet.toString().toLowerCase()) &&
+            tokenId
           ) {
             const erc1155Balance =
               await this.thirdwebService.getErc1155BalanceEngine(
