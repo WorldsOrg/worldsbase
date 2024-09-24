@@ -138,7 +138,6 @@ export class Web3ReconcileService {
   async reconcileSteamMiniGameErc1155() {
     try {
       const erc1155Dictionary = await this.getErc1155Dictionary();
-      console.log(erc1155Dictionary);
       const query = `SELECT * FROM "steam_user_item_summary"`;
       const result = await this.dbService.executeQuery(query);
       const engineWallets = await this.thirdwebService.getWalletsEngine();
