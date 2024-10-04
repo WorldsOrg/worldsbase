@@ -23,7 +23,7 @@ cd worldsbase
 Install all necessary dependencies for the project by running the following command:
 
 ```bash
-yarn run install:all
+yarn run install
 ```
 
 This command installs dependencies for both the server and the client components of the project.
@@ -37,23 +37,49 @@ You will need to create .env files for both the server and the client. These fil
 Create a .env file inside the server folder and populate it with the following keys. Replace the placeholder comments with your actual values:
 
 ```env
-MAIN_WALLET_PRIVATE_KEY= # The private key of the main wallet for minting and other operations
-THIRDWEB_SDK_SECRET_KEY= # The secret key for the thirdweb SDK
-X_API_KEY= # The API key for the server
-CONTRACT_ADDRESS= # The address of the deployed contract to mint
-apiPublicKey= # The public key for the Turnkey API
-apiPrivateKey= # The private key for the Turnkey API
-organizationId= # The organization ID for the Turnkey API
-MORALIS_API_KEY= # The API key for Moralis
-POSTGRES_HOST= # The host for the Postgres database
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_DATABASE=postgres
-POSTGRES_PASSWORD= # The password for the Postgres database
-SECRET_KEY= # The secret key for hashing
-KEY_SALT= # The salt for hashing
-KEY_IV= # The IV for hashing
-SERVER_URL=http://localhost:3005
+AFFECTION_POINTS_CONTRACT=                # Contract address for handling affection points
+apiPrivateKey=                            # Private key for the Turnkey API
+apiPublicKey=                             # Public key for the Turnkey API
+AWS_ACCESS_KEY_ID=                        # AWS access key for cloud services
+AWS_SECRET_KEY=                           # AWS secret key for cloud services
+CONNECTION_STRING=                        # Database connection string (used instead of separate DB configs)
+DATA_TEST=                                # Test data flag or config (adjust based on your needs)
+KEY_IV=                                   # Initialization vector (IV) for hashing/encryption
+KEY_SALT=                                 # Salt value for hashing/encryption
+MAIN_WALLET_PRIVATE_KEY=                  # Private key of the main wallet for minting and other operations
+MARKETPLACE_CONTRACT_ADDRESS=             # Contract address for the marketplace
+MINT_CONTRACT_ADDRESS=                    # Contract address used for minting tokens
+MOESIF_APPLICATION_ID=                    # Moesif monitoring and logging application ID
+MORALIS_API_KEY=                          # API key for Moralis, used for interacting with blockchain
+organizationId=                           # Organization ID for the Turnkey API
+POSTGRES_DATABASE=                        # Name of the PostgreSQL database
+POSTGRES_HOST=                            # Host URL or IP for PostgreSQL
+POSTGRES_PASSWORD=                        # Password for the PostgreSQL user
+POSTGRES_PORT=5432                        # Port number for PostgreSQL (default is 5432)
+POSTGRES_USER=postgres                    # Username for PostgreSQL database
+REDIS_HOST=                               # Host URL or IP for Redis cache
+REDIS_PASSWORD=                           # Password for Redis cache (if required)
+REDIS_PORT=6379                           # Port number for Redis (default is 6379)
+REDIS_URL=                                # Redis connection URL
+REDIS_USER=                               # Username for Redis (if required)
+SECRET_KEY=                               # Secret key used for cryptographic functions (e.g., JWT or hashing)
+SERVER_URL=http://localhost:3005          # URL where the server is hosted
+STEAM_API_KEY=                            # API key to access Steam services
+STEAM_APP_ID=                             # Steam App ID related to the project
+STEAM_WAIFUS_CONTRACT=                    # Contract address for handling Steam Waifus NFTs
+THIRDWEB_ACCESS_TOKEN=                    # Thirdweb platform access token
+THIRDWEB_ENGINE_URL=                      # URL for the Thirdweb engine API
+THIRDWEB_SDK_SECRET_KEY=                  # Secret key for the Thirdweb SDK
+TOKEN_CONTRACT_ADDRESS=                   # Contract address for the main token
+TOPUP_ADMIN_WALLET_ADDRESS=               # Wallet address used for top-up admin operations
+TOPUP_CHAIN_ID=                           # Blockchain network chain ID used for top-up transactions
+TOPUP_MIN_BALANCE=                        # Minimum balance allowed before top-up is required
+TOPUP_MIN_TRANSFER=                       # Minimum transfer amount for top-ups
+VAULT_ADDRESS=                            # Address of the secrets vault (for services like HashiCorp Vault)
+VAULT_ROLE_ID=                            # Role ID for accessing the vault
+VAULT_SECRET_ID=                          # Secret ID for accessing the vault
+VAULT_TOKEN=                              # Authentication token for the vault
+X_API_KEY=                                # The API key for the server
 ```
 
 ### Client Environment Variables
