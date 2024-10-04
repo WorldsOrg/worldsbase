@@ -75,6 +75,7 @@ TOPUP_ADMIN_WALLET_ADDRESS=               # Wallet address used for top-up admin
 TOPUP_CHAIN_ID=                           # Blockchain network chain ID used for top-up transactions
 TOPUP_MIN_BALANCE=                        # Minimum balance allowed before top-up is required
 TOPUP_MIN_TRANSFER=                       # Minimum transfer amount for top-ups
+USING_VAULT=false                         # Boolean value indicating if Vault is being used for secret management (true or false)
 VAULT_ADDRESS=                            # Address of the secrets vault (for services like HashiCorp Vault)
 VAULT_ROLE_ID=                            # Role ID for accessing the vault
 VAULT_SECRET_ID=                          # Secret ID for accessing the vault
