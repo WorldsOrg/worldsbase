@@ -13,6 +13,21 @@ export interface BackendWallet {
   user_id: string;
 }
 
+interface TableTemplate {
+  id: string;
+}
+
+interface TableItem {
+  item_id: string;
+  template_id: string;
+  steam_id: string;
+}
+
+interface SteamInventoryItem {
+  itemid: string;
+  itemdefid: string;
+}
+
 @Injectable()
 export class SteamService {
   constructor(
@@ -60,14 +75,13 @@ export class SteamService {
     return data;
   }
 
-  async getUserTableTemplates() {
-    // TODO: Decouple table name
+  async getUserTableTemplates(): Promise<string[]> {
     const query = `
       SELECT id from wtf_steam_templates WHERE sync;
     `;
     const { data, error } = await this.tableService.executeQuery(query);
     if (!data) throw new InternalServerErrorException(error);
-    return data.map(({ id }) => id);
+    return data.map(({ id }: TableTemplate) => id);
   }
 
   async claimItem(steamId: string, templateId?: string) {
@@ -94,8 +108,7 @@ export class SteamService {
     return consumedItem;
   }
 
-  async syncInventory(steamId: string) {
-    // TODO: Decouple table names
+  async syncInventory(steamId: string): Promise<void> {
     const tableItemIds = await this.getUserItemIds(
       steamId,
       'wtf_steam_user_item',
@@ -106,30 +119,36 @@ export class SteamService {
 
     const addedItems = steamInventory
       .filter(
-        ({ itemid }) => !tableItemIds.some((item) => item.item_id === itemid),
+        ({ itemid }: SteamInventoryItem) =>
+          !tableItemIds.some((item: TableItem) => item.item_id === itemid),
       )
-      .filter(({ itemdefid }) => tableTemplateIds.includes(itemdefid))
-      .map(({ itemid, itemdefid }) => ({
+      .filter(({ itemdefid }: SteamInventoryItem) =>
+        tableTemplateIds.includes(itemdefid),
+      )
+      .map(({ itemid, itemdefid }: SteamInventoryItem) => ({
         item_id: itemid,
         steam_id: steamId,
         template_id: itemdefid,
       }));
 
     const removedItems = tableItemIds
-      .filter(({ template_id }) => tableTemplateIds.includes(template_id))
+      .filter(({ template_id }: TableItem) =>
+        tableTemplateIds.includes(template_id),
+      )
       .filter(
-        ({ item_id }) =>
-          !steamInventory.some(({ itemid }) => itemid === item_id),
+        ({ item_id }: TableItem) =>
+          !steamInventory.some(
+            ({ itemid }: SteamInventoryItem) => itemid === item_id,
+          ),
       );
 
     if (removedItems.length > 0) {
-      // Extract item_id values from the removedItems objects
-      const itemIds = removedItems.map((item) => item.item_id);
+      const itemIds = removedItems.map((item: TableItem) => item.item_id);
       const placeholders = itemIds
-        .map((_, index) => `$${index + 1}`)
+        .map((_: string, index: number) => `$${index + 1}`)
         .join(', ');
       const deleteQuery = `DELETE FROM "wtf_steam_user_item" WHERE item_id IN (${placeholders});`;
-      await this.tableService.executeQuery(deleteQuery, itemIds); // Pass the extracted item IDs instead of the full objects
+      await this.tableService.executeQuery(deleteQuery, itemIds);
     }
 
     if (addedItems.length > 0) {

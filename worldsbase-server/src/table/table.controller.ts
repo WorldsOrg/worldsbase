@@ -417,17 +417,38 @@ export class TableController {
   @ApiOperation({ summary: 'Insert data into a table' })
   @ApiBody({ type: InsertDataDTO })
   async insertData(@Body() insertDataDTO: InsertDataDTO): Promise<any> {
-    const columns = Object.keys(insertDataDTO.data).join(', ');
-    const values = Object.values(insertDataDTO.data);
-    const valuePlaceholders = values
-      .map((_, index) => `$${index + 1}`)
-      .join(', ');
-    const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) VALUES (${valuePlaceholders}) RETURNING *;`;
-    const result = await this.tableService.executeQuery(query, values);
-    if (result.status === 200) {
-      return result.data;
-    } else {
-      return result.error || result.data;
+    try {
+      const columns = Object.keys(insertDataDTO.data).join(', ');
+      const values = Object.values(insertDataDTO.data);
+      const valuePlaceholders = values
+        .map((_, index) => `$${index + 1}`)
+        .join(', ');
+
+      const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) 
+                    VALUES (${valuePlaceholders}) 
+                    ON CONFLICT DO NOTHING 
+                    RETURNING *;`;
+
+      const result = await this.tableService.executeQuery(query, values);
+
+      if (result.status === 200) {
+        if (result.data && result.data.length > 0) {
+          return result.data;
+        } else {
+          return {
+            status: 409,
+            message: 'Record already exists',
+          };
+        }
+      } else {
+        throw new BadRequestException(result.error || 'Insert failed');
+      }
+    } catch (error) {
+      if (error.code === '23505') {
+        // Unique violation error code
+        throw new BadRequestException(`Duplicate entry: ${error.detail}`);
+      }
+      throw new BadRequestException(`Insert failed: ${error.message}`);
     }
   }
 
@@ -479,6 +500,7 @@ export class TableController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async batchUpdateData(@Body() batchUpdateDTO: BatchUpdateDTO): Promise<any> {
+    // Input validation
     if (
       !batchUpdateDTO.tableName ||
       !Array.isArray(batchUpdateDTO.updates) ||
@@ -493,10 +515,18 @@ export class TableController {
       // Start transaction
       await this.tableService.executeQuery('BEGIN');
 
+      const results = [];
+
+      // Process each update
       for (const update of batchUpdateDTO.updates) {
         const { data, condition } = update;
+
         if (!data || !condition) {
-          throw new Error('Each update must contain data and condition');
+          // Rollback and throw error if update is invalid
+          await this.tableService.executeQuery('ROLLBACK');
+          throw new BadRequestException(
+            'Each update must contain data and condition',
+          );
         }
 
         const values: any[] = [];
@@ -507,22 +537,39 @@ export class TableController {
           })
           .join(', ');
 
-        const query = `UPDATE "${batchUpdateDTO.tableName}" SET ${updates} WHERE ${condition};`;
+        const query = `UPDATE "${batchUpdateDTO.tableName}" SET ${updates} WHERE ${condition} RETURNING *;`;
+
         const result = await this.tableService.executeQuery(query, values);
 
         if (result.status !== 200) {
-          throw new Error(result.error);
+          // Rollback and throw error if query fails
+          await this.tableService.executeQuery('ROLLBACK');
+          throw new Error(result.error || 'Update failed');
         }
+
+        results.push(result.data);
       }
 
-      // Commit transaction
+      // Commit transaction if all updates succeed
       await this.tableService.executeQuery('COMMIT');
+
       return {
+        status: 200,
         message: `Batch update on table ${batchUpdateDTO.tableName} completed successfully`,
+        results,
       };
     } catch (error) {
-      // Rollback on error
-      await this.tableService.executeQuery('ROLLBACK');
+      // Ensure rollback happens on any error
+      try {
+        await this.tableService.executeQuery('ROLLBACK');
+      } catch (rollbackError) {
+        // Log rollback error but throw original error
+        console.error('Rollback failed:', rollbackError);
+      }
+
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       throw new BadRequestException(`Batch update failed: ${error.message}`);
     }
   }
