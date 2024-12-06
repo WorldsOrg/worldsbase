@@ -6,6 +6,7 @@ import { Pool } from 'pg';
 export class TableService {
   constructor(@Inject(PG_CONNECTION) private pool: Pool) {}
 
+  // fix pooling problem
   async executeQuery(query: string, queryParams: any[] = []) {
     try {
       const result = await this.pool.query(query, queryParams);
