@@ -8,7 +8,6 @@ import { ThirdwebService } from '../thirdweb/thirdweb.service';
 export class Web3ReconcileService {
   private chainId: string;
   private affectionPointsContract: string;
-  private giftItemsContract: string;
   private steamWaifusContract: string;
   private adminWallet: string;
   private production: boolean;
@@ -25,9 +24,6 @@ export class Web3ReconcileService {
     this.adminWallet = this.configService.get<string>(
       'TOPUP_ADMIN_WALLET_ADDRESS',
     ) as string;
-    this.giftItemsContract = this.configService.get<string>(
-      'GIFT_ITEMS_CONTRACT',
-    ) as string;
     this.steamWaifusContract = this.configService.get<string>(
       'STEAM_WAIFUS_CONTRACT',
     ) as string;
@@ -36,23 +32,6 @@ export class Web3ReconcileService {
       'production'
         ? true
         : false;
-  }
-
-  // currently no erc1155 in mini game
-  // @Cron('0 6,12 * * *')
-  // handleCronErc1155() {
-  //   if (this.production) {
-  //     console.log('Reconciling MiniGame ERC1155');
-  //     this.reconcileMiniGameErc1155();
-  //   }
-  // }
-
-  @Cron('30 6,12 * * *')
-  handleCronErc20() {
-    if (this.production) {
-      console.log('Reconciling MiniGame ERC20');
-      this.reconcileMiniGameErc20();
-    }
   }
 
   @Cron('30 6,12 * * *')
@@ -134,44 +113,31 @@ export class Web3ReconcileService {
     }
   }
 
-  async reconcileMiniGameErc20() {
+  async getErc1155Dictionary() {
     try {
-      const query = `SELECT score, provisioned_wallet FROM "wtf_users" WHERE "provisioned_wallet" IS NOT NULL`;
+      const query = `SELECT template_id, token_id FROM "wtf_steam_erc1155"`;
       const result = await this.dbService.executeQuery(query);
-      const engineWallets = await this.thirdwebService.getWalletsEngine();
-      if (result.status == 200) {
+
+      const erc1155Dictionary = new Map<number, number>();
+
+      if (result.status === 200) {
         const data = result.data;
         for (const row of data) {
-          const score = Number(row.score);
-          const wallet = row.provisioned_wallet;
-          if (
-            engineWallets.includes(wallet.toString().toLowerCase()) &&
-            score > 0
-          ) {
-            const erc20BalanceAffection =
-              await this.thirdwebService.getErc20BalanceEngine(
-                wallet,
-                this.chainId,
-                this.affectionPointsContract,
-              );
-            const roundedDifference = Math.round(score - erc20BalanceAffection);
-            if (roundedDifference != 0) {
-              await this.reconcileErc20(
-                wallet,
-                roundedDifference,
-                this.affectionPointsContract,
-              );
-            }
-          }
+          const key = Number(row.template_id);
+          const value = Number(row.token_id);
+          erc1155Dictionary.set(key, value);
         }
       }
+
+      return erc1155Dictionary;
     } catch (error) {
-      console.error('Error reconciling web3 erc20:', error);
+      console.error('Error getting erc1155 reference:', error);
     }
   }
 
   async reconcileSteamMiniGameErc1155() {
     try {
+      const erc1155Dictionary = await this.getErc1155Dictionary();
       const query = `SELECT * FROM "steam_user_item_summary"`;
       const result = await this.dbService.executeQuery(query);
       const engineWallets = await this.thirdwebService.getWalletsEngine();
@@ -180,11 +146,14 @@ export class Web3ReconcileService {
         for (const row of data) {
           const wallet = row.provisioned_wallet;
           const templateId = row.template_id;
-          const tokenId = (Number(templateId) - 1).toString();
-          const quantity = row.item_count;
+          const tokenId = erc1155Dictionary
+            ?.get(Number(templateId))
+            ?.toString();
+          const quantity = row.quantity;
           if (
             wallet &&
-            engineWallets.includes(wallet.toString().toLowerCase())
+            engineWallets.includes(wallet.toString().toLowerCase()) &&
+            tokenId
           ) {
             const erc1155Balance =
               await this.thirdwebService.getErc1155BalanceEngine(
@@ -222,61 +191,6 @@ export class Web3ReconcileService {
         'Error reconciling web3 for steam minigame erc1155:',
         error,
       );
-    }
-  }
-
-  async reconcileMiniGameErc1155() {
-    try {
-      const query = `SELECT * FROM "user_inventory_summary"`;
-      const result = await this.dbService.executeQuery(query);
-      const engineWallets = await this.thirdwebService.getWalletsEngine();
-      if (result.status == 200) {
-        const data = result.data;
-        for (const row of data) {
-          const wallet = row.provisioned_wallet;
-          const itemQuantities = [];
-          itemQuantities.push(row.item_1_quantity);
-          itemQuantities.push(row.item_2_quantity);
-          itemQuantities.push(row.item_3_quantity);
-          itemQuantities.push(row.item_4_quantity);
-          itemQuantities.push(row.item_5_quantity);
-          itemQuantities.push(row.item_6_quantity);
-          if (engineWallets.includes(wallet.toString().toLowerCase())) {
-            for (let i = 0; i < itemQuantities.length; i++) {
-              const erc1155Balance =
-                await this.thirdwebService.getErc1155BalanceEngine(
-                  wallet,
-                  i.toString(),
-                  this.chainId,
-                  this.giftItemsContract,
-                );
-              if (erc1155Balance != itemQuantities[i]) {
-                const amount = Number(erc1155Balance) - itemQuantities[i];
-                if (amount > 0) {
-                  await this.thirdwebService.burnErc1155Engine(
-                    wallet,
-                    i.toString(),
-                    amount.toString(),
-                    this.chainId,
-                    this.giftItemsContract,
-                  );
-                } else {
-                  await this.thirdwebService.transferErc1155Engine(
-                    wallet,
-                    i.toString(),
-                    Math.abs(amount).toString(),
-                    this.chainId,
-                    this.giftItemsContract,
-                    this.adminWallet,
-                  );
-                }
-              }
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error reconciling web3 erc1155:', error);
     }
   }
 }
