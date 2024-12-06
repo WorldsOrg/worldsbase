@@ -417,17 +417,38 @@ export class TableController {
   @ApiOperation({ summary: 'Insert data into a table' })
   @ApiBody({ type: InsertDataDTO })
   async insertData(@Body() insertDataDTO: InsertDataDTO): Promise<any> {
-    const columns = Object.keys(insertDataDTO.data).join(', ');
-    const values = Object.values(insertDataDTO.data);
-    const valuePlaceholders = values
-      .map((_, index) => `$${index + 1}`)
-      .join(', ');
-    const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) VALUES (${valuePlaceholders}) RETURNING *;`;
-    const result = await this.tableService.executeQuery(query, values);
-    if (result.status === 200) {
-      return result.data;
-    } else {
-      return result.error || result.data;
+    try {
+      const columns = Object.keys(insertDataDTO.data).join(', ');
+      const values = Object.values(insertDataDTO.data);
+      const valuePlaceholders = values
+        .map((_, index) => `$${index + 1}`)
+        .join(', ');
+
+      const query = `INSERT INTO "${insertDataDTO.tableName}" (${columns}) 
+                    VALUES (${valuePlaceholders}) 
+                    ON CONFLICT DO NOTHING 
+                    RETURNING *;`;
+
+      const result = await this.tableService.executeQuery(query, values);
+
+      if (result.status === 200) {
+        if (result.data && result.data.length > 0) {
+          return result.data;
+        } else {
+          return {
+            status: 409,
+            message: 'Record already exists',
+          };
+        }
+      } else {
+        throw new BadRequestException(result.error || 'Insert failed');
+      }
+    } catch (error) {
+      if (error.code === '23505') {
+        // Unique violation error code
+        throw new BadRequestException(`Duplicate entry: ${error.detail}`);
+      }
+      throw new BadRequestException(`Insert failed: ${error.message}`);
     }
   }
 
