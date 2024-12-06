@@ -5,15 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import type { Request } from 'express';
 import JwksRsa from 'jwks-rsa';
-
-interface UserRequest extends Request {
-  user: {
-    id: string;
-    platform: 'steam' | 'epic';
-  };
-}
 
 interface Token {
   header: {
@@ -38,7 +30,7 @@ export class EOSAuthGuard implements CanActivate {
   constructor(@Inject() private readonly jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<UserRequest>();
+    const req = context.switchToHttp().getRequest();
     const authHeader = req.headers.authorization;
     if (!authHeader) return false;
     const [scheme, authToken] = authHeader.split(' ');

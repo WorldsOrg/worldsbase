@@ -185,7 +185,7 @@ export class WalletService {
       });
 
       const completedActivity = await activityPoller({
-        type: 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V4',
+        type: 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V5',
         timestampMs: Date.now().toString(),
         organizationId: process.env.organizationId as string,
         parameters: {
@@ -200,6 +200,7 @@ export class WalletService {
                   publicKey: process.env.apiPublicKey as string,
                 },
               ],
+              oauthProviders: [],
             },
           ],
           rootQuorumThreshold: 1,

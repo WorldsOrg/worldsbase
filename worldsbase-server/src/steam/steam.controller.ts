@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { SteamItemDto } from './dto/steam.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SteamService } from '../steam/steam.service';
@@ -42,20 +42,25 @@ export class SteamController {
     description: 'Added Item',
     type: Array<SteamItemDto>,
   })
-  claimItem(@Req() { user: { steamId } }: UserRequest) {
+  claimItem(
+    @Req() { user: { steamId } }: UserRequest,
+    @Body() { templateId }: { templateId: string },
+  ) {
     // TODO: Add body to get other info, like item-type, rarity, level, etc?
-    return this.steamService.claimItem(steamId);
+    return this.steamService.claimItem(steamId, templateId);
   }
 
-  @Post('/inventory/default')
-  @ApiOperation({ summary: 'Adds default item to user inventory on Steam' })
+  @Post('/inventory/consume')
+  @ApiOperation({ summary: 'Consumes an item from a user inventory on Steam' })
   @ApiResponse({
     status: 200,
-    description: 'Added Item',
+    description: 'Consumed Item',
     type: Array<SteamItemDto>,
   })
-  claimDefault(@Req() { user: { steamId } }: UserRequest) {
-    // TODO: Add body to get other info, like item-type, rarity, level, etc?
-    return this.steamService.claimDefaultItem(steamId);
+  consumeItem(
+    @Req() { user: { steamId } }: UserRequest,
+    @Body() { itemId }: { itemId: string },
+  ) {
+    return this.steamService.consumeItem(steamId, itemId);
   }
 }

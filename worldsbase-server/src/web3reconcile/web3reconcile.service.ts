@@ -9,6 +9,7 @@ export class Web3ReconcileService {
   private chainId: string;
   private affectionPointsContract: string;
   private giftItemsContract: string;
+  private steamWaifusContract: string;
   private adminWallet: string;
   private production: boolean;
 
@@ -27,6 +28,9 @@ export class Web3ReconcileService {
     this.giftItemsContract = this.configService.get<string>(
       'GIFT_ITEMS_CONTRACT',
     ) as string;
+    this.steamWaifusContract = this.configService.get<string>(
+      'STEAM_WAIFUS_CONTRACT',
+    ) as string;
     this.production =
       (this.configService.get<string>('RAILWAY_ENVIRONMENT_NAME') as string) ==
       'production'
@@ -43,19 +47,27 @@ export class Web3ReconcileService {
   //   }
   // }
 
-  @Cron('0 6,12 * * *')
-  handleCronErc1155() {
-    if (this.production) {
-      console.log('Reconciling MiniGame ERC1155');
-      this.reconcileMiniGameErc1155();
-    }
-  }
-
   @Cron('30 6,12 * * *')
   handleCronErc20() {
     if (this.production) {
       console.log('Reconciling MiniGame ERC20');
       this.reconcileMiniGameErc20();
+    }
+  }
+
+  @Cron('30 6,12 * * *')
+  handleCronSteamErc20() {
+    if (this.production) {
+      console.log('Reconciling Steam MiniGame ERC20');
+      this.reconcileSteamMiniGameErc20();
+    }
+  }
+
+  @Cron('45 6,12 * * *')
+  handleCronSteamErc1155() {
+    if (this.production) {
+      console.log('Reconciling Steam MiniGame ERC1155');
+      this.reconcileSteamMiniGameErc1155();
     }
   }
 
@@ -81,6 +93,44 @@ export class Web3ReconcileService {
       }
     } catch (error) {
       console.error('Error reconciling ERC20:', error);
+    }
+  }
+
+  async reconcileSteamMiniGameErc20() {
+    try {
+      const query = `SELECT num_clicks, provisioned_wallet FROM "wtf_steam_users" WHERE "provisioned_wallet" IS NOT NULL`;
+      const result = await this.dbService.executeQuery(query);
+      const engineWallets = await this.thirdwebService.getWalletsEngine();
+      if (result.status == 200) {
+        const data = result.data;
+        for (const row of data) {
+          const numClicks = Number(row.num_clicks);
+          const wallet = row.provisioned_wallet;
+          if (
+            engineWallets.includes(wallet.toString().toLowerCase()) &&
+            numClicks > 0
+          ) {
+            const erc20BalanceAffection =
+              await this.thirdwebService.getErc20BalanceEngine(
+                wallet,
+                this.chainId,
+                this.affectionPointsContract,
+              );
+            const roundedDifference = Math.round(
+              numClicks - erc20BalanceAffection,
+            );
+            if (roundedDifference != 0) {
+              await this.reconcileErc20(
+                wallet,
+                roundedDifference,
+                this.affectionPointsContract,
+              );
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error reconciling web3 erc20:', error);
     }
   }
 
@@ -117,6 +167,61 @@ export class Web3ReconcileService {
       }
     } catch (error) {
       console.error('Error reconciling web3 erc20:', error);
+    }
+  }
+
+  async reconcileSteamMiniGameErc1155() {
+    try {
+      const query = `SELECT * FROM "steam_user_item_summary"`;
+      const result = await this.dbService.executeQuery(query);
+      const engineWallets = await this.thirdwebService.getWalletsEngine();
+      if (result.status == 200) {
+        const data = result.data;
+        for (const row of data) {
+          const wallet = row.provisioned_wallet;
+          const templateId = row.template_id;
+          const tokenId = (Number(templateId) - 1).toString();
+          const quantity = row.item_count;
+          if (
+            wallet &&
+            engineWallets.includes(wallet.toString().toLowerCase())
+          ) {
+            const erc1155Balance =
+              await this.thirdwebService.getErc1155BalanceEngine(
+                wallet,
+                tokenId,
+                this.chainId,
+                this.steamWaifusContract,
+              );
+            if (erc1155Balance != quantity) {
+              const amount = Number(erc1155Balance) - Number(quantity);
+              if (amount > 0) {
+                await this.thirdwebService.burnErc1155Engine(
+                  wallet,
+                  tokenId,
+                  amount.toString(),
+                  this.chainId,
+                  this.steamWaifusContract,
+                );
+              } else {
+                await this.thirdwebService.transferErc1155Engine(
+                  wallet,
+                  tokenId,
+                  Math.abs(amount).toString(),
+                  this.chainId,
+                  this.steamWaifusContract,
+                  this.adminWallet,
+                );
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(
+        'Error reconciling web3 for steam minigame erc1155:',
+        error,
+      );
     }
   }
 
