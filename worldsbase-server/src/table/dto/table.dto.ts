@@ -181,6 +181,21 @@ export class QueryDTO {
   query: string;
 }
 
+export class AdminQueryDTO {
+  @ApiProperty({
+    example: 'SELECT * FROM users',
+    description: 'SQL Query',
+  })
+  @IsString()
+  query: string;
+  @ApiProperty({
+    example: '[1, 2, 3]',
+    description: 'Values',
+  })
+  @IsArray()
+  values: any[];
+}
+
 export class InsertDataDTO {
   @ApiProperty({
     example: 'users',
@@ -322,4 +337,18 @@ export class TriggerDTO {
   })
   @IsString({ each: true })
   condition: string | null;
+}
+
+export class BatchUpdateDTO {
+  @ApiProperty()
+  tableName: string;
+
+  @ApiProperty({
+    type: Array,
+    description: 'Array of updates containing data and condition',
+  })
+  updates: {
+    data: Record<string, any>;
+    condition: string;
+  }[];
 }
