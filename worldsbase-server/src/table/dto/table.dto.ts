@@ -338,3 +338,17 @@ export class TriggerDTO {
   @IsString({ each: true })
   condition: string | null;
 }
+
+export class BatchUpdateDTO {
+  @ApiProperty()
+  tableName: string;
+
+  @ApiProperty({
+    type: Array,
+    description: 'Array of updates containing data and condition',
+  })
+  updates: {
+    data: Record<string, any>;
+    condition: string;
+  }[];
+}
