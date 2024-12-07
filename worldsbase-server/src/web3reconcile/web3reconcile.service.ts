@@ -34,7 +34,8 @@ export class Web3ReconcileService {
         : false;
   }
 
-  @Cron('30 6,12 * * *')
+  // every 15 mins
+  @Cron('*/15 * * * *')
   handleCronSteamErc20() {
     if (this.production) {
       console.log('Reconciling Steam MiniGame ERC20');
@@ -55,20 +56,22 @@ export class Web3ReconcileService {
       if (difference === 0) return;
       else if (difference < 0) {
         const absAmount = Math.abs(difference);
-        await this.thirdwebService.burnErc20Engine(
+        this.thirdwebService.burnErc20Engine(
           wallet,
           absAmount.toString(),
           this.chainId,
           contract,
         );
       } else {
-        await this.thirdwebService.mintErc20Engine(
-          wallet,
-          difference.toString(),
-          this.chainId,
-          contract,
-          this.adminWallet,
-        );
+        for (let i = 0; i < difference; i++) {
+          this.thirdwebService.mintErc20Engine(
+            wallet,
+            '1',
+            this.chainId,
+            contract,
+            this.adminWallet,
+          );
+        }
       }
     } catch (error) {
       console.error('Error reconciling ERC20:', error);
