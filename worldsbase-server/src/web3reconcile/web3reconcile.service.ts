@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-// import { Cron } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { DBService } from '../db/db.service';
 import { ThirdwebService } from '../thirdweb/thirdweb.service';
@@ -34,44 +34,42 @@ export class Web3ReconcileService {
         : false;
   }
 
-  // every 15 mins
-  // @Cron('*/15 * * * *')
-  // handleCronSteamErc20() {
-  //   if (this.production) {
-  //     console.log('Reconciling Steam MiniGame ERC20');
-  //     this.reconcileSteamMiniGameErc20();
-  //   }
-  // }
+  // At every 15th minute past every hour from 1 through 23 (avoid running while topup is running)
+  @Cron('*/15 1-23 * * *')
+  handleCronSteamErc20() {
+    if (this.production) {
+      console.log('Reconciling Steam MiniGame ERC20');
+      this.reconcileSteamMiniGameErc20();
+    }
+  }
 
-  // @Cron('45 6,12 * * *')
-  // handleCronSteamErc1155() {
-  //   if (this.production) {
-  //     console.log('Reconciling Steam MiniGame ERC1155');
-  //     this.reconcileSteamMiniGameErc1155();
-  //   }
-  // }
+  @Cron('45 6,12 * * *')
+  handleCronSteamErc1155() {
+    if (this.production) {
+      console.log('Reconciling Steam MiniGame ERC1155');
+      this.reconcileSteamMiniGameErc1155();
+    }
+  }
 
   async reconcileErc20(wallet: string, difference: number, contract: string) {
     try {
       if (difference === 0) return;
       else if (difference < 0) {
         const absAmount = Math.abs(difference);
-        this.thirdwebService.burnErc20Engine(
+        await this.thirdwebService.burnErc20Engine(
           wallet,
           absAmount.toString(),
           this.chainId,
           contract,
         );
       } else {
-        for (let i = 0; i < difference; i++) {
-          this.thirdwebService.mintErc20Engine(
-            wallet,
-            '1',
-            this.chainId,
-            contract,
-            this.adminWallet,
-          );
-        }
+        await this.thirdwebService.mintErc20Engine(
+          wallet,
+          difference.toString(),
+          this.chainId,
+          contract,
+          this.adminWallet,
+        );
       }
     } catch (error) {
       console.error('Error reconciling ERC20:', error);
