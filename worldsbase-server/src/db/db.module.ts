@@ -15,6 +15,13 @@ const dbProvider = {
       database: configService.get<string>('POSTGRES_DATABASE'),
       password: configService.get<string>('POSTGRES_PASSWORD'),
       port: configService.get<number>('POSTGRES_PORT'),
+      max: 15,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+      application_name: 'worldsbase_server',
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
   inject: [ConfigService],
 };
