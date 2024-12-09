@@ -470,57 +470,23 @@ export class TableController {
   @ApiOperation({ summary: 'Update data in a table' })
   @ApiBody({ type: UpdateDataDTO })
   async updateData(@Body() updateDataDTO: UpdateDataDTO): Promise<any> {
-    try {
-      const values: any[] = [];
+    const values: any[] | undefined = [];
+    const updates = Object.entries(updateDataDTO.data)
+      .map(([key, value], index) => {
+        values.push(value); // Push each value into the array
+        return `${key} = $${index + 1}`; // Use index for placeholder
+      })
+      .join(', ');
 
-      // Generate the SET part of the SQL query, and populate the values array
-      const updates = Object.entries(updateDataDTO.data)
-        .filter(([, value]) => value !== undefined) // Just use comma for unused param
-        .map(([key, value], index) => {
-          // Handle null values and type conversions
-          if (value === null || value === '') {
-            values.push(null);
-          } else if (typeof value === 'string' && !isNaN(Number(value))) {
-            // Convert numeric strings to numbers
-            values.push(Number(value));
-          } else {
-            values.push(value);
-          }
-          return `"${key}" = $${index + 1}`; // Use index for placeholder
-        })
-        .join(', ');
+    // Construct the full SQL query
+    const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition} RETURNING *;`;
 
-      if (!updates) {
-        throw new BadRequestException('No valid fields to update');
-      }
+    const result = await this.tableService.executeQuery(query, values);
 
-      // Construct the full SQL query
-      const query = `
-        UPDATE "${updateDataDTO.tableName}" 
-        SET ${updates} 
-        WHERE ${updateDataDTO.condition} 
-        RETURNING *;
-      `;
-
-      const result = await this.tableService.executeQuery(query, values);
-
-      if (result.status === 200) {
-        if (!result.data || result.data.length === 0) {
-          throw new NotFoundException('No records were updated');
-        }
-        return result.data;
-      } else {
-        throw new BadRequestException(result.error || 'Update failed');
-      }
-    } catch (error) {
-      console.error('Update error:', error);
-      if (
-        error instanceof BadRequestException ||
-        error instanceof NotFoundException
-      ) {
-        throw error;
-      }
-      throw new BadRequestException(`Update failed: ${error.message}`);
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
     }
   }
 
@@ -544,17 +510,13 @@ export class TableController {
         'Invalid input: updates must be an array of {data, condition} objects',
       );
     }
-
     try {
       // Start transaction
       await this.tableService.executeQuery('BEGIN');
-
       const results = [];
-
       // Process each update
       for (const update of batchUpdateDTO.updates) {
         const { data, condition } = update;
-
         if (!data || !condition) {
           // Rollback and throw error if update is invalid
           await this.tableService.executeQuery('ROLLBACK');
@@ -562,7 +524,6 @@ export class TableController {
             'Each update must contain data and condition',
           );
         }
-
         const values: any[] = [];
         const updates = Object.entries(data)
           .map(([key, value], index) => {
@@ -570,23 +531,17 @@ export class TableController {
             return `"${key}" = $${index + 1}`;
           })
           .join(', ');
-
         const query = `UPDATE "${batchUpdateDTO.tableName}" SET ${updates} WHERE ${condition} RETURNING *;`;
-
         const result = await this.tableService.executeQuery(query, values);
-
         if (result.status !== 200) {
           // Rollback and throw error if query fails
           await this.tableService.executeQuery('ROLLBACK');
           throw new Error(result.error || 'Update failed');
         }
-
         results.push(result.data);
       }
-
       // Commit transaction if all updates succeed
       await this.tableService.executeQuery('COMMIT');
-
       return {
         status: 200,
         message: `Batch update on table ${batchUpdateDTO.tableName} completed successfully`,
@@ -600,7 +555,6 @@ export class TableController {
         // Log rollback error but throw original error
         console.error('Rollback failed:', rollbackError);
       }
-
       if (error instanceof BadRequestException) {
         throw error;
       }
