@@ -510,17 +510,13 @@ export class TableController {
         'Invalid input: updates must be an array of {data, condition} objects',
       );
     }
-
     try {
       // Start transaction
       await this.tableService.executeQuery('BEGIN');
-
       const results = [];
-
       // Process each update
       for (const update of batchUpdateDTO.updates) {
         const { data, condition } = update;
-
         if (!data || !condition) {
           // Rollback and throw error if update is invalid
           await this.tableService.executeQuery('ROLLBACK');
@@ -528,7 +524,6 @@ export class TableController {
             'Each update must contain data and condition',
           );
         }
-
         const values: any[] = [];
         const updates = Object.entries(data)
           .map(([key, value], index) => {
@@ -536,23 +531,17 @@ export class TableController {
             return `"${key}" = $${index + 1}`;
           })
           .join(', ');
-
         const query = `UPDATE "${batchUpdateDTO.tableName}" SET ${updates} WHERE ${condition} RETURNING *;`;
-
         const result = await this.tableService.executeQuery(query, values);
-
         if (result.status !== 200) {
           // Rollback and throw error if query fails
           await this.tableService.executeQuery('ROLLBACK');
           throw new Error(result.error || 'Update failed');
         }
-
         results.push(result.data);
       }
-
       // Commit transaction if all updates succeed
       await this.tableService.executeQuery('COMMIT');
-
       return {
         status: 200,
         message: `Batch update on table ${batchUpdateDTO.tableName} completed successfully`,
@@ -566,7 +555,6 @@ export class TableController {
         // Log rollback error but throw original error
         console.error('Rollback failed:', rollbackError);
       }
-
       if (error instanceof BadRequestException) {
         throw error;
       }
