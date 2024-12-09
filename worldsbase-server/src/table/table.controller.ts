@@ -471,56 +471,26 @@ export class TableController {
   @ApiBody({ type: UpdateDataDTO })
   async updateData(@Body() updateDataDTO: UpdateDataDTO): Promise<any> {
     try {
-      const values: any[] = [];
-
+      const values: any[] | undefined = [];
+      // Generate the SET part of the SQL query, and populate the values array
       // Generate the SET part of the SQL query, and populate the values array
       const updates = Object.entries(updateDataDTO.data)
-        .filter(([, value]) => value !== undefined) // Just use comma for unused param
         .map(([key, value], index) => {
-          // Handle null values and type conversions
-          if (value === null || value === '') {
-            values.push(null);
-          } else if (typeof value === 'string' && !isNaN(Number(value))) {
-            // Convert numeric strings to numbers
-            values.push(Number(value));
-          } else {
-            values.push(value);
-          }
-          return `"${key}" = $${index + 1}`; // Use index for placeholder
+          values.push(value); // Push each value into the array
+          return `${key} = $${index + 1}`; // Use index for placeholder
         })
         .join(', ');
 
-      if (!updates) {
-        throw new BadRequestException('No valid fields to update');
-      }
-
       // Construct the full SQL query
-      const query = `
-        UPDATE "${updateDataDTO.tableName}" 
-        SET ${updates} 
-        WHERE ${updateDataDTO.condition} 
-        RETURNING *;
-      `;
+      const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition} RETURNING *;`;
 
       const result = await this.tableService.executeQuery(query, values);
 
-      if (result.status === 200) {
-        if (!result.data || result.data.length === 0) {
-          throw new NotFoundException('No records were updated');
-        }
-        return result.data;
-      } else {
-        throw new BadRequestException(result.error || 'Update failed');
-      }
-    } catch (error) {
-      console.error('Update error:', error);
-      if (
-        error instanceof BadRequestException ||
-        error instanceof NotFoundException
-      ) {
-        throw error;
-      }
-      throw new BadRequestException(`Update failed: ${error.message}`);
+      
+    if (result.status === 200) {
+      return result.data;
+    } else {
+      return result.error || result.data;
     }
   }
 
