@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+// import { Cron } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { DBService } from '../db/db.service';
 import { ThirdwebService } from '../thirdweb/thirdweb.service';
@@ -35,21 +35,21 @@ export class Web3ReconcileService {
   }
 
   // every 15 mins
-  @Cron('*/15 * * * *')
-  handleCronSteamErc20() {
-    if (this.production) {
-      console.log('Reconciling Steam MiniGame ERC20');
-      this.reconcileSteamMiniGameErc20();
-    }
-  }
+  // @Cron('*/15 * * * *')
+  // handleCronSteamErc20() {
+  //   if (this.production) {
+  //     console.log('Reconciling Steam MiniGame ERC20');
+  //     this.reconcileSteamMiniGameErc20();
+  //   }
+  // }
 
-  @Cron('45 6,12 * * *')
-  handleCronSteamErc1155() {
-    if (this.production) {
-      console.log('Reconciling Steam MiniGame ERC1155');
-      this.reconcileSteamMiniGameErc1155();
-    }
-  }
+  // @Cron('45 6,12 * * *')
+  // handleCronSteamErc1155() {
+  //   if (this.production) {
+  //     console.log('Reconciling Steam MiniGame ERC1155');
+  //     this.reconcileSteamMiniGameErc1155();
+  //   }
+  // }
 
   async reconcileErc20(wallet: string, difference: number, contract: string) {
     try {
