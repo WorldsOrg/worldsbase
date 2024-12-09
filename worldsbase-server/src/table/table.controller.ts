@@ -470,23 +470,19 @@ export class TableController {
   @ApiOperation({ summary: 'Update data in a table' })
   @ApiBody({ type: UpdateDataDTO })
   async updateData(@Body() updateDataDTO: UpdateDataDTO): Promise<any> {
-    try {
-      const values: any[] | undefined = [];
-      // Generate the SET part of the SQL query, and populate the values array
-      // Generate the SET part of the SQL query, and populate the values array
-      const updates = Object.entries(updateDataDTO.data)
-        .map(([key, value], index) => {
-          values.push(value); // Push each value into the array
-          return `${key} = $${index + 1}`; // Use index for placeholder
-        })
-        .join(', ');
+    const values: any[] | undefined = [];
+    const updates = Object.entries(updateDataDTO.data)
+      .map(([key, value], index) => {
+        values.push(value); // Push each value into the array
+        return `${key} = $${index + 1}`; // Use index for placeholder
+      })
+      .join(', ');
 
-      // Construct the full SQL query
-      const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition} RETURNING *;`;
+    // Construct the full SQL query
+    const query = `UPDATE "${updateDataDTO.tableName}" SET ${updates} WHERE ${updateDataDTO.condition} RETURNING *;`;
 
-      const result = await this.tableService.executeQuery(query, values);
+    const result = await this.tableService.executeQuery(query, values);
 
-      
     if (result.status === 200) {
       return result.data;
     } else {
